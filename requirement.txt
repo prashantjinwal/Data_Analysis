@@ -1,3 +1,7 @@
 ipykernel
 numpy
 pandas
+lxml
+matplotlib
+seaborn
+scikit-learn
