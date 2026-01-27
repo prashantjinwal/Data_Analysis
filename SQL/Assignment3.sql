@@ -76,6 +76,19 @@ SELECT custname FROM customer c LEFT JOIN orders o on c.customerId = o.customerI
 WHERE o.orderId is null
 
 ---- 3 ----
-
-
 SELECT o.orderId, p.productname, p.price FROM orders o INNER JOIN product p on o.productId = p.productId 
+
+---- 4 ----
+SELECT distinct custname, orderId  FROM customer c LEFT JOIN orders o on c.customerId = o.customerId
+
+---- 5 ----
+SELECT distinct productname FROM product p LEFT JOIN orders o on p.productId = o.productId 
+WHERE o.orderId is null
+
+---- 6 ----
+SELECT custname, count(orderId) FROM customer c INNER JOIN orders o on c.customerId = o.customerId
+group by custname
+
+---- 7 ---- 
+SELECT c.custname, p.productname, o.orderDate FROM customer c  LEFT JOIN orders o on c.customerId = o.customerId
+LEFT JOIN product p on o.productId = p.productId
