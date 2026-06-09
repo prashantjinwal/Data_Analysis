@@ -2,6 +2,7 @@
 Module is used to infer Django model fields.
 """
 from inspect import Parameter
+from typing import Any
 
 from jedi import debug
 from jedi.inference.cache import inference_state_function_cache
@@ -45,7 +46,7 @@ _FILTER_LIKE_METHODS = ('create', 'filter', 'exclude', 'update', 'get',
 def _get_deferred_attributes(inference_state):
     return inference_state.import_module(
         ('django', 'db', 'models', 'query_utils')
-    ).py__getattribute__('DeferredAttribute').execute_annotation()
+    ).py__getattribute__('DeferredAttribute').execute_annotation(None)
 
 
 def _infer_scalar_field(inference_state, field_name, field_tree_instance, is_instance):
@@ -129,7 +130,7 @@ def _create_manager_for(cls, manager_cls='BaseManager'):
     for m in managers:
         if m.is_class_mixin():
             generics_manager = TupleGenericManager((ValueSet([cls]),))
-            for c in GenericClass(m, generics_manager).execute_annotation():
+            for c in GenericClass(m, generics_manager).execute_annotation(None):
                 return c
     return None
 
@@ -140,7 +141,7 @@ def _new_dict_filter(cls, is_instance):
         include_metaclasses=False,
         include_type_when_class=False)
     )
-    dct = {
+    dct: dict[str, Any] = {
         name.string_name: DjangoModelName(cls, name, is_instance)
         for filter_ in reversed(filters)
         for name in filter_.values()

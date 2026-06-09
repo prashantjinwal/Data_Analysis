@@ -9,6 +9,7 @@ just one.
 from functools import reduce
 from operator import add
 from itertools import zip_longest
+from typing import TYPE_CHECKING, Any
 
 from parso.python.tree import Name
 
@@ -21,12 +22,25 @@ from jedi.cache import memoize_method
 
 sentinel = object()
 
+if TYPE_CHECKING:
+    from jedi.inference import InferenceState
+
 
 class HasNoContext(Exception):
     pass
 
 
 class HelperValueMixin:
+    parent_context: Any
+    inference_state: "InferenceState"
+    name: Any
+    get_filters: Any
+    is_stub: Any
+    py__getattribute__alternatives: Any
+    py__iter__: Any
+    py__mro__: Any
+    _as_context: Any
+
     def get_root_context(self):
         value = self
         if value.parent_context is None:
@@ -45,7 +59,7 @@ class HelperValueMixin:
         arguments = ValuesArguments([ValueSet([value]) for value in value_list])
         return self.inference_state.execute(self, arguments)
 
-    def execute_annotation(self):
+    def execute_annotation(self, context):
         return self.execute_with_values()
 
     def gather_annotation_classes(self):
@@ -337,11 +351,16 @@ class _ValueWrapperBase(HelperValueMixin):
 
 
 class LazyValueWrapper(_ValueWrapperBase):
-    @safe_property
-    @memoize_method
-    def _wrapped_value(self):
-        with debug.increase_indent_cm('Resolve lazy value wrapper'):
-            return self._get_wrapped_value()
+    if TYPE_CHECKING:
+        @property
+        def _wrapped_value(self) -> Any:
+            return
+    else:
+        @safe_property
+        @memoize_method
+        def _wrapped_value(self):
+            with debug.increase_indent_cm('Resolve lazy value wrapper'):
+                return self._get_wrapped_value()
 
     def __repr__(self):
         return '<%s>' % (self.__class__.__name__)
@@ -499,7 +518,7 @@ class ValueSet:
         return ValueSet.from_sets(_getitem(c, *args, **kwargs) for c in self._set)
 
     def try_merge(self, function_name):
-        value_set = self.__class__([])
+        value_set = ValueSet([])
         for c in self._set:
             try:
                 method = getattr(c, function_name)

@@ -30,6 +30,8 @@ from jedi.inference.names import TreeNameDefinition
 from jedi.inference.context import CompForContext
 from jedi.inference.value.decorator import Decoratee
 from jedi.plugins import plugin_manager
+from jedi.inference.gradual.typing import ProxyTypingValue, IGNORE_ANNOTATION_PARTS
+from jedi.inference.gradual.type_var import TypeVar
 
 operator_to_magic_method = {
     '+': '__add__',
@@ -89,6 +91,7 @@ def infer_node(context, element):
     if isinstance(context, CompForContext):
         return _infer_node(context, element)
 
+    name_dicts = [{}]
     if_stmt = element
     while if_stmt is not None:
         if_stmt = if_stmt.parent
@@ -104,7 +107,6 @@ def infer_node(context, element):
     if predefined_if_name_dict is None and if_stmt \
             and if_stmt.type == 'if_stmt' and context.inference_state.is_analysis:
         if_stmt_test = if_stmt.children[1]
-        name_dicts = [{}]
         # If we already did a check, we don't want to do it again -> If
         # value.predefined_names is filled, we stop.
         # We don't want to check the if stmt itself, it's just about
@@ -238,7 +240,7 @@ def _infer_node(context, element):
         return context.infer_node(element.children[0])
     elif typ == 'annassign':
         return annotation.infer_annotation(context, element.children[1]) \
-            .execute_annotation()
+            .execute_annotation(context)
     elif typ == 'yield_expr':
         if len(element.children) and element.children[1].type == 'yield_arg':
             # Implies that it's a yield from.
@@ -251,6 +253,8 @@ def _infer_node(context, element):
         return NO_VALUES
     elif typ == 'namedexpr_test':
         return context.infer_node(element.children[2])
+    elif typ == 'star_expr':
+        return NO_VALUES
     else:
         return infer_or_test(context, element)
 
@@ -288,7 +292,7 @@ def infer_atom(context, atom):
     state = context.inference_state
     if atom.type == 'name':
         # This is the first global lookup.
-        stmt = tree.search_ancestor(atom, 'expr_stmt', 'lambdef', 'if_stmt') or atom
+        stmt = atom.search_ancestor('expr_stmt', 'lambdef', 'if_stmt') or atom
         if stmt.type == 'if_stmt':
             if not any(n.start_pos <= atom.start_pos < n.end_pos for n in stmt.get_test_nodes()):
                 stmt = atom
@@ -434,7 +438,7 @@ def _infer_expr_stmt(context, stmt, seek_name=None):
         else:
             operator = copy.copy(first_operator)
             operator.value = operator.value[:-1]
-            for_stmt = tree.search_ancestor(stmt, 'for_stmt')
+            for_stmt = stmt.search_ancestor('for_stmt')
             if for_stmt is not None and for_stmt.type == 'for_stmt' and value_set \
                     and parser_utils.for_stmt_defines_one_name(for_stmt):
                 # Iterate through result and add the values, that's possible
@@ -494,7 +498,7 @@ def infer_factor(value_set, operator):
             b = value.py__bool__()
             if b is None:  # Uncertainty.
                 yield list(value.inference_state.builtins_module.py__getattribute__('bool')
-                           .execute_annotation()).pop()
+                           .execute_annotation(None)).pop()
             else:
                 yield compiled.create_simple_object(value.inference_state, not b)
         else:
@@ -527,7 +531,7 @@ def _infer_comparison(context, left_values, operator, right_values):
         result = (left_values or NO_VALUES) | (right_values or NO_VALUES)
         return _literals_to_types(state, result)
     elif operator_str == "|" and all(
-        value.is_class() or value.is_compiled()
+        value.is_class() or value.is_compiled() or isinstance(value, TypeVar)
         for value in itertools.chain(left_values, right_values)
     ):
         # ^^^ A naive hack for PEP 604
@@ -547,7 +551,7 @@ def _infer_comparison(context, left_values, operator, right_values):
 
 
 def _is_annotation_name(name):
-    ancestor = tree.search_ancestor(name, 'param', 'funcdef', 'expr_stmt')
+    ancestor = name.search_ancestor('param', 'funcdef', 'expr_stmt')
     if ancestor is None:
         return False
 
@@ -647,7 +651,9 @@ def _infer_comparison_part(inference_state, context, left, operator, right):
             _bool_to_value(inference_state, False)
         ])
     elif str_operator in ('in', 'not in'):
-        return inference_state.builtins_module.py__getattribute__('bool').execute_annotation()
+        return inference_state.builtins_module.py__getattribute__('bool').execute_annotation(
+            context
+        )
 
     def check(obj):
         """Checks if a Jedi object is either a float or an int."""
@@ -698,17 +704,28 @@ def tree_name_to_values(inference_state, context, tree_name):
             if expr_stmt.type == "expr_stmt" and expr_stmt.children[1].type == "annassign":
                 correct_scope = parser_utils.get_parent_scope(name) == context.tree_node
                 ann_assign = expr_stmt.children[1]
-                if correct_scope:
-                    found_annotation = True
+                first = ann_assign.children[1]
+                code = first.get_code()
+                if correct_scope and not (code.endswith(".TypeAlias")
+                                          or code.strip() == "TypeAlias"):
                     if (
-                        (ann_assign.children[1].type == 'name')
+                        (first.type == 'name')
                         and (ann_assign.children[1].value == tree_name.value)
                         and context.parent_context
                     ):
                         context = context.parent_context
-                    value_set |= annotation.infer_annotation(
+                    found = annotation.infer_annotation(
                         context, expr_stmt.children[1].children[1]
-                    ).execute_annotation()
+                    )
+                    set_found_annotation = True
+                    if len(found) == 1:
+                        first = next(iter(found))
+                        set_found_annotation = not (
+                            isinstance(first, ProxyTypingValue)
+                            and first.name.string_name in IGNORE_ANNOTATION_PARTS
+                        )
+                    found_annotation = set_found_annotation
+                    value_set |= found.execute_annotation(context)
         if found_annotation:
             return value_set
 
@@ -766,7 +783,7 @@ def tree_name_to_values(inference_state, context, tree_name):
             coro = enter_methods.execute_with_values()
             return coro.py__await__().py__stop_iteration_returns()
         enter_methods = value_managers.py__getattribute__('__enter__')
-        return enter_methods.execute_with_values()
+        return enter_methods.execute_annotation(context)
     elif typ in ('import_from', 'import_name'):
         types = imports.infer_import(context, tree_name)
     elif typ in ('funcdef', 'classdef'):
@@ -852,10 +869,16 @@ def check_tuple_assignments(name, value_set):
             # For no star unpacking is not possible.
             return NO_VALUES
         i = 0
+        lazy_value = None
         while i <= index:
             try:
                 lazy_value = next(iterated)
             except StopIteration:
+                # A desperate attempt to fix inference for tuples from an
+                # iterator.
+                if lazy_value is not None:
+                    return lazy_value.infer()
+
                 # We could do this with the default param in next. But this
                 # would allow this loop to run for a very long time if the
                 # index number is high. Therefore break if the loop is

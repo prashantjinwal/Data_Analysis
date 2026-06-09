@@ -1,9 +1,10 @@
 import sys
+import warnings
 
 import numpy as np
 from numpy.testing import (assert_,
                            assert_allclose, assert_array_equal, assert_equal,
-                           assert_array_almost_equal_nulp, suppress_warnings)
+                           assert_array_almost_equal_nulp)
 import pytest
 from pytest import raises as assert_raises
 
@@ -415,8 +416,9 @@ class TestWelch:
         x[0] = 1
         #for string-like window, input signal length < nperseg value gives
         #UserWarning, sets nperseg to x.shape[-1]
-        with suppress_warnings() as sup:
-            sup.filter(UserWarning, "nperseg=256 is greater than signal.*")
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore", "nperseg=256 is greater than signal.*", UserWarning)
             f, p = welch(x,window='hann')  # default nperseg
             f1, p1 = welch(x,window='hann', nperseg=256)  # user-specified nperseg
         f2, p2 = welch(x, nperseg=8)  # valid nperseg, doesn't give warning
@@ -818,8 +820,9 @@ class TestCSD:
 
         #for string-like window, input signal length < nperseg value gives
         #UserWarning, sets nperseg to x.shape[-1]
-        with suppress_warnings() as sup:
-            sup.filter(UserWarning, "nperseg=256 is greater than signal length.*")
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore", "nperseg=256 is greater than signal length.*", UserWarning)
             f, p = csd(x, x, window='hann')  # default nperseg
             f1, p1 = csd(x, x, window='hann', nperseg=256)  # user-specified nperseg
         f2, p2 = csd(x, x, nperseg=8)  # valid nperseg, doesn't give warning
@@ -1001,10 +1004,13 @@ class TestSpectrogram:
         #for string-like window, input signal length < nperseg value gives
         #UserWarning, sets nperseg to x.shape[-1]
         f, _, p = spectrogram(x, fs, window=('tukey',0.25))  # default nperseg
-        with suppress_warnings() as sup:
-            sup.filter(UserWarning,
-                       "nperseg = 1025 is greater than input length  = 1024, "
-                       "using nperseg = 1024",)
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                "nperseg = 1025 is greater than input length  = 1024, "
+                "using nperseg = 1024",
+                UserWarning,
+            )
             f1, _, p1 = spectrogram(x, fs, window=('tukey',0.25),
                                     nperseg=1025)  # user-specified nperseg
         f2, _, p2 = spectrogram(x, fs, nperseg=256)  # to compare w/default
@@ -1088,6 +1094,7 @@ class TestLombscargle:
         # numerical differences when data is removed)
         assert_allclose(pgram[f==w], ampl, rtol=5e-2)
 
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_precenter(self):
         # Test if precenter gives the same result as manually precentering
         # (for a very simple offset)
@@ -1382,6 +1389,7 @@ class TestLombscargle:
         weights = -np.ones(1)
         assert_raises(ValueError, lombscargle, t, y, f, weights=weights)
 
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_list_input(self):
         # Test that input can be passsed in as lists and with a numerical issue
         # https://github.com/scipy/scipy/issues/8787
@@ -1502,6 +1510,7 @@ class TestLombscargle:
 
         lombscargle(t, y, freqs)
 
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_input_mutation(self):
         # this tests for mutation of the input arrays
         # https://github.com/scipy/scipy/issues/23474
@@ -1541,9 +1550,46 @@ class TestLombscargle:
         assert_array_equal(f, f_org)
         assert_array_equal(weights, weights_org)
 
+    def test_precenter_deprecation(self):
+        # test that precenter deprecation warning is raised
+
+        # Input parameters
+        ampl = 2.
+        w = 1.
+        phi = 0.5 * np.pi
+        nin = 100
+        nout = 1000
+        p = 0.7  # Fraction of points to select
+        offset = 0.15  # Offset to be subtracted in pre-centering
+
+        # Randomly select a fraction of an array with timesteps
+        rng = np.random.default_rng()
+        r = rng.random(nin)
+        t = np.linspace(0.01*np.pi, 10.*np.pi, nin)[r >= p]
+
+        # Plot a sine wave for the selected times
+        y = ampl * np.sin(w*t + phi) + offset
+
+        # Define the array of frequencies for which to compute the periodogram
+        f = np.linspace(0.01, 10., nout)
+
+        # Calculate Lomb-Scargle periodogram
+        with pytest.deprecated_call(match="leave 'precenter' unspecified"):
+            lombscargle(t, y, f, precenter=True)
+        # Should warn for explicit `False` too
+        with pytest.deprecated_call(match="leave 'precenter' unspecified"):
+            lombscargle(t, y, f, precenter=False)
+            
+    @pytest.mark.filterwarnings(
+        "ignore:.*leave 'precenter' unspecified.*:DeprecationWarning"
+    )
+    def test_positional_args_deprecation(self):
+        with pytest.deprecated_call(match="use keyword arguments"):
+            one = np.asarray([1.0])
+            lombscargle(one, one, one, False)
+
 
 class TestSTFT:
-    @pytest.mark.thread_unsafe
     def test_input_validation(self):
 
         def chk_VE(match):
@@ -1744,7 +1790,6 @@ class TestSTFT:
             assert_allclose(t, tr, err_msg=msg)
             assert_allclose(x, xr, err_msg=msg)
 
-    @pytest.mark.thread_unsafe
     def test_roundtrip_not_nola(self):
         rng = np.random.RandomState(1234)
 
@@ -1823,7 +1868,6 @@ class TestSTFT:
             assert_allclose(x, xr, err_msg=msg, rtol=1e-4, atol=1e-5)
             assert_(x.dtype == xr.dtype)
 
-    @pytest.mark.thread_unsafe
     @pytest.mark.parametrize('scaling', ['spectrum', 'psd'])
     def test_roundtrip_complex(self, scaling):
         rng = np.random.RandomState(1234)
@@ -1854,9 +1898,12 @@ class TestSTFT:
             assert_allclose(x, xr, err_msg=msg)
 
         # Check that asking for onesided switches to twosided
-        with suppress_warnings() as sup:
-            sup.filter(UserWarning,
-                       "Input data is complex, switching to return_onesided=False")
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                "Input data is complex, switching to return_onesided=False",
+                UserWarning,
+            )
             _, _, zz = stft(x, nperseg=nperseg, noverlap=noverlap,
                             window=window, detrend=None, padded=False,
                             return_onesided=True, scaling=scaling)

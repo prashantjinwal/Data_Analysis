@@ -21,7 +21,7 @@ try:
         raise ImportError
     else:
         # Use colorama for nicer console output.
-        from colorama import Fore, init  # type: ignore[import]
+        from colorama import Fore, init  # type: ignore[import, unused-ignore]
         from colorama import initialise
 
         def _lazy_colorama_init():  # noqa: F811
@@ -36,7 +36,7 @@ try:
                 # pytest resets the stream at the end - causes troubles. Since
                 # after every output the stream is reset automatically we don't
                 # need this.
-                initialise.atexit_done = True
+                initialise.atexit_done = True  # type: ignore[attr-defined]
                 try:
                     init(strip=False)
                 except Exception:

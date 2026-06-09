@@ -483,7 +483,7 @@ class Script:
 
         module_context = self._get_module_context()
 
-        n = tree.search_ancestor(leaf, 'funcdef', 'classdef')
+        n = leaf.search_ancestor('funcdef', 'classdef')
         if n is not None and n.start_pos < pos <= n.children[-1].start_pos:
             # This is a bit of a special case. The context of a function/class
             # name/param/keyword is always it's parent context, not the
@@ -779,8 +779,7 @@ def preload_module(*modules):
     :param modules: different module names, list of string.
     """
     for m in modules:
-        s = "import %s as x; x." % m
-        Script(s).complete(1, len(s))
+        Script(f"import {m}").infer()
 
 
 def set_debug_function(func_cb=debug.print_to_stdout, warnings=True,

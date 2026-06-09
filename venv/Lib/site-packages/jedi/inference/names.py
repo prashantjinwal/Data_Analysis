@@ -1,11 +1,8 @@
 from abc import abstractmethod
 from inspect import Parameter
-from typing import Optional, Tuple
-
-from parso.tree import search_ancestor
+from typing import Optional, Tuple, Any
 
 from jedi.parser_utils import find_statement_documentation, clean_scope_docstring
-from jedi.inference.utils import unite
 from jedi.inference.base_value import ValueSet, NO_VALUES
 from jedi.inference.cache import inference_state_method_cache
 from jedi.inference import docstrings
@@ -39,7 +36,6 @@ class AbstractNameDefinition:
     def infer(self):
         raise NotImplementedError
 
-    @abstractmethod
     def goto(self):
         # Typically names are already definitions and therefore a goto on that
         # name will always result on itself.
@@ -107,12 +103,15 @@ class AbstractArbitraryName(AbstractNameDefinition):
 
 
 class AbstractTreeName(AbstractNameDefinition):
+    tree_name: Any
+    parent_context: Any
+
     def __init__(self, parent_context, tree_name):
         self.parent_context = parent_context
         self.tree_name = tree_name
 
     def get_qualified_names(self, include_module_names=False):
-        import_node = search_ancestor(self.tree_name, 'import_name', 'import_from')
+        import_node = self.tree_name.search_ancestor('import_name', 'import_from')
         # For import nodes we cannot just have names, because it's very unclear
         # how they would look like. For now we just ignore them in most cases.
         # In case of level == 1, it works always, because it's like a submodule
@@ -196,24 +195,23 @@ class AbstractTreeName(AbstractNameDefinition):
                 new_dotted = deep_ast_copy(par)
                 new_dotted.children[index - 1:] = []
                 values = context.infer_node(new_dotted)
-                return unite(
-                    value.goto(name, name_context=context)
+                return [
+                    n
                     for value in values
-                )
+                    for n in value.goto(name, name_context=context)
+                ]
 
         if node_type == 'trailer' and par.children[0] == '.':
             values = infer_call_of_leaf(context, name, cut_own_trailer=True)
             return values.goto(name, name_context=context)
         else:
-            stmt = search_ancestor(
-                name, 'expr_stmt', 'lambdef'
-            ) or name
+            stmt = name.search_ancestor('expr_stmt', 'lambdef') or name
             if stmt.type == 'lambdef':
                 stmt = name
             return context.goto(name, position=stmt.start_pos)
 
     def is_import(self):
-        imp = search_ancestor(self.tree_name, 'import_from', 'import_name')
+        imp = self.tree_name.search_ancestor('import_from', 'import_name')
         return imp is not None
 
     @property
@@ -226,6 +224,9 @@ class AbstractTreeName(AbstractNameDefinition):
 
 
 class ValueNameMixin:
+    _value: Any
+    parent_context: Any
+
     def infer(self):
         return ValueSet([self._value])
 
@@ -244,7 +245,7 @@ class ValueNameMixin:
     def get_root_context(self):
         if self.parent_context is None:  # A module
             return self._value.as_context()
-        return super().get_root_context()
+        return super().get_root_context()  # type: ignore
 
     def get_defining_qualified_value(self):
         context = self.parent_context
@@ -361,14 +362,16 @@ class TreeNameDefinition(AbstractTreeName):
 
 
 class _ParamMixin:
+    get_kind: Any
+
     def maybe_positional_argument(self, include_star=True):
-        options = [Parameter.POSITIONAL_ONLY, Parameter.POSITIONAL_OR_KEYWORD]
+        options: list[int] = [Parameter.POSITIONAL_ONLY, Parameter.POSITIONAL_OR_KEYWORD]
         if include_star:
             options.append(Parameter.VAR_POSITIONAL)
         return self.get_kind() in options
 
     def maybe_keyword_argument(self, include_stars=True):
-        options = [Parameter.KEYWORD_ONLY, Parameter.POSITIONAL_OR_KEYWORD]
+        options: list[int] = [Parameter.KEYWORD_ONLY, Parameter.POSITIONAL_OR_KEYWORD]
         if include_stars:
             options.append(Parameter.VAR_KEYWORD)
         return self.get_kind() in options
@@ -451,7 +454,7 @@ class _ActualTreeParamName(BaseTreeParamName):
         self.function_value = function_value
 
     def _get_param_node(self):
-        return search_ancestor(self.tree_name, 'param')
+        return self.tree_name.search_ancestor('param')
 
     @property
     def annotation_node(self):
@@ -463,7 +466,7 @@ class _ActualTreeParamName(BaseTreeParamName):
             self.function_value, self._get_param_node(),
             ignore_stars=ignore_stars)
         if execute_annotation:
-            values = values.execute_annotation()
+            values = values.execute_annotation(self.function_value.get_default_param_context())
         return values
 
     def infer_default(self):
@@ -633,6 +636,10 @@ class NameWrapper:
 
 
 class StubNameMixin:
+    api_type: str
+    tree_name: Any
+    infer: Any
+
     def py__doc__(self):
         from jedi.inference.gradual.conversion import convert_names
         # Stubs are not complicated and we can just follow simple statements
@@ -644,7 +651,7 @@ class StubNameMixin:
 
         names = convert_names(names, prefer_stub_to_compiled=False)
         if self in names:
-            return super().py__doc__()
+            return super().py__doc__()  # type: ignore
         else:
             # We have signatures ourselves in stubs, so don't use signatures
             # from the implementation.

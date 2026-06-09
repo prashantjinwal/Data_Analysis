@@ -1,10 +1,11 @@
 import re
 from textwrap import dedent
+from typing import Any
 from inspect import Parameter
 
 from parso.python.token import PythonTokenTypes
 from parso.python import tree
-from parso.tree import search_ancestor, Leaf
+from parso.tree import Leaf
 from parso import split_lines
 
 from jedi import debug
@@ -244,8 +245,8 @@ class Completion:
             if previous_leaf is not None:
                 stmt = previous_leaf
                 while True:
-                    stmt = search_ancestor(
-                        stmt, 'if_stmt', 'for_stmt', 'while_stmt', 'try_stmt',
+                    stmt = stmt.search_ancestor(
+                        'if_stmt', 'for_stmt', 'while_stmt', 'try_stmt',
                         'error_node',
                     )
                     if stmt is None:
@@ -265,7 +266,7 @@ class Completion:
                         elif type_ == 'for_stmt':
                             allowed_transitions.append('else')
 
-        completion_names = []
+        completion_names: list[Any] = []
 
         kwargs_only = False
         if any(t in allowed_transitions for t in (PythonTokenTypes.NAME,
@@ -290,6 +291,8 @@ class Completion:
                 )
             elif nonterminals[-1] in ('trailer', 'dotted_name') and nodes[-1] == '.':
                 dot = self._module_node.get_leaf_for_position(self._position)
+                if dot.type == "newline":
+                    dot = dot.get_previous_leaf()
                 if dot.type == "endmarker":
                     # This is a bit of a weird edge case, maybe we can somehow
                     # generalize this.
@@ -356,7 +359,7 @@ class Completion:
             stack_node = self.stack[-3]
         if stack_node.nonterminal == 'funcdef':
             context = get_user_context(self._module_context, self._position)
-            node = search_ancestor(leaf, 'error_node', 'funcdef')
+            node = leaf.search_ancestor('error_node', 'funcdef')
             if node is not None:
                 if node.type == 'error_node':
                     n = node.children[0]
@@ -426,7 +429,7 @@ class Completion:
         Autocomplete inherited methods when overriding in child class.
         """
         leaf = self._module_node.get_leaf_for_position(self._position, include_prefixes=True)
-        cls = tree.search_ancestor(leaf, 'classdef')
+        cls = leaf.search_ancestor('classdef')
         if cls is None:
             return
 
@@ -683,14 +686,14 @@ def search_in_module(inference_state, module_context, names, wanted_names,
 def extract_imported_names(node):
     imported_names = []
 
-    if node.type in ['import_as_names', 'dotted_as_names', 'import_as_name']:
+    if node.type in ['import_as_names', 'dotted_as_names', 'dotted_as_name', 'import_as_name']:
         for index, child in enumerate(node.children):
             if child.type == 'name':
-                if (index > 0 and node.children[index - 1].type == "keyword"
+                if (index > 1 and node.children[index - 1].type == "keyword"
                         and node.children[index - 1].value == "as"):
                     continue
                 imported_names.append(child.value)
-            elif child.type == 'import_as_name':
+            elif child.type in ('import_as_name', 'dotted_as_name'):
                 imported_names.extend(extract_imported_names(child))
 
     return imported_names

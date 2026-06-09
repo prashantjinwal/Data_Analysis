@@ -276,12 +276,6 @@ cdef extern from r"_ufuncs_cxx_defs.h":
     cdef double _func_nct_variance_double "nct_variance_double"(double, double) noexcept nogil
 cdef void *_export_nct_variance_double = <void*>_func_nct_variance_double
 cdef extern from r"_ufuncs_cxx_defs.h":
-    cdef float _func_ncx2_cdf_float "ncx2_cdf_float"(float, float, float) noexcept nogil
-cdef void *_export_ncx2_cdf_float = <void*>_func_ncx2_cdf_float
-cdef extern from r"_ufuncs_cxx_defs.h":
-    cdef double _func_ncx2_cdf_double "ncx2_cdf_double"(double, double, double) noexcept nogil
-cdef void *_export_ncx2_cdf_double = <void*>_func_ncx2_cdf_double
-cdef extern from r"_ufuncs_cxx_defs.h":
     cdef float _func_ncx2_isf_float "ncx2_isf_float"(float, float, float) noexcept nogil
 cdef void *_export_ncx2_isf_float = <void*>_func_ncx2_isf_float
 cdef extern from r"_ufuncs_cxx_defs.h":
@@ -293,12 +287,6 @@ cdef void *_export_ncx2_pdf_float = <void*>_func_ncx2_pdf_float
 cdef extern from r"_ufuncs_cxx_defs.h":
     cdef double _func_ncx2_pdf_double "ncx2_pdf_double"(double, double, double) noexcept nogil
 cdef void *_export_ncx2_pdf_double = <void*>_func_ncx2_pdf_double
-cdef extern from r"_ufuncs_cxx_defs.h":
-    cdef float _func_ncx2_ppf_float "ncx2_ppf_float"(float, float, float) noexcept nogil
-cdef void *_export_ncx2_ppf_float = <void*>_func_ncx2_ppf_float
-cdef extern from r"_ufuncs_cxx_defs.h":
-    cdef double _func_ncx2_ppf_double "ncx2_ppf_double"(double, double, double) noexcept nogil
-cdef void *_export_ncx2_ppf_double = <void*>_func_ncx2_ppf_double
 cdef extern from r"_ufuncs_cxx_defs.h":
     cdef float _func_ncx2_sf_float "ncx2_sf_float"(float, float, float) noexcept nogil
 cdef void *_export_ncx2_sf_float = <void*>_func_ncx2_sf_float
@@ -351,6 +339,48 @@ cdef extern from r"_ufuncs_cxx_defs.h":
     cdef double _func_ibeta_inv_double "ibeta_inv_double"(double, double, double) noexcept nogil
 cdef void *_export_ibeta_inv_double = <void*>_func_ibeta_inv_double
 cdef extern from r"_ufuncs_cxx_defs.h":
+    cdef float _func_ibeta_inva_float "ibeta_inva_float"(float, float, float) noexcept nogil
+cdef void *_export_ibeta_inva_float = <void*>_func_ibeta_inva_float
+cdef extern from r"_ufuncs_cxx_defs.h":
+    cdef double _func_ibeta_inva_double "ibeta_inva_double"(double, double, double) noexcept nogil
+cdef void *_export_ibeta_inva_double = <void*>_func_ibeta_inva_double
+cdef extern from r"_ufuncs_cxx_defs.h":
+    cdef float _func_ibeta_invb_float "ibeta_invb_float"(float, float, float) noexcept nogil
+cdef void *_export_ibeta_invb_float = <void*>_func_ibeta_invb_float
+cdef extern from r"_ufuncs_cxx_defs.h":
+    cdef double _func_ibeta_invb_double "ibeta_invb_double"(double, double, double) noexcept nogil
+cdef void *_export_ibeta_invb_double = <void*>_func_ibeta_invb_double
+cdef extern from r"_ufuncs_cxx_defs.h":
+    cdef float _func_chdtriv_float "chdtriv_float"(float, float) noexcept nogil
+cdef void *_export_chdtriv_float = <void*>_func_chdtriv_float
+cdef extern from r"_ufuncs_cxx_defs.h":
+    cdef double _func_chdtriv_double "chdtriv_double"(double, double) noexcept nogil
+cdef void *_export_chdtriv_double = <void*>_func_chdtriv_double
+cdef extern from r"_ufuncs_cxx_defs.h":
+    cdef float _func_ncx2_cdf_float "ncx2_cdf_float"(float, float, float) noexcept nogil
+cdef void *_export_ncx2_cdf_float = <void*>_func_ncx2_cdf_float
+cdef extern from r"_ufuncs_cxx_defs.h":
+    cdef double _func_ncx2_cdf_double "ncx2_cdf_double"(double, double, double) noexcept nogil
+cdef void *_export_ncx2_cdf_double = <void*>_func_ncx2_cdf_double
+cdef extern from r"_ufuncs_cxx_defs.h":
+    cdef float _func_ncx2_find_degrees_of_freedom_float "ncx2_find_degrees_of_freedom_float"(float, float, float) noexcept nogil
+cdef void *_export_ncx2_find_degrees_of_freedom_float = <void*>_func_ncx2_find_degrees_of_freedom_float
+cdef extern from r"_ufuncs_cxx_defs.h":
+    cdef double _func_ncx2_find_degrees_of_freedom_double "ncx2_find_degrees_of_freedom_double"(double, double, double) noexcept nogil
+cdef void *_export_ncx2_find_degrees_of_freedom_double = <void*>_func_ncx2_find_degrees_of_freedom_double
+cdef extern from r"_ufuncs_cxx_defs.h":
+    cdef float _func_ncx2_find_noncentrality_float "ncx2_find_noncentrality_float"(float, float, float) noexcept nogil
+cdef void *_export_ncx2_find_noncentrality_float = <void*>_func_ncx2_find_noncentrality_float
+cdef extern from r"_ufuncs_cxx_defs.h":
+    cdef double _func_ncx2_find_noncentrality_double "ncx2_find_noncentrality_double"(double, double, double) noexcept nogil
+cdef void *_export_ncx2_find_noncentrality_double = <void*>_func_ncx2_find_noncentrality_double
+cdef extern from r"_ufuncs_cxx_defs.h":
+    cdef float _func_ncx2_ppf_float "ncx2_ppf_float"(float, float, float) noexcept nogil
+cdef void *_export_ncx2_ppf_float = <void*>_func_ncx2_ppf_float
+cdef extern from r"_ufuncs_cxx_defs.h":
+    cdef double _func_ncx2_ppf_double "ncx2_ppf_double"(double, double, double) noexcept nogil
+cdef void *_export_ncx2_ppf_double = <void*>_func_ncx2_ppf_double
+cdef extern from r"_ufuncs_cxx_defs.h":
     cdef double _func_fellint_RC "fellint_RC"(double, double) noexcept nogil
 cdef void *_export_fellint_RC = <void*>_func_fellint_RC
 cdef extern from r"_ufuncs_cxx_defs.h":
@@ -387,6 +417,24 @@ cdef extern from r"_ufuncs_cxx_defs.h":
     cdef double _func_erfinv_double "erfinv_double"(double) noexcept nogil
 cdef void *_export_erfinv_double = <void*>_func_erfinv_double
 cdef extern from r"_ufuncs_cxx_defs.h":
+    cdef float _func_f_cdf_float "f_cdf_float"(float, float, float) noexcept nogil
+cdef void *_export_f_cdf_float = <void*>_func_f_cdf_float
+cdef extern from r"_ufuncs_cxx_defs.h":
+    cdef double _func_f_cdf_double "f_cdf_double"(double, double, double) noexcept nogil
+cdef void *_export_f_cdf_double = <void*>_func_f_cdf_double
+cdef extern from r"_ufuncs_cxx_defs.h":
+    cdef float _func_f_sf_float "f_sf_float"(float, float, float) noexcept nogil
+cdef void *_export_f_sf_float = <void*>_func_f_sf_float
+cdef extern from r"_ufuncs_cxx_defs.h":
+    cdef double _func_f_sf_double "f_sf_double"(double, double, double) noexcept nogil
+cdef void *_export_f_sf_double = <void*>_func_f_sf_double
+cdef extern from r"_ufuncs_cxx_defs.h":
+    cdef float _func_f_ppf_float "f_ppf_float"(float, float, float) noexcept nogil
+cdef void *_export_f_ppf_float = <void*>_func_f_ppf_float
+cdef extern from r"_ufuncs_cxx_defs.h":
+    cdef double _func_f_ppf_double "f_ppf_double"(double, double, double) noexcept nogil
+cdef void *_export_f_ppf_double = <void*>_func_f_ppf_double
+cdef extern from r"_ufuncs_cxx_defs.h":
     cdef double _func_hyp1f1_double "hyp1f1_double"(double, double, double) noexcept nogil
 cdef void *_export_hyp1f1_double = <void*>_func_hyp1f1_double
 cdef extern from r"_ufuncs_cxx_defs.h":
@@ -414,11 +462,29 @@ cdef extern from r"_ufuncs_cxx_defs.h":
     cdef double _func_nct_ppf_double "nct_ppf_double"(double, double, double) noexcept nogil
 cdef void *_export_nct_ppf_double = <void*>_func_nct_ppf_double
 cdef extern from r"_ufuncs_cxx_defs.h":
+    cdef float _func_pdtrik_float "pdtrik_float"(float, float) noexcept nogil
+cdef void *_export_pdtrik_float = <void*>_func_pdtrik_float
+cdef extern from r"_ufuncs_cxx_defs.h":
+    cdef double _func_pdtrik_double "pdtrik_double"(double, double) noexcept nogil
+cdef void *_export_pdtrik_double = <void*>_func_pdtrik_double
+cdef extern from r"_ufuncs_cxx_defs.h":
     cdef float _func_powm1_float "powm1_float"(float, float) noexcept nogil
 cdef void *_export_powm1_float = <void*>_func_powm1_float
 cdef extern from r"_ufuncs_cxx_defs.h":
     cdef double _func_powm1_double "powm1_double"(double, double) noexcept nogil
 cdef void *_export_powm1_double = <void*>_func_powm1_double
+cdef extern from r"_ufuncs_cxx_defs.h":
+    cdef float _func_t_cdf_float "t_cdf_float"(float, float) noexcept nogil
+cdef void *_export_t_cdf_float = <void*>_func_t_cdf_float
+cdef extern from r"_ufuncs_cxx_defs.h":
+    cdef double _func_t_cdf_double "t_cdf_double"(double, double) noexcept nogil
+cdef void *_export_t_cdf_double = <void*>_func_t_cdf_double
+cdef extern from r"_ufuncs_cxx_defs.h":
+    cdef float _func_t_ppf_float "t_ppf_float"(float, float) noexcept nogil
+cdef void *_export_t_ppf_float = <void*>_func_t_ppf_float
+cdef extern from r"_ufuncs_cxx_defs.h":
+    cdef double _func_t_ppf_double "t_ppf_double"(double, double) noexcept nogil
+cdef void *_export_t_ppf_double = <void*>_func_t_ppf_double
 cdef extern from r"_ufuncs_cxx_defs.h":
     cdef double complex _func_wrightomega "wrightomega"(double complex) noexcept nogil
 cdef void *_export_wrightomega = <void*>_func_wrightomega

@@ -109,7 +109,7 @@ def _search_function_arguments(module_context, funcdef, string_name):
     if string_name == '__init__':
         cls = get_parent_scope(funcdef)
         if cls.type == 'classdef':
-            string_name = cls.name.value
+            string_name = cls.name.value  # type: ignore[union-attr]
             compare_node = cls
 
     found_arguments = False
@@ -203,7 +203,7 @@ def _check_name_for_execution(inference_state, context, compare_node, name, trai
             # Here we're trying to find decorators by checking the first
             # parameter. It's not very generic though. Should find a better
             # solution that also applies to nested decorators.
-            param_names = value.parent_context.get_param_names()
+            param_names = value.parent_context.get_param_names()  # type: ignore[attr-defined]
             if len(param_names) != 1:
                 continue
             values = param_names[0].infer()

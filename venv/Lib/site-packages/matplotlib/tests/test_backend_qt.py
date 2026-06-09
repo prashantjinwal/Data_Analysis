@@ -137,7 +137,7 @@ def test_correct_key(backend, qt_core, qt_key, qt_mods, answer, monkeypatch):
 
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
-def test_device_pixel_ratio_change():
+def test_device_pixel_ratio_change(qt_core):
     """
     Make sure that if the pixel ratio changes, the figure dpi changes but the
     widget remains the same logical size.
@@ -154,11 +154,19 @@ def test_device_pixel_ratio_change():
         def set_device_pixel_ratio(ratio):
             p.return_value = ratio
 
-            # The value here doesn't matter, as we can't mock the C++ QScreen
-            # object, but can override the functional wrapper around it.
-            # Emitting this event is simply to trigger the DPI change handler
-            # in Matplotlib in the same manner that it would occur normally.
-            screen.logicalDotsPerInchChanged.emit(96)
+            window = qt_canvas.window().windowHandle()
+            current_version = tuple(
+                int(x) for x in qt_core.qVersion().split('.', 2)[:2])
+            if current_version >= (6, 6):
+                qt_core.QCoreApplication.sendEvent(
+                    window,
+                    qt_core.QEvent(qt_core.QEvent.Type.DevicePixelRatioChange))
+            else:
+                # The value here doesn't matter, as we can't mock the C++ QScreen
+                # object, but can override the functional wrapper around it.
+                # Emitting this event is simply to trigger the DPI change handler
+                # in Matplotlib in the same manner that it would occur normally.
+                window.screen().logicalDotsPerInchChanged.emit(96)
 
             qt_canvas.draw()
             qt_canvas.flush_events()
@@ -167,46 +175,30 @@ def test_device_pixel_ratio_change():
             assert qt_canvas.device_pixel_ratio == ratio
 
         qt_canvas.manager.show()
+        qt_canvas.draw()
+        qt_canvas.flush_events()
         size = qt_canvas.size()
-        screen = qt_canvas.window().windowHandle().screen()
-        set_device_pixel_ratio(3)
 
-        # The DPI and the renderer width/height change
-        assert fig.dpi == 360
-        assert qt_canvas.renderer.width == 1800
-        assert qt_canvas.renderer.height == 720
+        options = [
+            (None, 360, 1800, 720),  # Use ratio at startup time.
+            (3, 360, 1800, 720),  # Change to same ratio.
+            (2, 240, 1200, 480),  # Change to different ratio.
+            (1.5, 180, 900, 360),  # Fractional ratio.
+        ]
+        for ratio, dpi, width, height in options:
+            if ratio is not None:
+                set_device_pixel_ratio(ratio)
 
-        # The actual widget size and figure logical size don't change.
-        assert size.width() == 600
-        assert size.height() == 240
-        assert qt_canvas.get_width_height() == (600, 240)
-        assert (fig.get_size_inches() == (5, 2)).all()
+            # The DPI and the renderer width/height change
+            assert fig.dpi == dpi
+            assert qt_canvas.renderer.width == width
+            assert qt_canvas.renderer.height == height
 
-        set_device_pixel_ratio(2)
-
-        # The DPI and the renderer width/height change
-        assert fig.dpi == 240
-        assert qt_canvas.renderer.width == 1200
-        assert qt_canvas.renderer.height == 480
-
-        # The actual widget size and figure logical size don't change.
-        assert size.width() == 600
-        assert size.height() == 240
-        assert qt_canvas.get_width_height() == (600, 240)
-        assert (fig.get_size_inches() == (5, 2)).all()
-
-        set_device_pixel_ratio(1.5)
-
-        # The DPI and the renderer width/height change
-        assert fig.dpi == 180
-        assert qt_canvas.renderer.width == 900
-        assert qt_canvas.renderer.height == 360
-
-        # The actual widget size and figure logical size don't change.
-        assert size.width() == 600
-        assert size.height() == 240
-        assert qt_canvas.get_width_height() == (600, 240)
-        assert (fig.get_size_inches() == (5, 2)).all()
+            # The actual widget size and figure logical size don't change.
+            assert size.width() == 600
+            assert size.height() == 240
+            assert qt_canvas.get_width_height() == (600, 240)
+            assert (fig.get_size_inches() == (5, 2)).all()
 
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
@@ -227,14 +219,15 @@ def test_figureoptions():
 
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
-def test_save_figure_return():
+def test_save_figure_return(tmp_path):
     fig, ax = plt.subplots()
     ax.imshow([[1]])
+    expected = tmp_path / "foobar.png"
     prop = "matplotlib.backends.qt_compat.QtWidgets.QFileDialog.getSaveFileName"
-    with mock.patch(prop, return_value=("foobar.png", None)):
+    with mock.patch(prop, return_value=(str(expected), None)):
         fname = fig.canvas.manager.toolbar.save_figure()
-        os.remove("foobar.png")
-        assert fname == "foobar.png"
+        assert fname == str(expected)
+        assert expected.exists()
     with mock.patch(prop, return_value=(None, None)):
         fname = fig.canvas.manager.toolbar.save_figure()
         assert fname is None

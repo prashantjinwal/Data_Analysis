@@ -158,7 +158,10 @@ def _find_module(string, path=None, full_name=None, is_global_search=True):
             if loader is None and not spec.has_location:
                 # This is a namespace package.
                 full_name = string if not path else full_name
-                implicit_ns_info = ImplicitNSInfo(full_name, spec.submodule_search_locations._path)
+                implicit_ns_info = ImplicitNSInfo(
+                    full_name,
+                    spec.submodule_search_locations._path,  # type: ignore[union-attr]
+                )
                 return implicit_ns_info, True
             break
 

@@ -7,6 +7,8 @@ from typing import (
 
 import numpy as np
 
+from pandas._config import using_python_scalars
+
 from pandas._libs.lib import infer_dtype
 from pandas._libs.tslibs import iNaT
 from pandas.errors import NoBufferPresent
@@ -171,7 +173,7 @@ class PandasColumn(Column):
             # rather than a bytemask
             return (
                 kind,
-                dtype.itemsize,  # pyright: ignore[reportGeneralTypeIssues]
+                dtype.itemsize,  # pyright: ignore[reportAttributeAccessIssue]
                 ArrowCTypes.BOOL,
                 byteorder,
             )
@@ -222,8 +224,8 @@ class PandasColumn(Column):
         kind = self.dtype[0]
         try:
             null, value = _NULL_DESCRIPTION[kind]
-        except KeyError:
-            raise NotImplementedError(f"Data type {kind} not yet supported")
+        except KeyError as err:
+            raise NotImplementedError(f"Data type {kind} not yet supported") from err
 
         return null, value
 
@@ -232,7 +234,10 @@ class PandasColumn(Column):
         """
         Number of null elements. Should always be known.
         """
-        return self._col.isna().sum().item()
+        result = self._col.isna().sum()
+        if not using_python_scalars():
+            result = result.item()
+        return result
 
     @property
     def metadata(self) -> dict[str, pd.Index]:
@@ -308,33 +313,41 @@ class PandasColumn(Column):
         Return the buffer containing the data and the buffer's associated dtype.
         """
         buffer: Buffer
-        if self.dtype[0] in (
+        if self.dtype[0] == DtypeKind.DATETIME:
+            # self.dtype[2] is an ArrowCTypes.TIMESTAMP where the tz will make
+            # it longer than 4 characters
+            if len(self.dtype[2]) > 4:
+                np_arr = self._col.dt.tz_convert(None).to_numpy()
+            else:
+                np_arr = self._col.to_numpy()
+            buffer = PandasBuffer(np_arr, allow_copy=self._allow_copy)
+            dtype = (
+                DtypeKind.INT,
+                64,
+                ArrowCTypes.INT64,
+                Endianness.NATIVE,
+            )
+        elif self.dtype[0] in (
             DtypeKind.INT,
             DtypeKind.UINT,
             DtypeKind.FLOAT,
             DtypeKind.BOOL,
-            DtypeKind.DATETIME,
         ):
-            # self.dtype[2] is an ArrowCTypes.TIMESTAMP where the tz will make
-            # it longer than 4 characters
             dtype = self.dtype
-            if self.dtype[0] == DtypeKind.DATETIME and len(self.dtype[2]) > 4:
-                np_arr = self._col.dt.tz_convert(None).to_numpy()
+            arr = self._col.array
+            if isinstance(self._col.dtype, ArrowDtype):
+                # We already rechunk (if necessary / allowed) upon initialization, so
+                # this is already single-chunk by the time we get here.
+                arr = arr._pa_array.chunks[0]  # type: ignore[attr-defined]
+                buffer = PandasBufferPyarrow(
+                    arr.buffers()[1],
+                    length=len(arr),
+                )
+                return buffer, dtype
+            if isinstance(self._col.dtype, BaseMaskedDtype):
+                np_arr = arr._data  # type: ignore[attr-defined]
             else:
-                arr = self._col.array
-                if isinstance(self._col.dtype, BaseMaskedDtype):
-                    np_arr = arr._data  # type: ignore[attr-defined]
-                elif isinstance(self._col.dtype, ArrowDtype):
-                    # We already rechunk (if necessary / allowed) upon initialization,
-                    # so this is already single-chunk by the time we get here.
-                    arr = arr._pa_array.chunks[0]  # type: ignore[attr-defined]
-                    buffer = PandasBufferPyarrow(
-                        arr.buffers()[1],  # type: ignore[attr-defined]
-                        length=len(arr),
-                    )
-                    return buffer, dtype
-                else:
-                    np_arr = arr._ndarray  # type: ignore[attr-defined]
+                np_arr = arr._ndarray  # type: ignore[attr-defined]
             buffer = PandasBuffer(np_arr, allow_copy=self._allow_copy)
         elif self.dtype[0] == DtypeKind.CATEGORICAL:
             codes = self._col.values._codes
@@ -357,7 +370,12 @@ class PandasColumn(Column):
             # Define the dtype for the returned buffer
             # TODO: this will need correcting
             # https://github.com/pandas-dev/pandas/issues/54781
-            dtype = self.dtype
+            dtype = (
+                DtypeKind.UINT,
+                8,
+                ArrowCTypes.UINT8,
+                Endianness.NATIVE,
+            )  # note: currently only support native endianness
         else:
             raise NotImplementedError(f"Data type {self._col.dtype} not handled yet")
 
@@ -414,9 +432,9 @@ class PandasColumn(Column):
 
         try:
             msg = f"{_NO_VALIDITY_BUFFER[null]} so does not have a separate mask"
-        except KeyError:
+        except KeyError as err:
             # TODO: implement for other bit/byte masks?
-            raise NotImplementedError("See self.describe_null")
+            raise NotImplementedError("See self.describe_null") from err
 
         raise NoBufferPresent(msg)
 

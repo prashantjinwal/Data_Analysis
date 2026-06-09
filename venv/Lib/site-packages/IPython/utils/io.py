@@ -17,8 +17,11 @@ from warnings import warn
 
 from IPython.utils.decorators import undoc
 from .capture import CapturedIO, capture_output
+from io import StringIO
+from typing import Union
 
-class Tee(object):
+
+class Tee:
     """A class to duplicate an output stream to stdout/err.
 
     This works in a manner very similar to the Unix 'tee' command.
@@ -29,7 +32,7 @@ class Tee(object):
     # Inspired by:
     # http://mail.python.org/pipermail/python-list/2007-May/442737.html
 
-    def __init__(self, file_or_name, mode="w", channel='stdout'):
+    def __init__(self, file_or_name: Union[str, StringIO], mode: str="w", channel: str='stdout'):
         """Construct a new Tee object.
 
         Parameters
@@ -112,7 +115,7 @@ def ask_yes_no(prompt, default=None, interrupt=None):
     return answers[ans]
 
 
-def temp_pyfile(src, ext='.py'):
+def temp_pyfile(src: str, ext: str='.py') -> str:
     """Make a temporary python file, return filename and filehandle.
 
     Parameters
@@ -132,22 +135,3 @@ def temp_pyfile(src, ext='.py'):
         f.write(src)
         f.flush()
     return fname
-
-
-@undoc
-def raw_print(*args, **kw):
-    """DEPRECATED: Raw print to sys.__stdout__, otherwise identical interface to print()."""
-    warn("IPython.utils.io.raw_print has been deprecated since IPython 7.0", DeprecationWarning, stacklevel=2)
-
-    print(*args, sep=kw.get('sep', ' '), end=kw.get('end', '\n'),
-          file=sys.__stdout__)
-    sys.__stdout__.flush()
-
-@undoc
-def raw_print_err(*args, **kw):
-    """DEPRECATED: Raw print to sys.__stderr__, otherwise identical interface to print()."""
-    warn("IPython.utils.io.raw_print_err has been deprecated since IPython 7.0", DeprecationWarning, stacklevel=2)
-
-    print(*args, sep=kw.get('sep', ' '), end=kw.get('end', '\n'),
-          file=sys.__stderr__)
-    sys.__stderr__.flush()

@@ -361,6 +361,8 @@ class NamespaceMagics(Magics):
           - For numpy arrays, a summary with shape, number of
             elements, typecode and size in memory.
 
+          - For DataFrame and Series types: their shape.
+
           - Everything else: a string representation, snipping their middle if
             too long.
 
@@ -372,11 +374,17 @@ class NamespaceMagics(Magics):
 
           In [2]: beta = 'test'
 
-          In [3]: %whos
+          In [3]: df = pd.DataFrame({"a": range(10), "b": range(10,20)})
+
+          In [4]: s = df["a"]
+
+          In [5]: %whos
           Variable   Type        Data/Info
           --------------------------------
           alpha      int         123
           beta       str         test
+          df         DataFrame   Shape: (10, 2)
+          s          Series      Shape: (10, )
         """
 
         varnames = self.who_ls(parameter_s)
@@ -456,9 +464,13 @@ class NamespaceMagics(Magics):
                 else:
                     print(aformat % (vshape, vsize, vdtype, vbytes), end=' ')
                     if vbytes < Mb:
-                        print('(%s kb)' % (vbytes/kb,))
+                        print("(%s kb)" % (vbytes / kb,))
                     else:
-                        print('(%s Mb)' % (vbytes/Mb,))
+                        print("(%s Mb)" % (vbytes / Mb,))
+            elif vtype in ["DataFrame", "Series"]:
+                # Useful for DataFrames and Series
+                # Ought to work for both pandas and polars
+                print(f"Shape: {var.shape}")
             else:
                 try:
                     vstr = str(var)

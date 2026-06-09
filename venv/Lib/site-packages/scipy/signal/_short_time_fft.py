@@ -16,6 +16,7 @@
 # Linter does not allow to import ``Generator`` from ``typing`` module:
 from collections.abc import Generator, Callable
 from functools import partial, cached_property
+from types import GenericAlias
 from typing import get_args, Literal
 
 import numpy as np
@@ -424,6 +425,9 @@ class ShortTimeFFT:
     _cache_f: tuple[tuple[FFT_MODE_TYPE, int, float], np.ndarray] = \
         ('onesided', -1, 1.), np.ndarray([])
 
+    # generic type compatibility with scipy-stubs
+    __class_getitem__ = classmethod(GenericAlias)
+
     def __init__(self, win: np.ndarray, hop: int, fs: float, *,
                  fft_mode: FFT_MODE_TYPE = 'onesided',
                  mfft: int | None = None,
@@ -567,10 +571,12 @@ class ShortTimeFFT:
             Window overlap in samples. It relates to the `hop` increment by
             ``hop = npsereg - noverlap``.
         symmetric_win: bool
-            If ``True`` then a symmetric window is generated, else a periodic
-            window is generated (default). Though symmetric windows seem for
-            most applications to be more sensible, the default of a periodic
-            windows was chosen to correspond to the default of `get_window`.
+            If ``True`` then a symmetric window is generated, else a periodic window is
+            generated (default). Though symmetric windows seem for most applications to
+            be more sensible, the default of a periodic windows was chosen to
+            correspond to the default of `get_window`. This parameter is ignored, if
+            the window name in the `window` parameter has a suffix ``'_periodic'`` or
+            ``'_symmetric'`` appended to it (e.g., ``'hann_symmetric'``).
         fft_mode : 'twosided', 'centered', 'onesided', 'onesided2X'
             Mode of FFT to be used (default 'onesided').
             See property `fft_mode` for details.
@@ -594,7 +600,7 @@ class ShortTimeFFT:
 
         >>> from scipy.signal import ShortTimeFFT, get_window
         >>> nperseg = 9  # window length
-        >>> w = get_window(('gaussian', 2.), nperseg)
+        >>> w = get_window(('gaussian_periodic', 2.), nperseg)
         >>> fs = 128  # sampling frequency
         >>> hop = 3  # increment of STFT time slice
         >>> SFT0 = ShortTimeFFT(w, hop, fs=fs)

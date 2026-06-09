@@ -10,7 +10,7 @@ __all__ = ['nnls']
                             deprecated_args={'atol'})
 def nnls(A, b, *, maxiter=None, atol=_NoValue):
     """
-    Solve ``argmin_x || Ax - b ||_2`` for ``x>=0``.
+    Solve ``argmin_x || Ax - b ||_2^2`` for ``x>=0``.
 
     This problem, often called as NonNegative Least Squares, is a convex
     optimization problem with convex constraints. It typically arises when
@@ -44,7 +44,7 @@ def nnls(A, b, *, maxiter=None, atol=_NoValue):
     Notes
     -----
     The code is based on the classical algorithm of [1]_. It utilizes an active
-    set method and solves the KKK (Karush-Kuhn-Tucker) conditions for the
+    set method and solves the KKT (Karush-Kuhn-Tucker) conditions for the
     non-negative least squares problem.
 
     References

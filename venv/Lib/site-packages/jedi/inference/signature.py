@@ -1,4 +1,5 @@
 from inspect import Parameter
+from typing import Any
 
 from jedi.cache import memoize_method
 from jedi import debug
@@ -6,6 +7,10 @@ from jedi import parser_utils
 
 
 class _SignatureMixin:
+    get_param_names: Any
+    name: Any
+    annotation_string: Any
+
     def to_string(self):
         def param_strings():
             is_positional = False
@@ -36,6 +41,8 @@ class _SignatureMixin:
 
 
 class AbstractSignature(_SignatureMixin):
+    _function_value: Any
+
     def __init__(self, value, is_bound=False):
         self.value = value
         self.is_bound = is_bound

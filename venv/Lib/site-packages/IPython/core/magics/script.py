@@ -11,6 +11,7 @@ import os
 import signal
 import sys
 import time
+from codecs import getincrementaldecoder
 from subprocess import CalledProcessError
 from threading import Thread
 
@@ -65,6 +66,10 @@ def script_args(f):
     for arg in args:
         f = arg(f)
     return f
+
+
+class RaiseAfterInterrupt(Exception):
+    pass
 
 
 @magics_class
@@ -176,6 +181,10 @@ class ScriptMagics(Magics):
 
         The rest of the cell is run by that program.
 
+        .. versionchanged:: 9.0
+          Interrupting the script executed without `--bg` will end in
+          raising an exception (unless `--no-raise-error` is passed).
+
         Examples
         --------
         ::
@@ -212,22 +221,28 @@ class ScriptMagics(Magics):
 
         async def _readchunk(stream):
             try:
-                return await stream.readuntil(b"\n")
+                return await stream.read(100)
             except asyncio.exceptions.IncompleteReadError as e:
                 return e.partial
             except asyncio.exceptions.LimitOverrunError as e:
                 return await stream.read(e.consumed)
 
         async def _handle_stream(stream, stream_arg, file_object):
+            should_break = False
+            decoder = getincrementaldecoder("utf-8")(errors="replace")
             while True:
-                chunk = (await _readchunk(stream)).decode("utf8", errors="replace")
+                chunk = decoder.decode(await _readchunk(stream))
                 if not chunk:
                     break
+                    chunk = decoder.decode("", final=True)
+                    should_break = True
                 if stream_arg:
-                    self.shell.user_ns[stream_arg] = chunk
+                    self.shell.user_ns[stream_arg] += chunk
                 else:
                     file_object.write(chunk)
                     file_object.flush()
+                if should_break:
+                    break
 
         async def _stream_communicate(process, cell):
             process.stdin.write(cell)
@@ -243,6 +258,11 @@ class ScriptMagics(Magics):
 
         argv = arg_split(line, posix=not sys.platform.startswith("win"))
         args, cmd = self.shebang.parser.parse_known_args(argv)
+
+        if args.out:
+            self.shell.user_ns[args.out] = ""
+        if args.err:
+            self.shell.user_ns[args.err] = ""
 
         try:
             p = in_thread(
@@ -292,20 +312,33 @@ class ScriptMagics(Magics):
                 p.send_signal(signal.SIGINT)
                 in_thread(asyncio.wait_for(p.wait(), timeout=0.1))
                 if p.returncode is not None:
-                    print("Process is interrupted.")
-                    return
+                    print("Process was interrupted.")
+                    if args.raise_error:
+                        raise RaiseAfterInterrupt()
+                    else:
+                        return
                 p.terminate()
                 in_thread(asyncio.wait_for(p.wait(), timeout=0.1))
                 if p.returncode is not None:
-                    print("Process is terminated.")
-                    return
+                    print("Process was terminated.")
+                    if args.raise_error:
+                        raise RaiseAfterInterrupt()
+                    else:
+                        return
                 p.kill()
-                print("Process is killed.")
+                print("Process was killed.")
+                if args.raise_error:
+                    raise RaiseAfterInterrupt()
+            except RaiseAfterInterrupt:
+                pass
             except OSError:
                 pass
             except Exception as e:
                 print("Error while terminating subprocess (pid=%i): %s" % (p.pid, e))
-            return
+            if args.raise_error:
+                raise CalledProcessError(p.returncode, cell) from None
+            else:
+                return
 
         if args.raise_error and p.returncode != 0:
             # If we get here and p.returncode is still None, we must have

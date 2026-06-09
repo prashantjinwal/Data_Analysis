@@ -6,7 +6,7 @@ import io
 import math
 import pickle
 import types
-from collections.abc import Callable, Generator, Iterable
+from collections.abc import Callable, Generator, Iterable, Iterator
 from functools import wraps
 from types import ModuleType
 from typing import (
@@ -29,8 +29,9 @@ from ._compat import (
     is_jax_namespace,
     is_numpy_array,
     is_pydata_sparse_namespace,
+    is_torch_namespace,
 )
-from ._typing import Array
+from ._typing import Array, Device
 
 if TYPE_CHECKING:  # pragma: no cover
     # TODO import from typing (requires Python >=3.12 and >=3.13)
@@ -209,12 +210,12 @@ def asarrays(
             float: ("real floating", "complex floating"),
             complex: "complex floating",
         }
-        kind = same_dtype[type(cast(complex, b))]  # type: ignore[index]
+        kind = same_dtype[type(cast(complex, b))]
         if xp.isdtype(a.dtype, kind):
-            xb = xp.asarray(b, dtype=a.dtype)
+            xb = xp.asarray(b, dtype=a.dtype, device=_compat.device(a))
         else:
             # Undefined behaviour. Let the function deal with it, if it can.
-            xb = xp.asarray(b)
+            xb = xp.asarray(b, device=_compat.device(a))
 
     else:
         # Neither a nor b are Array API objects.
@@ -249,7 +250,7 @@ def ndindex(*x: int) -> Generator[tuple[int, ...]]:
             yield *i, j
 
 
-def eager_shape(x: Array, /) -> tuple[int, ...]:
+def eager_shape(x: Array, /, axis: int | None = None) -> tuple[int, ...]:
     """
     Return shape of an array. Raise if shape is not fully defined.
 
@@ -257,6 +258,8 @@ def eager_shape(x: Array, /) -> tuple[int, ...]:
     ----------
     x : Array
         Input array.
+    axis : int, optional
+        If provided, only returns the tuple (shape[axis],).
 
     Returns
     -------
@@ -264,7 +267,14 @@ def eager_shape(x: Array, /) -> tuple[int, ...]:
         Shape of the array.
     """
     shape = x.shape
-    # Dask arrays uses non-standard NaN instead of None
+    if axis is not None:
+        s = shape[axis]
+        # Dask arrays uses non-standard NaN instead of None
+        if s is None or math.isnan(s):
+            msg = f"Unsupported lazy shape for axis {axis}"
+            raise TypeError(msg)
+        return (s,)
+
     if any(s is None or math.isnan(s) for s in shape):
         msg = "Unsupported lazy shape"
         raise TypeError(msg)
@@ -300,7 +310,9 @@ def meta_namespace(
     return array_namespace(*metas)
 
 
-def capabilities(xp: ModuleType) -> dict[str, int]:
+def capabilities(
+    xp: ModuleType, *, device: Device | None = None
+) -> dict[str, int | None]:
     """
     Return patched ``xp.__array_namespace_info__().capabilities()``.
 
@@ -311,21 +323,36 @@ def capabilities(xp: ModuleType) -> dict[str, int]:
     ----------
     xp : array_namespace
         The standard-compatible namespace.
+    device : Device, optional
+        The device to use.
 
     Returns
     -------
     dict
         Capabilities of the namespace.
     """
-    if is_pydata_sparse_namespace(xp):
-        # No __array_namespace_info__(); no indexing by sparse arrays
-        return {"boolean indexing": False, "data-dependent shapes": True}
     out = xp.__array_namespace_info__().capabilities()
-    if is_jax_namespace(xp) and out["boolean indexing"]:
-        # FIXME https://github.com/jax-ml/jax/issues/27418
-        # Fixed in jax >=0.6.0
-        out = out.copy()
-        out["boolean indexing"] = False
+    if is_pydata_sparse_namespace(xp):
+        if out["boolean indexing"]:
+            # FIXME https://github.com/pydata/sparse/issues/876
+            # boolean indexing is supported, but not when the index is a sparse array.
+            # boolean indexing by list or numpy array is not part of the Array API.
+            out = out.copy()
+            out["boolean indexing"] = False
+    elif is_jax_namespace(xp):
+        if out["boolean indexing"]:  # pragma: no cover
+            # Backwards compatibility with jax <0.6.0
+            # https://github.com/jax-ml/jax/issues/27418
+            out = out.copy()
+            out["boolean indexing"] = False
+    elif is_torch_namespace(xp):
+        # FIXME https://github.com/data-apis/array-api/issues/945
+        device = xp.get_default_device() if device is None else xp.device(device)
+        if device.type == "meta":  # type: ignore[union-attr]  # pyright: ignore[reportAttributeAccessIssue,reportOptionalMemberAccess]
+            out = out.copy()
+            out["boolean indexing"] = False
+            out["data-dependent shapes"] = False
+
     return out
 
 
@@ -408,7 +435,9 @@ def pickle_flatten(
         """
 
         @override
-        def persistent_id(self, obj: object) -> Literal[0, 1, None]:  # pyright: ignore[reportIncompatibleMethodOverride]  # numpydoc ignore=GL08
+        def persistent_id(
+            self, obj: object
+        ) -> Literal[0, 1, None]:  # numpydoc ignore=GL08
             if isinstance(obj, cls):
                 instances.append(obj)  # type: ignore[arg-type]
                 return 0
@@ -438,7 +467,7 @@ def pickle_flatten(
     return instances, (f.getvalue(), *rest)
 
 
-def pickle_unflatten(instances: Iterable[object], rest: FlattenRest) -> Any:  # type: ignore[explicit-any]
+def pickle_unflatten(instances: Iterable[object], rest: FlattenRest) -> Any:
     """
     Reverse of ``pickle_flatten``.
 
@@ -463,7 +492,7 @@ def pickle_unflatten(instances: Iterable[object], rest: FlattenRest) -> Any:  # 
     Notes
     -----
     The `instances` iterable must yield at least the same number of elements as the ones
-    returned by ``pickle_without``, but the elements do not need to be the same objects
+    returned by ``pickle_flatten``, but the elements do not need to be the same objects
     or even the same types of objects. Excess elements, if any, will be left untouched.
     """
     iters = iter(instances), iter(rest)
@@ -473,7 +502,7 @@ def pickle_unflatten(instances: Iterable[object], rest: FlattenRest) -> Any:  # 
         """Mirror of the overridden Pickler in pickle_flatten."""
 
         @override
-        def persistent_load(self, pid: Literal[0, 1]) -> object:  # pyright: ignore[reportIncompatibleMethodOverride]  # numpydoc ignore=GL08
+        def persistent_load(self, pid: Literal[0, 1]) -> object:  # numpydoc ignore=GL08
             try:
                 return next(iters[pid])
             except StopIteration as e:
@@ -492,16 +521,27 @@ class _AutoJITWrapper(Generic[T]):  # numpydoc ignore=PR01
     convert them to/from PyTrees.
     """
 
-    obj: T
+    _obj: Any
+    _is_iter: bool
     _registered: ClassVar[bool] = False
-    __slots__: tuple[str, ...] = ("obj",)
+    __slots__: tuple[str, ...] = ("_is_iter", "_obj")
 
     def __init__(self, obj: T) -> None:  # numpydoc ignore=GL08
         self._register()
-        self.obj = obj
+        if isinstance(obj, Iterator):
+            self._obj = list(obj)
+            self._is_iter = True
+        else:
+            self._obj = obj
+            self._is_iter = False
+
+    @property
+    def obj(self) -> T:  # numpydoc ignore=RT01
+        """Return wrapped object."""
+        return iter(self._obj) if self._is_iter else self._obj
 
     @classmethod
-    def _register(cls):  # numpydoc ignore=SS06
+    def _register(cls) -> None:  # numpydoc ignore=SS06
         """
         Register upon first use instead of at import time, to avoid
         globally importing JAX.
@@ -511,7 +551,7 @@ class _AutoJITWrapper(Generic[T]):  # numpydoc ignore=PR01
 
             jax.tree_util.register_pytree_node(
                 cls,
-                lambda obj: pickle_flatten(obj, jax.Array),  # pyright: ignore[reportUnknownArgumentType]
+                lambda instance: pickle_flatten(instance, jax.Array),  # pyright: ignore[reportUnknownArgumentType]
                 lambda aux_data, children: pickle_unflatten(children, aux_data),  # pyright: ignore[reportUnknownArgumentType]
             )
             cls._registered = True
@@ -536,15 +576,35 @@ def jax_autojit(
     - Automatically descend into non-array return values and find ``jax.Array`` objects
       inside them, then rebuild them downstream of exiting the JIT, swapping the JAX
       tracer objects with concrete arrays.
+    - Returned iterators are immediately completely consumed.
 
     See Also
     --------
     jax.jit : JAX JIT compilation function.
+
+    Notes
+    -----
+    These are useful choices *for testing purposes only*, which is how this function is
+    intended to be used. The output of ``jax.jit`` is a C++ level callable, that
+    directly dispatches to the compiled kernel after the initial call. In comparison,
+    ``jax_autojit`` incurs a much higher dispatch time.
+
+    Additionally, consider::
+
+        def f(x: Array, y: float, plus: bool) -> Array:
+            return x + y if plus else x - y
+
+        j1 = jax.jit(f, static_argnames="plus")
+        j2 = jax_autojit(f)
+
+    In the above example, ``j2`` requires a lot less setup to be tested effectively than
+    ``j1``, but on the flip side it means that it will be re-traced for every different
+    value of ``y``, which likely makes it not fit for purpose in production.
     """
     import jax
 
     @jax.jit  # type: ignore[misc]  # pyright: ignore[reportUntypedFunctionDecorator]
-    def inner(  # type: ignore[decorated-any,explicit-any]  # numpydoc ignore=GL08
+    def inner(  # numpydoc ignore=GL08
         wargs: _AutoJITWrapper[Any],
     ) -> _AutoJITWrapper[T]:
         args, kwargs = wargs.obj

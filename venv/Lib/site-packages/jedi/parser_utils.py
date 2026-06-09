@@ -259,7 +259,7 @@ def get_parent_scope(node, include_flows=False):
             # the if, but the parent of the if.
             if not (scope.type == 'if_stmt'
                     and any(n.start_pos <= node.start_pos < n.end_pos
-                            for n in scope.get_test_nodes())):
+                            for n in scope.get_test_nodes())):  # type: ignore[attr-defined]
                 return scope
 
         scope = scope.parent

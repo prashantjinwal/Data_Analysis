@@ -730,9 +730,12 @@ def spsolve_triangular(A, b, lower=True, overwrite_A=False, overwrite_b=False,
         U = A
         U.setdiag(0)
 
+    L_indices, L_indptr = safely_cast_index_arrays(L, np.intc, "SuperLU")
+    U_indices, U_indptr = safely_cast_index_arrays(U, np.intc, "SuperLU")
+
     x, info = _superlu.gstrs(trans,
-                             N, L.nnz, L.data, L.indices, L.indptr,
-                             N, U.nnz, U.data, U.indices, U.indptr,
+                             N, L.nnz, L.data, L_indices, L_indptr,
+                             N, U.nnz, U.data, U_indices, U_indptr,
                              b)
     if info:
         raise LinAlgError('A is singular.')
@@ -830,8 +833,8 @@ def spbandwidth(A):
     Computes the lower and upper limits on the bandwidth of the
     sparse 2D array ``A``. The result is summarized as a 2-tuple
     of positive integers ``(lo, hi)``. A zero denotes no sub/super
-    diagonal entries on that side (tringular). The maximum value
-    for ``lo``(``hi``) is one less than the number of rows(cols).
+    diagonal entries on that side (triangular). The maximum value
+    for ``lo`` (``hi``) is one less than the number of rows(cols).
 
     Only the sparse structure is used here. Values are not checked for zeros.
 

@@ -12,7 +12,6 @@ import os
 from pathlib import Path
 
 from parso.python import tree
-from parso.tree import search_ancestor
 
 from jedi import debug
 from jedi import settings
@@ -95,7 +94,7 @@ def goto_import(context, tree_name):
 
 
 def _prepare_infer_import(module_context, tree_name):
-    import_node = search_ancestor(tree_name, 'import_name', 'import_from')
+    import_node = tree_name.search_ancestor('import_name', 'import_from')
     import_path = import_node.get_path_for_name(tree_name)
     from_import_name = None
     try:
@@ -371,16 +370,16 @@ def import_module_by_names(inference_state, import_names, sys_path=None,
         i.value if isinstance(i, tree.Name) else i
         for i in import_names
     )
-    value_set = [None]
+    base = [None]
     for i, name in enumerate(import_names):
-        value_set = ValueSet.from_sets([
+        base = value_set = ValueSet.from_sets([
             import_module(
                 inference_state,
                 str_import_names[:i+1],
                 parent_module_value,
                 sys_path,
-                prefer_stubs=prefer_stubs,
-            ) for parent_module_value in value_set
+                prefer_stubs=prefer_stubs,  # type: ignore[call-arg]
+            ) for parent_module_value in base
         ])
         if not value_set:
             message = 'No module named ' + '.'.join(str_import_names)
@@ -475,12 +474,12 @@ def _load_python_module(inference_state, file_io,
     )
 
 
-def _load_builtin_module(inference_state, import_names=None, sys_path=None):
+def _load_builtin_module(inference_state, import_names, sys_path):
     project = inference_state.project
     if sys_path is None:
         sys_path = inference_state.get_sys_path()
     if not project._load_unsafe_extensions:
-        safe_paths = project._get_base_sys_path(inference_state)
+        safe_paths = set(project._get_base_sys_path(inference_state))
         sys_path = [p for p in sys_path if p in safe_paths]
 
     dotted_name = '.'.join(import_names)
@@ -549,7 +548,7 @@ def load_namespace_from_path(inference_state, folder_io):
 
 
 def follow_error_node_imports_if_possible(context, name):
-    error_node = tree.search_ancestor(name, 'error_node')
+    error_node = name.search_ancestor('error_node')
     if error_node is not None:
         # Get the first command start of a started simple_stmt. The error
         # node is sometimes a small_stmt and sometimes a simple_stmt. Check

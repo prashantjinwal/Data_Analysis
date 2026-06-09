@@ -28,7 +28,7 @@ are arrays.
 
 """
 import numpy as np
-from scipy._lib._array_api import array_namespace, np_compat
+from scipy._lib._array_api import array_namespace, np_compat, is_jax
 
 
 def _skip_if_lti(arg):
@@ -92,21 +92,23 @@ def ellip_signature(N, rp, rs, Wn, *args, **kwds):
 
 
 ########################## XXX: no arrays in, arrays out
-def besselap_signature(N, norm='phase'):
-    return np
-
-def buttap_signature(N):
-    return np
-
-def cheb1ap_signature(N, rp):
-    return np
+def besselap_signature(N, norm='phase', *, xp=None, device=None):
+    return np if xp is None else xp
 
 
-def cheb2ap_signature(N, rs):
-    return np
+def buttap_signature(N, *, xp=None, device=None):
+    return np if xp is None else xp
 
-def ellipap_signature(N, rp, rs):
-    return np
+
+def cheb1ap_signature(N, rp, *, xp=None, device=None):
+    return np if xp is None else xp
+
+
+def cheb2ap_signature(N, rs, *, xp=None, device=None):
+    return np if xp is None else xp
+
+def ellipap_signature(N, rp, rs, *, xp=None, device=None):
+    return np if xp is None else xp
 
 def correlation_lags_signature(in1_len, in2_len, mode='full'):
     return np
@@ -116,26 +118,30 @@ def czt_points_signature(m, w=None, a=(1+0j)):
     return np
 
 
-def gammatone_signature(freq, ftype, order=None, numtaps=None, fs=None):
-    return np
+def gammatone_signature(
+    freq, ftype, order=None, numtaps=None, fs=None, *, xp=None, device=None
+    ):
+    return np_compat if xp is None else xp
 
 
-def iircomb_signature(w0, Q, ftype='notch', fs=2.0, *, pass_zero=False):
-    return np
+def iircomb_signature(
+    w0, Q, ftype='notch', fs=2.0, *, pass_zero=False, xp=None, device=None
+):
+    return np_compat if xp is None else xp
 
 
-def iirnotch_signature(w0, Q, fs=2.0):
-    return np
+def iirnotch_signature(w0, Q, fs=2.0, *, xp=None, device=None):
+    return np if xp is None else xp
 
-
-def iirpeak_signature(w0, Q, fs=2.0):
-    return np
+iirpeak_signature = iirnotch_signature
 
 
 def savgol_coeffs_signature(
-    window_length, polyorder, deriv=0, delta=1.0, pos=None, use='conv'
+    window_length, polyorder, deriv=0, delta=1.0, pos=None, use='conv',
+    *, xp=None, device=None
 ):
-    return np
+    return np if xp is None else xp
+
 
 
 def unit_impulse_signature(shape, idx=None, dtype=float):
@@ -143,19 +149,12 @@ def unit_impulse_signature(shape, idx=None, dtype=float):
 ############################
 
 
-####################### XXX: no arrays, maybe arrays out
 def buttord_signature(wp, ws, gpass, gstop, analog=False, fs=None):
-    return np
+    return array_namespace(wp, ws)
 
-def cheb1ord_signature(wp, ws, gpass, gstop, analog=False, fs=None):
-    return np
-
-def cheb2ord_signature(wp, ws, gpass, gstop, analog=False, fs=None):
-    return np
-
-def ellipord_signature(wp, ws, gpass, gstop, analog=False, fs=None):
-    return np
-###########################################
+cheb1ord_signature = buttord_signature
+cheb2ord_signature = buttord_signature
+ellipord_signature = buttord_signature
 
 
 ########### NB: scalars in, scalars out
@@ -241,31 +240,31 @@ convolve2d_signature = convolve_signature
 correlate2d_signature = convolve_signature
 
 
-def coherence_signature(x, y, fs=1.0, window='hann', *args, **kwds):
+def coherence_signature(x, y, fs=1.0, window='hann_periodic', *args, **kwds):
     return array_namespace(x, y, _skip_if_str_or_tuple(window))
 
 
-def csd_signature(x, y, fs=1.0, window='hann', *args, **kwds):
+def csd_signature(x, y, fs=1.0, window='hann_periodic', *args, **kwds):
     return array_namespace(x, y, _skip_if_str_or_tuple(window))
 
 
-def periodogram_signature(x, fs=1.0, window='boxcar'):
+def periodogram_signature(x, fs=1.0, window='boxcar', *args, **kwds):
     return array_namespace(x, _skip_if_str_or_tuple(window))
 
 
-def welch_signature(x, fs=1.0, window='hann', *args, **kwds):
+def welch_signature(x, fs=1.0, window='hann_periodic', *args, **kwds):
     return array_namespace(x, _skip_if_str_or_tuple(window))
 
 
-def spectrogram_signature(x, fs=1.0, window=('tukey', 0.25), *args, **kwds):
+def spectrogram_signature(x, fs=1.0, window=('tukey_periodic', 0.25), *args, **kwds):
     return array_namespace(x, _skip_if_str_or_tuple(window))
 
 
-def stft_signature(x, fs=1.0, window='hann', *args, **kwds):
+def stft_signature(x, fs=1.0, window='hann_periodic', *args, **kwds):
     return array_namespace(x, _skip_if_str_or_tuple(window))
 
 
-def istft_signature(Zxx, fs=1.0, window='hann', *args, **kwds):
+def istft_signature(Zxx, fs=1.0, window='hann_periodic', *args, **kwds):
     return array_namespace(Zxx, _skip_if_str_or_tuple(window))
 
 
@@ -297,7 +296,10 @@ def deconvolve_signature(signal, divisor):
 
 
 def detrend_signature(data, axis=1, type='linear', bp=0, *args, **kwds):
-    return array_namespace(data, bp)
+    xp = array_namespace(data)
+    # JAX doesn't accept JAX arrays for bp, only ints, lists and NumPy
+    # arrays.
+    return xp if is_jax(xp) else array_namespace(data, bp)
 
 
 def filtfilt_signature(b, a, x, *args, **kwds):
@@ -316,8 +318,10 @@ def find_peaks_signature(
     x, height=None, threshold=None, distance=None, prominence=None, width=None,
     wlen=None, rel_height=0.5, plateau_size=None
 ):
-    return array_namespace(x, height, threshold, prominence, width, plateau_size)
-
+    # TODO: fix me - `prominence` is not necessarily an array.
+    # return array_namespace(x, height, threshold, prominence, width, plateau_size)
+    # See https://github.com/scipy/scipy/pull/22644#issuecomment-3568443768. For now:
+    return np_compat
 
 def find_peaks_cwt_signature(
     vector, widths, wavelet=None, max_distances=None, *args, **kwds
@@ -345,7 +349,7 @@ def firwin2_signature(numtaps, freq, gain, *args, **kwds):
     return array_namespace(freq, gain)
 
 
-def freqs_zpk_signature(z, p, k, worN, *args, **kwds):
+def freqs_zpk_signature(z, p, k, worN=200, *args, **kwds):
     return array_namespace(z, p, worN)
 
 freqz_zpk_signature = freqs_zpk_signature
@@ -354,7 +358,10 @@ freqz_zpk_signature = freqs_zpk_signature
 def freqs_signature(b, a, worN=200, *args, **kwds):
     return array_namespace(b, a, worN)
 
-freqz_signature = freqs_signature
+
+def freqz_signature(b, a=1, worN=512, *args, **kwds):
+    # differs from freqs: `a` has a default value
+    return array_namespace(b, a, worN)
 
 
 def freqz_sos_signature(sos, worN=512, *args, **kwds):
@@ -369,10 +376,10 @@ def gausspulse_signature(t, *args, **kwds):
 
 
 def group_delay_signature(system, w=512, whole=False, fs=6.283185307179586):
-    return array_namespace(_skip_if_str_or_tuple(system), w)
+    return array_namespace(*system, w)
 
 
-def hilbert_signature(x, N=None, axis=-1):
+def hilbert_signature(x, *args, **kwds):
     return array_namespace(x)
 
 hilbert2_signature = hilbert_signature
@@ -426,7 +433,7 @@ tf2zpk_signature = lp2bp_signature
 tf2sos_signature = lp2bp_signature
 
 normalize_signature = lp2bp_signature
-residue_signature = lp2bp_signature 
+residue_signature = lp2bp_signature
 residuez_signature = residue_signature
 
 
@@ -565,4 +572,3 @@ def wiener_signature(im, mysize=None, noise=None):
 
 def zoom_fft_signature(x, fn, m=None, *, fs=2, endpoint=False, axis=-1):
     return array_namespace(x, fn)
-

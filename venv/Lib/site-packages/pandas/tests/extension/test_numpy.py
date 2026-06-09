@@ -15,6 +15,7 @@ be added to the array-specific tests in `pandas/tests/arrays/`.
 Note: we do not bother with base.BaseIndexTests because NumpyExtensionArray
 will never be held in an Index.
 """
+
 import numpy as np
 import pytest
 
@@ -76,8 +77,10 @@ def allow_in_pandas(monkeypatch):
 @pytest.fixture
 def data(allow_in_pandas, dtype):
     if dtype.numpy_dtype == "object":
-        return pd.Series([(i,) for i in range(100)]).array
-    return NumpyExtensionArray(np.arange(1, 101, dtype=dtype._dtype))
+        arr = pd.Series([(i,) for i in range(10)])._values
+    else:
+        arr = np.arange(1, 11, dtype=dtype._dtype)
+    return NumpyExtensionArray(arr)
 
 
 @pytest.fixture
@@ -142,7 +145,7 @@ def data_for_grouping(allow_in_pandas, dtype):
 def data_for_twos(dtype):
     if dtype.kind == "O":
         pytest.skip(f"{dtype} is not a numeric dtype")
-    arr = np.ones(100) * 2
+    arr = np.ones(10) * 2
     return NumpyExtensionArray._from_sequence(arr, dtype=dtype)
 
 
@@ -203,6 +206,18 @@ class TestNumpyExtensionArray(base.ExtensionTests):
     def test_shift_fill_value(self, data):
         # np.array shape inference. Shift implementation fails.
         super().test_shift_fill_value(data)
+
+    @skip_nested
+    def test_fillna_limit_frame(self, data_missing):
+        # GH#58001
+        # The "scalar" for this array isn't a scalar.
+        super().test_fillna_limit_frame(data_missing)
+
+    @skip_nested
+    def test_fillna_limit_series(self, data_missing):
+        # GH#58001
+        # The "scalar" for this array isn't a scalar.
+        super().test_fillna_limit_series(data_missing)
 
     @skip_nested
     def test_fillna_copy_frame(self, data_missing):
@@ -328,6 +343,11 @@ class TestNumpyExtensionArray(base.ExtensionTests):
         super().test_fillna_frame(data_missing)
 
     @skip_nested
+    def test_fillna_readonly(self, data_missing):
+        # Non-scalar "scalar" values.
+        super().test_fillna_readonly(data_missing)
+
+    @skip_nested
     def test_setitem_invalid(self, data, invalid_scalar):
         # object dtype can hold anything, so doesn't raise
         super().test_setitem_invalid(data, invalid_scalar)
@@ -374,19 +394,6 @@ class TestNumpyExtensionArray(base.ExtensionTests):
     def test_setitem_integer_array(self, data, idx, box_in_series):
         super().test_setitem_integer_array(data, idx, box_in_series)
 
-    @pytest.mark.parametrize(
-        "idx, box_in_series",
-        [
-            ([0, 1, 2, pd.NA], False),
-            pytest.param([0, 1, 2, pd.NA], True, marks=pytest.mark.xfail),
-            (pd.array([0, 1, 2, pd.NA], dtype="Int64"), False),
-            (pd.array([0, 1, 2, pd.NA], dtype="Int64"), False),
-        ],
-        ids=["list-False", "list-True", "integer-array-False", "integer-array-True"],
-    )
-    def test_setitem_integer_with_missing_raises(self, data, idx, box_in_series):
-        super().test_setitem_integer_with_missing_raises(data, idx, box_in_series)
-
     @skip_nested
     def test_setitem_slice(self, data, box_in_series):
         super().test_setitem_slice(data, box_in_series)
@@ -420,6 +427,12 @@ class TestNumpyExtensionArray(base.ExtensionTests):
     @pytest.mark.parametrize("engine", ["c", "python"])
     def test_EA_types(self, engine, data, request):
         super().test_EA_types(engine, data, request)
+
+    def test_loc_setitem_with_expansion_preserves_ea_index_dtype(self, data, request):
+        if isinstance(data[-1], tuple):
+            mark = pytest.mark.xfail(reason="Unpacks tuple")
+            request.applymarker(mark)
+        super().test_loc_setitem_with_expansion_preserves_ea_index_dtype(data)
 
 
 class Test2DCompat(base.NDArrayBacked2DTests):

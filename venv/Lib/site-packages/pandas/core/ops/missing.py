@@ -11,7 +11,6 @@ from numpy in the following ways:
        pandas convention is to return [-inf, nan, inf] for all dtype
        combinations.
 
-       Note: the numpy behavior described here is py3-specific.
 
     2) np.array([-1, 0, 1], dtype=dtype1) % np.array([0, 0, 0], dtype=dtype2)
        gives precisely the same results as the // operation.
@@ -21,6 +20,7 @@ from numpy in the following ways:
 
     3) divmod behavior consistent with 1) and 2).
 """
+
 from __future__ import annotations
 
 import operator
@@ -30,7 +30,7 @@ import numpy as np
 from pandas.core import roperator
 
 
-def _fill_zeros(result: np.ndarray, x, y):
+def _fill_zeros(result: np.ndarray, x, y) -> np.ndarray:
     """
     If this is a reversed op, then flip x,y
 
@@ -89,9 +89,9 @@ def mask_zero_div_zero(x, y, result: np.ndarray) -> np.ndarray:
     >>> x = np.array([1, 0, -1], dtype=np.int64)
     >>> x
     array([ 1,  0, -1])
-    >>> y = 0       # int 0; numpy behavior is different with float
+    >>> y = 0  # int 0; numpy behavior is different with float
     >>> result = x // y
-    >>> result      # raw numpy result does not fill division by zero
+    >>> result  # raw numpy result does not fill division by zero
     array([0, 0, 0])
     >>> mask_zero_div_zero(x, y, result)
     array([ inf,  nan, -inf])
@@ -162,11 +162,11 @@ def dispatch_fill_zeros(op, left, right, result):
             _fill_zeros(result[1], right, left),
         )
     elif op is operator.floordiv:
-        # Note: no need to do this for truediv; in py3 numpy behaves the way
+        # Note: no need to do this for truediv; numpy behaves the way
         #  we want.
         result = mask_zero_div_zero(left, right, result)
     elif op is roperator.rfloordiv:
-        # Note: no need to do this for rtruediv; in py3 numpy behaves the way
+        # Note: no need to do this for rtruediv; numpy behaves the wayS
         #  we want.
         result = mask_zero_div_zero(right, left, result)
     elif op is operator.mod:

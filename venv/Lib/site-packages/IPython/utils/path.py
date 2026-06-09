@@ -21,7 +21,7 @@ from IPython.utils.process import system
 #-----------------------------------------------------------------------------
 fs_encoding = sys.getfilesystemencoding()
 
-def _writable_dir(path):
+def _writable_dir(path: str) -> bool:
     """Whether `path` is a directory, to which the user has write access."""
     return os.path.isdir(path) and os.access(path, os.W_OK)
 
@@ -66,10 +66,9 @@ def get_long_path_name(path):
     return _get_long_path_name(path)
 
 
-def compress_user(path):
-    """Reverse of :func:`os.path.expanduser`
-    """
-    home = os.path.expanduser('~')
+def compress_user(path: str) -> str:
+    """Reverse of :func:`os.path.expanduser`"""
+    home = os.path.expanduser("~")
     if path.startswith(home):
         path =  "~" + path[len(home):]
     return path
@@ -154,7 +153,7 @@ class HomeDirError(Exception):
     pass
 
 
-def get_home_dir(require_writable=False) -> str:
+def get_home_dir(require_writable: bool=False) -> str:
     """Return the 'home' directory, as a unicode string.
 
     Uses os.path.expanduser('~'), and checks for writability.
@@ -197,7 +196,7 @@ def get_home_dir(require_writable=False) -> str:
         raise HomeDirError('%s is not a writable dir, '
                 'set $HOME environment variable to override' % homedir)
 
-def get_xdg_dir():
+def get_xdg_dir() -> str | None:
     """Return the XDG_CONFIG_HOME, if it is defined and exists, else None.
 
     This is only for non-OS X posix (Linux,Unix,etc.) systems.
@@ -235,7 +234,7 @@ def get_xdg_cache_dir():
     return None
 
 
-def expand_path(s):
+def expand_path(s: str) -> str:
     """Expand $VARS and ~names in a string, like a shell
 
     :Examples:
@@ -281,58 +280,6 @@ def shellglob(args):
     for a in args:
         expanded.extend(glob.glob(a) or [unescape(a)])
     return expanded
-
-
-def target_outdated(target,deps):
-    """Determine whether a target is out of date.
-
-    target_outdated(target,deps) -> 1/0
-
-    deps: list of filenames which MUST exist.
-    target: single filename which may or may not exist.
-
-    If target doesn't exist or is older than any file listed in deps, return
-    true, otherwise return false.
-
-    .. deprecated:: 8.22
-    """
-    warnings.warn(
-        "`target_outdated` is deprecated since IPython 8.22 and will be removed in future versions",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    try:
-        target_time = os.path.getmtime(target)
-    except os.error:
-        return 1
-    for dep in deps:
-        dep_time = os.path.getmtime(dep)
-        if dep_time > target_time:
-            # print("For target",target,"Dep failed:",dep)  # dbg
-            # print("times (dep,tar):",dep_time,target_time)  # dbg
-            return 1
-    return 0
-
-
-def target_update(target,deps,cmd):
-    """Update a target with a given command given a list of dependencies.
-
-    target_update(target,deps,cmd) -> runs cmd if target is outdated.
-
-    This is just a wrapper around target_outdated() which calls the given
-    command if target is outdated.
-
-    .. deprecated:: 8.22
-    """
-
-    warnings.warn(
-        "`target_update` is deprecated since IPython 8.22 and will be removed in future versions",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    if target_outdated(target, deps):
-        system(cmd)
-
 
 ENOLINK = 1998
 
@@ -389,7 +336,7 @@ def link_or_copy(src, dst):
         # linking, or 'src' and 'dst' are on different filesystems.
         shutil.copy(src, dst)
 
-def ensure_dir_exists(path, mode=0o755):
+def ensure_dir_exists(path: str, mode: int=0o755):
     """ensure that a directory exists
 
     If it doesn't exist, try to create it and protect against a race condition

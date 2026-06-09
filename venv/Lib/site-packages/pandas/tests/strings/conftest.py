@@ -59,15 +59,15 @@ _any_string_method = [
     ("translate", ({97: 100},), {}),
     ("wrap", (2,), {}),
     ("zfill", (10,), {}),
-] + list(
-    zip(
+    # methods without positional arguments: zip with empty tuple and empty dict
+    *zip(
         [
-            # methods without positional arguments: zip with empty tuple and empty dict
             "capitalize",
             "cat",
             "get_dummies",
             "isalnum",
             "isalpha",
+            "isascii",
             "isdecimal",
             "isdigit",
             "islower",
@@ -93,8 +93,8 @@ _any_string_method = [
         ],
         [()] * 100,
         [{}] * 100,
-    )
-)
+    ),
+]
 ids, _, _ = zip(*_any_string_method)  # use method name as fixture-id
 missing_methods = {f for f in dir(StringMethods) if not f.startswith("_")} - set(ids)
 
@@ -122,7 +122,7 @@ def any_string_method(request):
     Examples
     --------
     >>> def test_something(any_string_method):
-    ...     s = Series(['a', 'b', np.nan, 'd'])
+    ...     s = Series(["a", "b", np.nan, "d"])
     ...
     ...     method_name, args, kwargs = any_string_method
     ...     method = getattr(s.str, method_name)

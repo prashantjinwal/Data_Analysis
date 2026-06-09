@@ -16,6 +16,6 @@ class DocstringModuleContext(ModuleContext):
         super().__init__(module_value)
         self._in_module_context = in_module_context
 
-    def get_filters(self, origin_scope=None, until_position=None):
+    def get_filters(self, until_position=None, origin_scope=None):
         yield from super().get_filters(until_position=until_position)
         yield from self._in_module_context.get_filters()

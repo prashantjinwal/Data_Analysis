@@ -38,6 +38,7 @@ Authors
 import re
 import sys
 import unittest
+import builtins
 from doctest import DocTestFinder, DocTestRunner, TestResults
 from IPython.terminal.interactiveshell import InteractiveShell
 
@@ -60,7 +61,7 @@ def count_failures(runner):
         ]
 
 
-class IPython2PythonConverter(object):
+class IPython2PythonConverter:
     """Convert IPython 'syntax' to valid Python.
 
     Eventually this code may grow to be the full IPython syntax conversion
@@ -114,14 +115,14 @@ class IPython2PythonConverter(object):
     #return dnew
 
 
-class Doc2UnitTester(object):
+class Doc2UnitTester:
     """Class whose instances act as a decorator for docstring testing.
 
     In practice we're only likely to need one instance ever, made below (though
     no attempt is made at turning it into a singleton, there is no need for
     that).
     """
-    def __init__(self, verbose=False):
+    def __init__(self, verbose: bool=False):
         """New decorator.
 
         Parameters

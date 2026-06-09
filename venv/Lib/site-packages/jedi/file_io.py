@@ -1,4 +1,5 @@
 import os
+from typing import Any
 
 from parso import file_io
 
@@ -58,6 +59,8 @@ class FolderIO(AbstractFolderIO):
 
 
 class FileIOFolderMixin:
+    path: Any
+
     def get_parent_folder(self):
         return FolderIO(os.path.dirname(self.path))
 

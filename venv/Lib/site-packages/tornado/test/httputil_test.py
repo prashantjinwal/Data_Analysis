@@ -9,10 +9,10 @@ from tornado.httputil import (
     qs_to_qsl,
     HTTPInputError,
     HTTPFile,
+    ParseMultipartConfig,
 )
 from tornado.escape import utf8, native_str
 from tornado.log import gen_log
-from tornado.testing import ExpectLog
 from tornado.test.util import ignore_deprecation
 
 import copy
@@ -136,6 +136,8 @@ Foo
             'a";";.txt',
             'a\\"b.txt',
             "a\\b.txt",
+            "a b.txt",
+            "a\tb.txt",
         ]
         for filename in filenames:
             logging.debug("trying filename %r", filename)
@@ -156,7 +158,30 @@ Foo
             self.assertEqual(file["filename"], filename)
             self.assertEqual(file["body"], b"Foo")
 
-    def test_non_ascii_filename(self):
+    def test_invalid_chars(self):
+        filenames = [
+            "a\rb.txt",
+            "a\0b.txt",
+            "a\x08b.txt",
+        ]
+        for filename in filenames:
+            str_data = """\
+--1234
+Content-Disposition: form-data; name="files"; filename="%s"
+
+Foo
+--1234--""" % filename.replace(
+                "\\", "\\\\"
+            ).replace(
+                '"', '\\"'
+            )
+            data = utf8(str_data.replace("\n", "\r\n"))
+            args, files = form_data_args()
+            with self.assertRaises(HTTPInputError) as cm:
+                parse_multipart_form_data(b"1234", data, args, files)
+            self.assertIn("Invalid header value", str(cm.exception))
+
+    def test_non_ascii_filename_rfc5987(self):
         data = b"""\
 --1234
 Content-Disposition: form-data; name="files"; filename="ab.txt"; filename*=UTF-8''%C3%A1b.txt
@@ -169,6 +194,23 @@ Foo
         parse_multipart_form_data(b"1234", data, args, files)
         file = files["files"][0]
         self.assertEqual(file["filename"], "áb.txt")
+        self.assertEqual(file["body"], b"Foo")
+
+    def test_non_ascii_filename_raw(self):
+        data = """\
+--1234
+Content-Disposition: form-data; name="files"; filename="测试.txt"
+
+Foo
+--1234--""".encode(
+            "utf-8"
+        ).replace(
+            b"\n", b"\r\n"
+        )
+        args, files = form_data_args()
+        parse_multipart_form_data(b"1234", data, args, files)
+        file = files["files"][0]
+        self.assertEqual(file["filename"], "测试.txt")
         self.assertEqual(file["body"], b"Foo")
 
     def test_boundary_starts_and_ends_with_quotes(self):
@@ -195,7 +237,9 @@ Foo
             b"\n", b"\r\n"
         )
         args, files = form_data_args()
-        with ExpectLog(gen_log, "multipart/form-data missing headers"):
+        with self.assertRaises(
+            HTTPInputError, msg="multipart/form-data missing headers"
+        ):
             parse_multipart_form_data(b"1234", data, args, files)
         self.assertEqual(files, {})
 
@@ -209,7 +253,7 @@ Foo
             b"\n", b"\r\n"
         )
         args, files = form_data_args()
-        with ExpectLog(gen_log, "Invalid multipart/form-data"):
+        with self.assertRaises(HTTPInputError, msg="Invalid multipart/form-data"):
             parse_multipart_form_data(b"1234", data, args, files)
         self.assertEqual(files, {})
 
@@ -222,7 +266,7 @@ Foo--1234--""".replace(
             b"\n", b"\r\n"
         )
         args, files = form_data_args()
-        with ExpectLog(gen_log, "Invalid multipart/form-data"):
+        with self.assertRaises(HTTPInputError, msg="Invalid multipart/form-data"):
             parse_multipart_form_data(b"1234", data, args, files)
         self.assertEqual(files, {})
 
@@ -236,7 +280,9 @@ Foo
             b"\n", b"\r\n"
         )
         args, files = form_data_args()
-        with ExpectLog(gen_log, "multipart/form-data value missing name"):
+        with self.assertRaises(
+            HTTPInputError, msg="multipart/form-data value missing name"
+        ):
             parse_multipart_form_data(b"1234", data, args, files)
         self.assertEqual(files, {})
 
@@ -258,6 +304,64 @@ Foo
         file = files["files"][0]
         self.assertEqual(file["filename"], "ab.txt")
         self.assertEqual(file["body"], b"Foo")
+
+    def test_disposition_param_linear_performance(self):
+        # This is a regression test for performance of parsing parameters
+        # to the content-disposition header, specifically for semicolons within
+        # quoted strings.
+        def f(n):
+            start = time.perf_counter()
+            message = (
+                b"--1234\r\nContent-Disposition: form-data; "
+                + b'x="'
+                + b";" * n
+                + b'"; '
+                + b'name="files"; filename="a.txt"\r\n\r\nFoo\r\n--1234--\r\n'
+            )
+            args: dict[str, list[bytes]] = {}
+            files: dict[str, list[HTTPFile]] = {}
+            parse_multipart_form_data(b"1234", message, args, files)
+            return time.perf_counter() - start
+
+        d1 = f(1_000)
+        # Note that headers larger than this are blocked by the default configuration.
+        d2 = f(10_000)
+        if d2 / d1 > 20:
+            self.fail(f"Disposition param parsing is not linear: {d1=} vs {d2=}")
+
+    def test_multipart_config(self):
+        boundary = b"1234"
+        body = b"""--1234
+Content-Disposition: form-data; name="files"; filename="ab.txt"
+
+--1234--""".replace(
+            b"\n", b"\r\n"
+        )
+        config = ParseMultipartConfig()
+        args, files = form_data_args()
+        parse_multipart_form_data(boundary, body, args, files, config=config)
+        self.assertEqual(files["files"][0]["filename"], "ab.txt")
+
+        config_no_parts = ParseMultipartConfig(max_parts=0)
+        with self.assertRaises(HTTPInputError) as cm:
+            parse_multipart_form_data(
+                boundary, body, args, files, config=config_no_parts
+            )
+        self.assertIn("too many parts", str(cm.exception))
+
+        config_small_headers = ParseMultipartConfig(max_part_header_size=10)
+        with self.assertRaises(HTTPInputError) as cm:
+            parse_multipart_form_data(
+                boundary, body, args, files, config=config_small_headers
+            )
+        self.assertIn("header too large", str(cm.exception))
+
+        config_disabled = ParseMultipartConfig(enabled=False)
+        with self.assertRaises(HTTPInputError) as cm:
+            parse_multipart_form_data(
+                boundary, body, args, files, config=config_disabled
+            )
+        self.assertIn("multipart/form-data parsing is disabled", str(cm.exception))
 
 
 class HTTPHeadersTest(unittest.TestCase):
@@ -286,13 +390,36 @@ Foo: even
             sorted(list(headers.get_all())),
             [("Asdf", "qwer zxcv"), ("Foo", "bar baz"), ("Foo", "even more lines")],
         )
+        # Verify case insensitivity in-operator
+        self.assertTrue("asdf" in headers)
+        self.assertTrue("Asdf" in headers)
 
-    def test_malformed_continuation(self):
+    def test_continuation(self):
+        data = "Foo: bar\r\n\tasdf"
+        headers = HTTPHeaders.parse(data)
+        self.assertEqual(headers["Foo"], "bar asdf")
+
         # If the first line starts with whitespace, it's a
         # continuation line with nothing to continue, so reject it
         # (with a proper error).
         data = " Foo: bar"
         self.assertRaises(HTTPInputError, HTTPHeaders.parse, data)
+
+        # \f (formfeed) is whitespace according to str.isspace, but
+        # not according to the HTTP spec.
+        data = "Foo: bar\r\n\fasdf"
+        self.assertRaises(HTTPInputError, HTTPHeaders.parse, data)
+
+    def test_forbidden_ascii_characters(self):
+        # Control characters and ASCII whitespace other than space, tab, and CRLF are not allowed in
+        # headers.
+        for c in range(0xFF):
+            data = f"Foo: bar{chr(c)}baz\r\n"
+            if c == 0x09 or (c >= 0x20 and c != 0x7F):
+                headers = HTTPHeaders.parse(data)
+                self.assertEqual(headers["Foo"], f"bar{chr(c)}baz")
+            else:
+                self.assertRaises(HTTPInputError, HTTPHeaders.parse, data)
 
     def test_unicode_newlines(self):
         # Ensure that only \r\n is recognized as a header separator, and not
@@ -302,10 +429,13 @@ Foo: even
         # and cpython's unicodeobject.c (which defines the implementation
         # of unicode_type.splitlines(), and uses a different list than TR13).
         newlines = [
-            "\u001b",  # VERTICAL TAB
-            "\u001c",  # FILE SEPARATOR
-            "\u001d",  # GROUP SEPARATOR
-            "\u001e",  # RECORD SEPARATOR
+            # The following ascii characters are sometimes treated as newline-like,
+            # but they're disallowed in HTTP headers. This test covers unicode
+            # characters that are permitted in headers (under the obs-text rule).
+            # "\u001b",  # VERTICAL TAB
+            # "\u001c",  # FILE SEPARATOR
+            # "\u001d",  # GROUP SEPARATOR
+            # "\u001e",  # RECORD SEPARATOR
             "\u0085",  # NEXT LINE
             "\u2028",  # LINE SEPARATOR
             "\u2029",  # PARAGRAPH SEPARATOR
@@ -354,13 +484,16 @@ Foo: even
             self.assertEqual(expected, list(headers.get_all()))
 
     def test_optional_cr(self):
+        # Bare CR is  not a valid line separator
+        with self.assertRaises(HTTPInputError):
+            HTTPHeaders.parse("CRLF: crlf\r\nLF: lf\nCR: cr\rMore: more\r\n")
+
         # Both CRLF and LF should be accepted as separators. CR should not be
-        # part of the data when followed by LF, but it is a normal char
-        # otherwise (or should bare CR be an error?)
-        headers = HTTPHeaders.parse("CRLF: crlf\r\nLF: lf\nCR: cr\rMore: more\r\n")
+        # part of the data when followed by LF.
+        headers = HTTPHeaders.parse("CRLF: crlf\r\nLF: lf\nMore: more\r\n")
         self.assertEqual(
             sorted(headers.get_all()),
-            [("Cr", "cr\rMore: more"), ("Crlf", "crlf"), ("Lf", "lf")],
+            [("Crlf", "crlf"), ("Lf", "lf"), ("More", "more")],
         )
 
     def test_copy(self):
@@ -408,6 +541,37 @@ Foo: even
         headers.add("Foo", "3")
         headers2 = HTTPHeaders.parse(str(headers))
         self.assertEqual(headers, headers2)
+
+    def test_invalid_header_names(self):
+        invalid_names = [
+            "",
+            "foo bar",
+            "foo\tbar",
+            "foo\nbar",
+            "foo\x00bar",
+            "foo ",
+            " foo",
+            "é",
+        ]
+        for name in invalid_names:
+            headers = HTTPHeaders()
+            with self.assertRaises(HTTPInputError):
+                headers.add(name, "bar")
+
+    def test_linear_performance(self):
+        def f(n):
+            start = time.perf_counter()
+            headers = HTTPHeaders()
+            for i in range(n):
+                headers.add("X-Foo", "bar")
+            return time.perf_counter() - start
+
+        # This runs under 50ms on my laptop as of 2025-12-09.
+        d1 = f(10_000)
+        d2 = f(100_000)
+        if d2 / d1 > 20:
+            # d2 should be about 10x d1 but allow a wide margin for variability.
+            self.fail(f"HTTPHeaders.add() does not scale linearly: {d1=} vs {d2=}")
 
 
 class FormatTimestampTest(unittest.TestCase):
@@ -467,14 +631,14 @@ class HTTPServerRequestTest(unittest.TestCase):
         HTTPServerRequest(uri="/")
 
     def test_body_is_a_byte_string(self):
-        requets = HTTPServerRequest(uri="/")
-        self.assertIsInstance(requets.body, bytes)
+        request = HTTPServerRequest(uri="/")
+        self.assertIsInstance(request.body, bytes)
 
     def test_repr_does_not_contain_headers(self):
         request = HTTPServerRequest(
             uri="/", headers=HTTPHeaders({"Canary": ["Coal Mine"]})
         )
-        self.assertTrue("Canary" not in repr(request))
+        self.assertNotIn("Canary", repr(request))
 
 
 class ParseRequestStartLineTest(unittest.TestCase):

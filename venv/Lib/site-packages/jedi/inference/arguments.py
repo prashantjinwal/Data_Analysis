@@ -1,5 +1,6 @@
 import re
 from itertools import zip_longest
+from typing import Any
 
 from parso.python import tree
 
@@ -134,7 +135,7 @@ class _AbstractArgumentsMixin:
 
 class AbstractArguments(_AbstractArgumentsMixin):
     context = None
-    argument_node = None
+    argument_node: Any = None
     trailer = None
 
 
@@ -164,6 +165,8 @@ def unpack_arglist(arglist):
 
 
 class TreeArguments(AbstractArguments):
+    context: Any
+
     def __init__(self, inference_state, context, argument_node, trailer=None):
         """
         :param argument_node: May be an argument_node or a list of nodes.

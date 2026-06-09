@@ -184,7 +184,7 @@ class DirectObjectAccess:
     def py__file__(self) -> Optional[Path]:
         try:
             return Path(self._obj.__file__)
-        except AttributeError:
+        except (AttributeError, TypeError):
             return None
 
     def py__doc__(self):
@@ -471,18 +471,23 @@ class DirectObjectAccess:
         op = _OPERATORS[operator]
         return self._create_access_path(op(self._obj, other_access._obj))
 
-    def get_annotation_name_and_args(self):
+    def get_annotation_name_and_args(self) -> tuple[str | None, tuple[AccessPath, ...]]:
         """
         Returns Tuple[Optional[str], Tuple[AccessPath, ...]]
         """
         name = None
         args = ()
-        if safe_getattr(self._obj, '__module__', default='') == 'typing':
+        if type(self._obj) is typing.Union:  # zuban: ignore[comparison-overlap]  # TODO zuban
+            # This is mostly formatted like `int | str` and we therefor need to
+            # check the type.
+            args = typing.get_args(self._obj)
+            name = "Union"
+        elif safe_getattr(self._obj, '__module__', default='') == 'typing':
+            # Try regex first (works for most types)
             m = re.match(r'typing.(\w+)\[', repr(self._obj))
             if m is not None:
                 name = m.group(1)
 
-                import typing
                 if sys.version_info >= (3, 8):
                     args = typing.get_args(self._obj)
                 else:
@@ -493,6 +498,18 @@ class DirectObjectAccess:
         return inspect.isclass(self._obj) and self._obj != type
 
     def _annotation_to_str(self, annotation):
+        # In Python 3.14+, Union types are displayed as X | Y instead of Union[X, Y]
+        # We normalize to that for consistency
+        import typing
+        origin = typing.get_origin(annotation)
+        if origin is typing.Union:
+            # Get the args and format them as Union[...]
+            args = typing.get_args(annotation)
+            return ' | '.join(
+                self._annotation_to_str(arg) if hasattr(arg, '__origin__')
+                else getattr(arg, '__name__', str(arg))
+                for arg in args
+            )
         return inspect.formatannotation(annotation)
 
     def get_signature_params(self):

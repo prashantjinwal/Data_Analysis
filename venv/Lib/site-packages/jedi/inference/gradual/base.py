@@ -195,7 +195,7 @@ class GenericClass(DefineGenericBaseClass, ClassMixin):
 
     @to_list
     def py__bases__(self):
-        for base in self._wrapped_value.py__bases__():
+        for base in self._wrapped_value.py__bases__():  # type: ignore[attr-defined]
             yield _LazyGenericBaseClass(self, base, self._generics_manager)
 
     def _create_instance_with_generics(self, generics_manager):
@@ -306,7 +306,7 @@ class _GenericInstanceWrapper(ValueWrapper):
             if cls.py__name__() == 'Generator':
                 generics = cls.get_generics()
                 try:
-                    return generics[2].execute_annotation()
+                    return generics[2].execute_annotation(None)
                 except IndexError:
                     pass
             elif cls.py__name__() == 'Iterator':
@@ -384,7 +384,7 @@ class BaseTypingValue(LazyValueWrapper):
         return _PseudoTreeNameClass(self.parent_context, self._tree_name)
 
     def get_signatures(self):
-        return self._wrapped_value.get_signatures()
+        return self._wrapped_value.get_signatures()  # type: ignore[attr-defined]
 
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__, self._tree_name.value)
@@ -427,7 +427,7 @@ class BaseTypingInstance(LazyValueWrapper):
         return ValueName(self, self._tree_name)
 
     def _get_wrapped_value(self):
-        object_, = builtin_from_name(self.inference_state, 'object').execute_annotation()
+        object_, = builtin_from_name(self.inference_state, 'object').execute_annotation(None)
         return object_
 
     def __repr__(self):

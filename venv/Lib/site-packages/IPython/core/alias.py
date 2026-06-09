@@ -120,7 +120,8 @@ class AliasError(Exception):
 class InvalidAliasError(AliasError):
     pass
 
-class Alias(object):
+
+class Alias:
     """Callable object storing the details of one alias.
 
     Instances are registered as magic functions to allow use of aliases.
@@ -212,13 +213,13 @@ class AliasManager(Configurable):
             if (
                 cmd.startswith("ls ")
                 and self.shell is not None
-                and self.shell.colors == "NoColor"
+                and self.shell.colors == "nocolor"
             ):
                 cmd = cmd.replace(" --color", "")
             self.soft_define_alias(name, cmd)
 
     @property
-    def aliases(self):
+    def aliases(self) -> list:
         return [(n, func.cmd) for (n, func) in self.linemagics.items()
                             if isinstance(func, Alias)]
 

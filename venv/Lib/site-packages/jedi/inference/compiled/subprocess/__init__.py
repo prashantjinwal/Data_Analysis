@@ -33,7 +33,7 @@ import traceback
 import weakref
 from functools import partial
 from threading import Thread
-from typing import Dict, TYPE_CHECKING
+from typing import Dict, TYPE_CHECKING, Any
 
 from jedi._compatibility import pickle_dump, pickle_load
 from jedi import debug
@@ -52,7 +52,7 @@ PICKLE_PROTOCOL = 4
 
 
 def _GeneralizedPopen(*args, **kwargs):
-    if os.name == 'nt':
+    if sys.platform == "win32":
         try:
             # Was introduced in Python 3.7.
             CREATE_NO_WINDOW = subprocess.CREATE_NO_WINDOW
@@ -104,6 +104,8 @@ def _cleanup_process(process, thread):
 
 
 class _InferenceStateProcess:
+    get_compiled_method_return: Any
+
     def __init__(self, inference_state: 'InferenceState') -> None:
         self._inference_state_weakref = weakref.ref(inference_state)
         self._handles: Dict[int, AccessHandle] = {}

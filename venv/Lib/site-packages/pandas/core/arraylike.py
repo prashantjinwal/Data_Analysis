@@ -4,6 +4,7 @@ Methods that can be shared by many array-like classes or subclasses:
     Index
     ExtensionArray
 """
+
 from __future__ import annotations
 
 import operator
@@ -14,6 +15,7 @@ import numpy as np
 from pandas._libs import lib
 from pandas._libs.ops_dispatch import maybe_dispatch_ufunc_to_dunder_op
 
+from pandas.core.dtypes.cast import maybe_unbox_numpy_scalar
 from pandas.core.dtypes.generic import ABCNDFrame
 
 from pandas.core import roperator
@@ -119,8 +121,9 @@ class OpsMixin:
 
         Examples
         --------
-        >>> df = pd.DataFrame({'height': [1.5, 2.6], 'weight': [500, 800]},
-        ...                   index=['elk', 'moose'])
+        >>> df = pd.DataFrame(
+        ...     {"height": [1.5, 2.6], "weight": [500, 800]}, index=["elk", "moose"]
+        ... )
         >>> df
                height  weight
         elk       1.5     500
@@ -128,14 +131,14 @@ class OpsMixin:
 
         Adding a scalar affects all rows and columns.
 
-        >>> df[['height', 'weight']] + 1.5
+        >>> df[["height", "weight"]] + 1.5
                height  weight
         elk       3.0   501.5
         moose     4.1   801.5
 
         Each element of a list is added to a column of the DataFrame, in order.
 
-        >>> df[['height', 'weight']] + [0.5, 1.5]
+        >>> df[["height", "weight"]] + [0.5, 1.5]
                height  weight
         elk       2.0   501.5
         moose     3.1   801.5
@@ -143,7 +146,7 @@ class OpsMixin:
         Keys of a dictionary are aligned to the DataFrame, based on column names;
         each value in the dictionary is added to the corresponding column.
 
-        >>> df[['height', 'weight']] + {'height': 0.5, 'weight': 1.5}
+        >>> df[["height", "weight"]] + {"height": 0.5, "weight": 1.5}
                height  weight
         elk       2.0   501.5
         moose     3.1   801.5
@@ -151,8 +154,8 @@ class OpsMixin:
         When `other` is a :class:`Series`, the index of `other` is aligned with the
         columns of the DataFrame.
 
-        >>> s1 = pd.Series([0.5, 1.5], index=['weight', 'height'])
-        >>> df[['height', 'weight']] + s1
+        >>> s1 = pd.Series([0.5, 1.5], index=["weight", "height"])
+        >>> df[["height", "weight"]] + s1
                height  weight
         elk       3.0   500.5
         moose     4.1   800.5
@@ -161,13 +164,13 @@ class OpsMixin:
         the :class:`Series` will not be reoriented. If index-wise alignment is desired,
         :meth:`DataFrame.add` should be used with `axis='index'`.
 
-        >>> s2 = pd.Series([0.5, 1.5], index=['elk', 'moose'])
-        >>> df[['height', 'weight']] + s2
+        >>> s2 = pd.Series([0.5, 1.5], index=["elk", "moose"])
+        >>> df[["height", "weight"]] + s2
                elk  height  moose  weight
         elk    NaN     NaN    NaN     NaN
         moose  NaN     NaN    NaN     NaN
 
-        >>> df[['height', 'weight']].add(s2, axis='index')
+        >>> df[["height", "weight"]].add(s2, axis="index")
                height  weight
         elk       2.0   500.5
         moose     4.1   801.5
@@ -175,9 +178,10 @@ class OpsMixin:
         When `other` is a :class:`DataFrame`, both columns names and the
         index are aligned.
 
-        >>> other = pd.DataFrame({'height': [0.2, 0.4, 0.6]},
-        ...                      index=['elk', 'moose', 'deer'])
-        >>> df[['height', 'weight']] + other
+        >>> other = pd.DataFrame(
+        ...     {"height": [0.2, 0.4, 0.6]}, index=["elk", "moose", "deer"]
+        ... )
+        >>> df[["height", "weight"]] + other
                height  weight
         deer      NaN     NaN
         elk       1.7     NaN
@@ -263,10 +267,7 @@ def array_ufunc(self, ufunc: np.ufunc, method: str, *inputs: Any, **kwargs: Any)
         Series,
     )
     from pandas.core.generic import NDFrame
-    from pandas.core.internals import (
-        ArrayManager,
-        BlockManager,
-    )
+    from pandas.core.internals import BlockManager
 
     cls = type(self)
 
@@ -298,7 +299,9 @@ def array_ufunc(self, ufunc: np.ufunc, method: str, *inputs: Any, **kwargs: Any)
 
     # align all the inputs.
     types = tuple(type(x) for x in inputs)
-    alignable = [x for x, t in zip(inputs, types) if issubclass(t, NDFrame)]
+    alignable = [
+        x for x, t in zip(inputs, types, strict=True) if issubclass(t, NDFrame)
+    ]
 
     if len(alignable) > 1:
         # This triggers alignment.
@@ -317,20 +320,20 @@ def array_ufunc(self, ufunc: np.ufunc, method: str, *inputs: Any, **kwargs: Any)
         for obj in alignable[1:]:
             # this relies on the fact that we aren't handling mixed
             # series / frame ufuncs.
-            for i, (ax1, ax2) in enumerate(zip(axes, obj.axes)):
+            for i, (ax1, ax2) in enumerate(zip(axes, obj.axes, strict=True)):
                 axes[i] = ax1.union(ax2)
 
-        reconstruct_axes = dict(zip(self._AXIS_ORDERS, axes))
+        reconstruct_axes = dict(zip(self._AXIS_ORDERS, axes, strict=True))
         inputs = tuple(
             x.reindex(**reconstruct_axes) if issubclass(t, NDFrame) else x
-            for x, t in zip(inputs, types)
+            for x, t in zip(inputs, types, strict=True)
         )
     else:
-        reconstruct_axes = dict(zip(self._AXIS_ORDERS, self.axes))
+        reconstruct_axes = dict(zip(self._AXIS_ORDERS, self.axes, strict=True))
 
     if self.ndim == 1:
-        names = [getattr(x, "name") for x in inputs if hasattr(x, "name")]
-        name = names[0] if len(set(names)) == 1 else None
+        names = {x.name for x in inputs if hasattr(x, "name")}
+        name = names.pop() if len(names) == 1 else None
         reconstruct_kwargs = {"name": name}
     else:
         reconstruct_kwargs = {}
@@ -350,7 +353,7 @@ def array_ufunc(self, ufunc: np.ufunc, method: str, *inputs: Any, **kwargs: Any)
             if method == "outer":
                 raise NotImplementedError
             return result
-        if isinstance(result, (BlockManager, ArrayManager)):
+        if isinstance(result, BlockManager):
             # we went through BlockManager.apply e.g. np.sqrt
             result = self._constructor_from_mgr(result, axes=result.axes)
         else:
@@ -397,19 +400,18 @@ def array_ufunc(self, ufunc: np.ufunc, method: str, *inputs: Any, **kwargs: Any)
         # ufunc(series, ...)
         inputs = tuple(extract_array(x, extract_numpy=True) for x in inputs)
         result = getattr(ufunc, method)(*inputs, **kwargs)
+    # ufunc(dataframe)
+    elif method == "__call__" and not kwargs:
+        # for np.<ufunc>(..) calls
+        # kwargs cannot necessarily be handled block-by-block, so only
+        # take this path if there are no kwargs
+        mgr = inputs[0]._mgr  # pyright: ignore[reportGeneralTypeIssues]
+        result = mgr.apply(getattr(ufunc, method))
     else:
-        # ufunc(dataframe)
-        if method == "__call__" and not kwargs:
-            # for np.<ufunc>(..) calls
-            # kwargs cannot necessarily be handled block-by-block, so only
-            # take this path if there are no kwargs
-            mgr = inputs[0]._mgr
-            result = mgr.apply(getattr(ufunc, method))
-        else:
-            # otherwise specific ufunc methods (eg np.<ufunc>.accumulate(..))
-            # Those can have an axis keyword and thus can't be called block-by-block
-            result = default_array_ufunc(inputs[0], ufunc, method, *inputs, **kwargs)
-            # e.g. np.negative (only one reached), with "where" and "out" in kwargs
+        # otherwise specific ufunc methods (eg np.<ufunc>.accumulate(..))
+        # Those can have an axis keyword and thus can't be called block-by-block
+        result = default_array_ufunc(inputs[0], ufunc, method, *inputs, **kwargs)  # pyright: ignore[reportGeneralTypeIssues]
+        # e.g. np.negative (only one reached), with "where" and "out" in kwargs
 
     result = reconstruct(result)
     return result
@@ -450,7 +452,7 @@ def dispatch_ufunc_with_out(self, ufunc: np.ufunc, method: str, *inputs, **kwarg
         if not isinstance(out, tuple) or len(out) != len(result):
             raise NotImplementedError
 
-        for arr, res in zip(out, result):
+        for arr, res in zip(out, result, strict=True):
             _assign_where(arr, res, where)
 
         return out
@@ -522,9 +524,11 @@ def dispatch_reduction_ufunc(self, ufunc: np.ufunc, method: str, *inputs, **kwar
             #  so calls DataFrame.min (without ever getting here) with the np.min
             #  default of axis=None, which DataFrame.min catches and changes to axis=0.
             # np.minimum.reduce(df) gets here bc axis is not in kwargs,
-            #  so we set axis=0 to match the behaviorof np.minimum.reduce(df.values)
+            #  so we set axis=0 to match the behavior of np.minimum.reduce(df.values)
             kwargs["axis"] = 0
 
     # By default, numpy's reductions do not skip NaNs, so we have to
     #  pass skipna=False
-    return getattr(self, method_name)(skipna=False, **kwargs)
+    result = getattr(self, method_name)(skipna=False, **kwargs)
+    result = maybe_unbox_numpy_scalar(result)
+    return result

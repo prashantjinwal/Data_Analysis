@@ -3,23 +3,25 @@
 
 This file is deprecated and will be removed in a future version.
 """
+
 import platform
 import builtins as builtin_mod
 
 from .encoding import DEFAULT_ENCODING
+from typing import Optional
 
 
-def decode(s, encoding=None):
+def decode(s: bytes, encoding: str | None = None) -> str:
     encoding = encoding or DEFAULT_ENCODING
     return s.decode(encoding, "replace")
 
 
-def encode(u, encoding=None):
+def encode(u: str, encoding: Optional[str]=None) -> bytes:
     encoding = encoding or DEFAULT_ENCODING
     return u.encode(encoding, "replace")
 
 
-def cast_unicode(s, encoding=None):
+def cast_unicode(s: str | bytes, encoding: Optional[str]=None) -> str:
     if isinstance(s, bytes):
         return decode(s, encoding)
     return s
@@ -56,13 +58,3 @@ def execfile(fname, glob, loc=None, compiler=None):
 
 
 PYPY = platform.python_implementation() == "PyPy"
-
-
-# Cython still rely on that as a Dec 28 2019
-# See https://github.com/cython/cython/pull/3291 and
-# https://github.com/ipython/ipython/issues/12068
-def no_code(x, encoding=None):
-    return x
-
-
-unicode_to_str = cast_bytes_py2 = no_code

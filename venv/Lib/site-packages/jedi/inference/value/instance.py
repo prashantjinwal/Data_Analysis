@@ -1,6 +1,5 @@
 from abc import abstractproperty
-
-from parso.tree import search_ancestor
+from typing import Any
 
 from jedi import debug
 from jedi import settings
@@ -18,7 +17,7 @@ from jedi.inference.arguments import ValuesArguments, TreeArgumentsWrapper
 from jedi.inference.value.function import \
     FunctionValue, FunctionMixin, OverloadedFunctionValue, \
     BaseFunctionExecutionContext, FunctionExecutionContext, FunctionNameInClass
-from jedi.inference.value.klass import ClassFilter
+from jedi.inference.value.klass import ClassFilter, init_or_new_func
 from jedi.inference.value.dynamic_arrays import get_dynamic_array_instance
 from jedi.parser_utils import function_is_staticmethod, function_is_classmethod
 
@@ -156,8 +155,9 @@ class AbstractInstanceValue(Value):
             return super().py__iter__(contextualized_node)
 
         def iterate():
-            for generator in self.execute_function_slots(iter_slot_names):
-                yield from generator.py__next__(contextualized_node)
+            yield LazyKnownValues(
+                self.execute_function_slots(iter_slot_names).py__next__(contextualized_node).infer()
+            )
         return iterate()
 
     def __repr__(self):
@@ -189,6 +189,9 @@ class CompiledInstance(AbstractInstanceValue):
 
 
 class _BaseTreeInstance(AbstractInstanceValue):
+    get_defined_names: Any
+    _arguments: Any
+
     @property
     def array_type(self):
         name = self.class_value.py__name__()
@@ -229,7 +232,7 @@ class _BaseTreeInstance(AbstractInstanceValue):
         new = node
         while True:
             func_node = new
-            new = search_ancestor(new, 'funcdef', 'classdef')
+            new = new.search_ancestor('funcdef', 'classdef')
             if class_context.tree_node is new:
                 func = FunctionValue.from_context(class_context, func_node)
                 bound_method = BoundMethod(self, class_context, func)
@@ -324,7 +327,7 @@ class TreeInstance(_BaseTreeInstance):
             infer_type_vars_for_execution
 
         args = InstanceArguments(self, self._arguments)
-        for signature in self.class_value.py__getattribute__('__init__').get_signatures():
+        for signature in init_or_new_func(self.class_value).get_signatures():
             # Just take the first result, it should always be one, because we
             # control the typeshed code.
             funcdef = signature.value.tree_node
@@ -498,13 +501,13 @@ class SelfName(TreeNameDefinition):
         return self._instance
 
     def infer(self):
-        stmt = search_ancestor(self.tree_name, 'expr_stmt')
+        stmt = self.tree_name.search_ancestor('expr_stmt')
         if stmt is not None:
             if stmt.children[1].type == "annassign":
                 from jedi.inference.gradual.annotation import infer_annotation
                 values = infer_annotation(
                     self.parent_context, stmt.children[1].children[1]
-                ).execute_annotation()
+                ).execute_annotation(None)
                 if values:
                     return values
         return super().infer()

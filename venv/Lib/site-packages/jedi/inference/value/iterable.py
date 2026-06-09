@@ -2,6 +2,8 @@
 Contains all classes and functions to deal with lists, dicts, generators and
 iterators in general.
 """
+from typing import Any
+
 from jedi.inference import compiled
 from jedi.inference import analysis
 from jedi.inference.lazy_value import LazyKnownValue, LazyKnownValues, \
@@ -20,6 +22,9 @@ from jedi.inference.value.dynamic_arrays import check_array_additions
 
 
 class IterableMixin:
+    py__iter__: Any
+    inference_state: Any
+
     def py__next__(self, contextualized_node=None):
         return self.py__iter__(contextualized_node)
 
@@ -39,11 +44,11 @@ class GeneratorBase(LazyAttributeOverwrite, IterableMixin):
     array_type = None
 
     def _get_wrapped_value(self):
-        instance, = self._get_cls().execute_annotation()
+        instance, = self._get_cls().execute_annotation(None)
         return instance
 
     def _get_cls(self):
-        generator, = self.inference_state.typing_module.py__getattribute__('Generator')
+        generator, = self.inference_state.types_module.py__getattribute__('GeneratorType')
         return generator
 
     def py__bool__(self):
@@ -128,6 +133,12 @@ def comprehension_from_atom(inference_state, value, atom):
 
 
 class ComprehensionMixin:
+    _defining_context: Any
+    _entry_node: Any
+    array_type: Any
+    _value_node: Any
+    _sync_comp_for_node: Any
+
     @inference_state_method_cache()
     def _get_comp_for_context(self, parent_context, comp_for):
         return CompForContext(parent_context, comp_for)
@@ -176,6 +187,8 @@ class ComprehensionMixin:
 
 
 class _DictMixin:
+    get_mapping_item_values: Any
+
     def _get_generics(self):
         return tuple(c_set.py__class__() for c_set in self.get_mapping_item_values())
 
@@ -201,7 +214,7 @@ class Sequence(LazyAttributeOverwrite, IterableMixin):
         c, = GenericClass(
             klass,
             TupleGenericManager(self._cached_generics())
-        ).execute_annotation()
+        ).execute_annotation(None)
         return c
 
     def py__bool__(self):
@@ -220,7 +233,7 @@ class Sequence(LazyAttributeOverwrite, IterableMixin):
 class _BaseComprehension(ComprehensionMixin):
     def __init__(self, inference_state, defining_context, sync_comp_for_node, entry_node):
         assert sync_comp_for_node.type == 'sync_comp_for'
-        super().__init__(inference_state)
+        super().__init__(inference_state)  # type: ignore[call-arg]
         self._defining_context = defining_context
         self._sync_comp_for_node = sync_comp_for_node
         self._entry_node = entry_node
@@ -248,6 +261,9 @@ class GeneratorComprehension(_BaseComprehension, GeneratorBase):
 
 
 class _DictKeyMixin:
+    _dict_keys: Any
+    _dict_values: Any
+
     # TODO merge with _DictMixin?
     def get_mapping_item_values(self):
         return self._dict_keys(), self._dict_values()

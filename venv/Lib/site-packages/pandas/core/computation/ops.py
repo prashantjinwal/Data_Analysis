@@ -9,7 +9,6 @@ from functools import partial
 import operator
 from typing import (
     TYPE_CHECKING,
-    Callable,
     Literal,
 )
 
@@ -36,6 +35,7 @@ from pandas.io.formats.printing import (
 
 if TYPE_CHECKING:
     from collections.abc import (
+        Callable,
         Iterable,
         Iterator,
     )
@@ -45,6 +45,7 @@ REDUCTIONS = ("sum", "prod", "min", "max")
 _unary_math_ops = (
     "sin",
     "cos",
+    "tan",
     "exp",
     "log",
     "expm1",
@@ -75,8 +76,7 @@ LOCAL_TAG = "__pd_eval_local_"
 class Term:
     def __new__(cls, name, env, side=None, encoding=None):
         klass = Constant if not isinstance(name, str) else cls
-        # error: Argument 2 for "super" not an instance of argument 1
-        supr_new = super(Term, klass).__new__  # type: ignore[misc]
+        supr_new = super(Term, klass).__new__
         return supr_new(klass)
 
     is_local: bool
@@ -115,7 +115,7 @@ class Term:
         res = self.env.resolve(local_name, is_local=is_local)
         self.update(res)
 
-        if hasattr(res, "ndim") and res.ndim > 2:
+        if hasattr(res, "ndim") and isinstance(res.ndim, int) and res.ndim > 2:
             raise NotImplementedError(
                 "N-dimensional objects, where N > 2, are not supported with eval"
             )
@@ -160,7 +160,7 @@ class Term:
 
     @property
     def raw(self) -> str:
-        return f"{type(self).__name__}(name={repr(self.name)}, type={self.type})"
+        return f"{type(self).__name__}(name={self.name!r}, type={self.type})"
 
     @property
     def is_datetime(self) -> bool:
@@ -302,11 +302,11 @@ _cmp_ops_funcs = (
     _in,
     _not_in,
 )
-_cmp_ops_dict = dict(zip(CMP_OPS_SYMS, _cmp_ops_funcs))
+_cmp_ops_dict = dict(zip(CMP_OPS_SYMS, _cmp_ops_funcs, strict=True))
 
 BOOL_OPS_SYMS = ("&", "|", "and", "or")
 _bool_ops_funcs = (operator.and_, operator.or_, operator.and_, operator.or_)
-_bool_ops_dict = dict(zip(BOOL_OPS_SYMS, _bool_ops_funcs))
+_bool_ops_dict = dict(zip(BOOL_OPS_SYMS, _bool_ops_funcs, strict=True))
 
 ARITH_OPS_SYMS = ("+", "-", "*", "/", "**", "//", "%")
 _arith_ops_funcs = (
@@ -318,13 +318,7 @@ _arith_ops_funcs = (
     operator.floordiv,
     operator.mod,
 )
-_arith_ops_dict = dict(zip(ARITH_OPS_SYMS, _arith_ops_funcs))
-
-SPECIAL_CASE_ARITH_OPS_SYMS = ("**", "//", "%")
-_special_case_arith_ops_funcs = (operator.pow, operator.floordiv, operator.mod)
-_special_case_arith_ops_dict = dict(
-    zip(SPECIAL_CASE_ARITH_OPS_SYMS, _special_case_arith_ops_funcs)
-)
+_arith_ops_dict = dict(zip(ARITH_OPS_SYMS, _arith_ops_funcs, strict=True))
 
 _binary_ops_dict = {}
 
@@ -362,7 +356,7 @@ class BinOp(Op):
             # has to be made a list for python3
             keys = list(_binary_ops_dict.keys())
             raise ValueError(
-                f"Invalid binary operator {repr(op)}, valid operators are {keys}"
+                f"Invalid binary operator {op!r}, valid operators are {keys}"
             ) from err
 
     def __call__(self, env):
@@ -466,7 +460,7 @@ class BinOp(Op):
                 v = v.tz_convert("UTC")
             self.lhs.update(v)
 
-    def _disallow_scalar_only_bool_ops(self):
+    def _disallow_scalar_only_bool_ops(self) -> None:
         rhs = self.rhs
         lhs = self.lhs
 
@@ -488,13 +482,9 @@ class BinOp(Op):
             raise NotImplementedError("cannot evaluate scalar only bool ops")
 
 
-def isnumeric(dtype) -> bool:
-    return issubclass(np.dtype(dtype).type, np.number)
-
-
 UNARY_OPS_SYMS = ("+", "-", "~", "not")
 _unary_ops_funcs = (operator.pos, operator.neg, operator.invert, operator.invert)
-_unary_ops_dict = dict(zip(UNARY_OPS_SYMS, _unary_ops_funcs))
+_unary_ops_dict = dict(zip(UNARY_OPS_SYMS, _unary_ops_funcs, strict=True))
 
 
 class UnaryOp(Op):
@@ -522,8 +512,7 @@ class UnaryOp(Op):
             self.func = _unary_ops_dict[op]
         except KeyError as err:
             raise ValueError(
-                f"Invalid unary operator {repr(op)}, "
-                f"valid operators are {UNARY_OPS_SYMS}"
+                f"Invalid unary operator {op!r}, valid operators are {UNARY_OPS_SYMS}"
             ) from err
 
     def __call__(self, env) -> MathCall:

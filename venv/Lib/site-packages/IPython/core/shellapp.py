@@ -94,12 +94,13 @@ shell_flags['matplotlib'] = (
 
 # it's possible we don't want short aliases for *all* of these:
 shell_aliases = dict(
-    autocall='InteractiveShell.autocall',
-    colors='InteractiveShell.colors',
-    logfile='InteractiveShell.logfile',
-    logappend='InteractiveShell.logappend',
-    c='InteractiveShellApp.code_to_run',
-    m='InteractiveShellApp.module_to_run',
+    autocall="InteractiveShell.autocall",
+    colors="InteractiveShell.colors",
+    theme="InteractiveShell.colors",
+    logfile="InteractiveShell.logfile",
+    logappend="InteractiveShell.logappend",
+    c="InteractiveShellApp.code_to_run",
+    m="InteractiveShellApp.module_to_run",
     ext="InteractiveShellApp.extra_extensions",
     gui='InteractiveShellApp.gui',
     pylab='InteractiveShellApp.pylab',
@@ -246,6 +247,8 @@ class InteractiveShellApp(Configurable):
     def init_path(self):
         """Add current working directory, '', to sys.path
 
+        Unless disabled by ignore_cwd config or sys.flags.safe_path.
+
         Unlike Python's default, we insert before the first `site-packages`
         or `dist-packages` directory,
         so that it is after the standard library.
@@ -254,8 +257,10 @@ class InteractiveShellApp(Configurable):
             Try to insert after the standard library, instead of first.
         .. versionchanged:: 8.0
             Allow optionally not including the current directory in sys.path
+        .. versionchanged:: 9.7
+            Respect sys.flags.safe_path (PYTHONSAFEPATH and -P flag)
         """
-        if '' in sys.path or self.ignore_cwd:
+        if "" in sys.path or self.ignore_cwd or sys.flags.safe_path:
             return
         for idx, path in enumerate(sys.path):
             parent, last_part = os.path.split(path)

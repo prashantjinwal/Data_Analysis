@@ -243,7 +243,7 @@ def test_coerce_to_numpy_array():
 def test_to_boolean_array_from_strings():
     result = BooleanArray._from_sequence_of_strings(
         np.array(["True", "False", "1", "1.0", "0", "0.0", np.nan], dtype=object),
-        dtype="boolean",
+        dtype=pd.BooleanDtype(),
     )
     expected = BooleanArray(
         np.array([True, False, True, True, False, False, False]),
@@ -255,7 +255,7 @@ def test_to_boolean_array_from_strings():
 
 def test_to_boolean_array_from_strings_invalid_string():
     with pytest.raises(ValueError, match="cannot be cast"):
-        BooleanArray._from_sequence_of_strings(["donkey"], dtype="boolean")
+        BooleanArray._from_sequence_of_strings(["donkey"], dtype=pd.BooleanDtype())
 
 
 @pytest.mark.parametrize("box", [True, False], ids=["series", "array"])
@@ -323,3 +323,13 @@ def test_to_numpy_copy():
     result = arr.to_numpy(dtype=bool, copy=True)
     result[0] = False
     tm.assert_extension_array_equal(arr, pd.array([True, False, True], dtype="boolean"))
+
+
+def test_to_numpy_readonly():
+    arr = pd.array([True, False, True], dtype="boolean")
+    arr._readonly = True
+    result = arr.to_numpy(dtype=bool)
+    assert not result.flags.writeable
+
+    result = arr.to_numpy(dtype="int64")
+    assert result.flags.writeable

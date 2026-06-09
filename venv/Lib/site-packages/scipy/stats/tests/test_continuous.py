@@ -22,7 +22,7 @@ from scipy.stats._distribution_infrastructure import (
     _generate_domain_support, Mixture)
 from scipy.stats._new_distributions import StandardNormal, _LogUniform, _Gamma
 from scipy.stats._new_distributions import DiscreteDistribution
-from scipy.stats import Normal, Uniform, Binomial
+from scipy.stats import Normal, Logistic, Uniform, Binomial
 
 
 class Test_RealInterval:
@@ -33,7 +33,6 @@ class Test_RealInterval:
         message = "The endpoints of the distribution are defined..."
         with pytest.raises(TypeError, match=message):
             domain.get_numerical_endpoints(dict)
-
 
     @pytest.mark.parametrize('x', [rng.uniform(10, 10, size=(2, 3, 4)),
                                    -np.inf, np.pi])
@@ -48,7 +47,6 @@ class Test_RealInterval:
            inclusive_a=strategies.booleans(),
            inclusive_b=strategies.booleans(),
            data=strategies.data())
-    @pytest.mark.thread_unsafe
     def test_contains(self, shapes, inclusive_a, inclusive_b, data):
         # Test `contains` when endpoints are defined by parameters
         input_shapes, result_shape = shapes
@@ -128,7 +126,6 @@ class Test_RealInterval:
            inclusive_a=strategies.booleans(),
            inclusive_b=strategies.booleans(),
            )
-    @pytest.mark.thread_unsafe
     def test_str2(self, a, b, inclusive_a, inclusive_b):
         # I wrote this independently from the implementation of __str__, but
         # I imagine it looks pretty similar to __str__.
@@ -189,6 +186,7 @@ def draw_distribution_from_family(family, data, rng, proportions, min_side=0):
 continuous_families = [
     StandardNormal,
     Normal,
+    Logistic,
     Uniform,
     _LogUniform
 ]
@@ -205,7 +203,6 @@ class TestDistributions:
     @settings(max_examples=20)
     @pytest.mark.parametrize('family', families)
     @given(data=strategies.data(), seed=strategies.integers(min_value=0))
-    @pytest.mark.thread_unsafe
     def test_support_moments_sample(self, family, data, seed):
         rng = np.random.default_rng(seed)
 
@@ -245,7 +242,6 @@ class TestDistributions:
                               ])
     @settings(max_examples=20)
     @given(data=strategies.data(), seed=strategies.integers(min_value=0))
-    @pytest.mark.thread_unsafe
     def test_funcs(self, family, data, seed, func, methods, arg):
         if family == Uniform and func == 'mode':
             pytest.skip("Mode is not unique; `method`s disagree.")
@@ -279,7 +275,6 @@ class TestDistributions:
                     check_ccdf2(dist, False, x, y, xy_result_shape, methods)
                     check_ccdf2(dist, True, x, y, xy_result_shape, methods)
 
-    @pytest.mark.thread_unsafe
     def test_plot(self):
         try:
             import matplotlib.pyplot as plt
@@ -654,14 +649,7 @@ def check_nans_and_edges(dist, fname, arg, res):
     if isinstance(dist, DiscreteDistribution):
         exclude.update({'pdf', 'logpdf'})
 
-    if (
-            fname not in exclude
-            and not (isinstance(dist, Binomial)
-                     and np.any((dist.n == 0) | (dist.p == 0) | (dist.p == 1)))):
-        # This can fail in degenerate case where Binomial distribution is a point
-        # distribution. Further on, we could factor out an is_degenerate function
-        # for the tests, or think about storing info about degeneracy in the
-        # instances.
+    if fname not in exclude:
         assert np.isfinite(res[all_valid & (endpoint_arg == 0)]).all()
 
 
@@ -769,13 +757,7 @@ def check_moment_funcs(dist, result_shape):
         assert ref.shape == result_shape
         check(i, 'standardized', 'formula', ref,
               success=has_formula(i, 'standardized'))
-        if not (
-                isinstance(dist, Binomial)
-                and np.any((dist.n == 0) | (dist.p == 0) | (dist.p == 1))
-        ):
-            # This test will fail for degenerate case where binomial distribution
-            # is a point distribution.
-            check(i, 'standardized', 'general', ref, success=i <= 2)
+        check(i, 'standardized', 'general', ref, success=i <= 2)
         check(i, 'standardized', 'normalize', ref)
 
     if isinstance(dist, ShiftedScaledDistribution):
@@ -1113,7 +1095,7 @@ class TestMakeDistribution:
                 'johnsonsb', 'kappa4', 'ksone', 'kstwo', 'kstwobign', 'norminvgauss',
                 'powerlognorm', 'powernorm', 'recipinvgauss', 'studentized_range',
                 'vonmises_line', # continuous
-                'betanbinom', 'logser', 'skellam', 'zipf'}  # discrete
+                'betanbinom', 'logser', 'zipf'}  # discrete
         if not int(os.environ.get('SCIPY_XSLOW', '0')) and distname in slow:
             pytest.skip('Skipping as XSLOW')
 
@@ -1240,8 +1222,14 @@ class TestMakeDistribution:
 
         LogUniform = stats.make_distribution(MyLogUniform())
 
-        X = LogUniform(a=np.exp(1), b=np.exp(3))
-        Y = stats.exp(Uniform(a=1., b=3.))
+        X = LogUniform(a=1., b=np.e)
+        Y = stats.exp(Uniform(a=0., b=1.))
+
+        # pre-2.0 support is not needed for much longer, so let's just test with 2.0+
+        if np.__version__ >= "2.0":
+            assert str(X) == f"MyLogUniform(a=1.0, b={np.e})"
+            assert repr(X) == f"MyLogUniform(a=np.float64(1.0), b=np.float64({np.e}))"
+
         x = X.sample(shape=10, rng=rng)
         p = X.cdf(x)
 
@@ -1493,7 +1481,6 @@ class TestTransforms:
 
     @pytest.mark.fail_slow(10)
     @given(data=strategies.data(), seed=strategies.integers(min_value=0))
-    @pytest.mark.thread_unsafe
     def test_loc_scale(self, data, seed):
         # Need tests with negative scale
         rng = np.random.default_rng(seed)
@@ -2196,3 +2183,12 @@ class TestMixture:
         np.testing.assert_allclose(X.iccdf(p), X0.iccdf(p))
         np.testing.assert_allclose(X.ilogcdf(p), X0.ilogcdf(p))
         np.testing.assert_allclose(X.ilogccdf(p), X0.ilogccdf(p))
+
+
+def test_zipfian_distribution_wrapper():
+    # Regression test for gh-23678: calling the cdf method at the end
+    # point of the Zipfian distribution would generate a warning.
+    Zipfian = stats.make_distribution(stats.zipfian)
+    zdist = Zipfian(a=0.75, n=15)
+    # This should not generate any warnings.
+    assert_equal(zdist.cdf(15), 1.0)

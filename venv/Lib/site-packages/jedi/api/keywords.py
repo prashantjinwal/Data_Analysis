@@ -41,7 +41,7 @@ def imitate_pydoc(string):
 
     try:
         # is a tuple now
-        label, related = string
+        label, related = string  # type: ignore[misc]
     except TypeError:
         return ''
 

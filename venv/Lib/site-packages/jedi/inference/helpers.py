@@ -5,12 +5,12 @@ import os
 from itertools import chain
 from contextlib import contextmanager
 
-from parso.python import tree
+from parso import tree
 
 
 def is_stdlib_path(path):
     # Python standard library paths look like this:
-    # /usr/lib/python3.9/...
+    # /usr/lib/python3.14/...
     # TODO The implementation below is probably incorrect and not complete.
     parts = path.parts
     if 'dist-packages' in parts or 'site-packages' in parts:

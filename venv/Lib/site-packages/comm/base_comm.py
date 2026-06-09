@@ -1,5 +1,4 @@
-"""Default classes for Comm and CommManager, for usage in IPython.
-"""
+"""Default classes for Comm and CommManager, for usage in IPython."""
 
 # Copyright (c) IPython Development Team.
 # Distributed under the terms of the Modified BSD License.
@@ -9,8 +8,6 @@ import contextlib
 import logging
 import typing as t
 import uuid
-
-from traitlets.utils.importstring import import_item
 
 import comm
 
@@ -53,7 +50,7 @@ class BaseComm:
         self.primary = primary
         self.target_name = target_name
         self.target_module = target_module
-        self.topic = topic if topic else ("comm-%s" % self.comm_id).encode("ascii")
+        self.topic = topic if topic else (f"comm-{self.comm_id}").encode("ascii")
 
         self._open_data = _open_data if _open_data else {}
         self._close_data = _close_data if _close_data else {}
@@ -71,11 +68,11 @@ class BaseComm:
 
     def publish_msg(
         self,
-        msg_type: str,  # noqa: ARG002
-        data: MaybeDict = None,  # noqa: ARG002
-        metadata: MaybeDict = None,  # noqa: ARG002
-        buffers: BuffersType = None,  # noqa: ARG002
-        **keys: t.Any,  # noqa: ARG002
+        msg_type: str,
+        data: MaybeDict = None,
+        metadata: MaybeDict = None,
+        buffers: BuffersType = None,
+        **keys: t.Any,
     ) -> None:
         msg = "publish_msg Comm method is not implemented"
         raise NotImplementedError(msg)
@@ -213,7 +210,19 @@ class CommManager:
         f can be a Python callable or an import string for one.
         """
         if isinstance(f, str):
-            f = import_item(f)
+            parts = f.rsplit(".", 1)
+            if len(parts) == 2:
+                # called with 'foo.bar....'
+                package, obj = parts
+                module = __import__(package, fromlist=[obj])
+                try:
+                    f = getattr(module, obj)
+                except AttributeError as e:
+                    error_msg = f"No module named {obj}"
+                    raise ImportError(error_msg) from e
+            else:
+                # called with un-dotted string
+                f = __import__(parts[0])
 
         self.targets[target_name] = t.cast(CommTargetCallback, f)
 
@@ -314,4 +323,4 @@ class CommManager:
             logger.error("Exception in comm_close for %s", comm_id, exc_info=True)
 
 
-__all__ = ["CommManager", "BaseComm"]
+__all__ = ["BaseComm", "CommManager"]

@@ -1,13 +1,13 @@
 """
 Tests for Fiscal Year and Fiscal Quarter offset classes
 """
+
 from datetime import datetime
 
 from dateutil.relativedelta import relativedelta
 import pytest
 
 from pandas import Timestamp
-import pandas._testing as tm
 from pandas.tests.tseries.offsets.common import (
     WeekDay,
     assert_is_on_offset,
@@ -121,8 +121,8 @@ class TestFY5253LastOfMonth:
         tests = [
             (offset_lom_aug_sat, date_seq_lom_aug_sat),
             (offset_lom_aug_sat_1, date_seq_lom_aug_sat),
-            (offset_lom_aug_sat, [datetime(2006, 8, 25)] + date_seq_lom_aug_sat),
-            (offset_lom_aug_sat_1, [datetime(2006, 8, 27)] + date_seq_lom_aug_sat[1:]),
+            (offset_lom_aug_sat, [datetime(2006, 8, 25), *date_seq_lom_aug_sat]),
+            (offset_lom_aug_sat_1, [datetime(2006, 8, 27), *date_seq_lom_aug_sat[1:]]),
             (
                 makeFY5253LastOfMonth(n=-1, startingMonth=8, weekday=WeekDay.SAT),
                 list(reversed(date_seq_lom_aug_sat)),
@@ -258,11 +258,11 @@ class TestFY5253NearestEndMonth:
             ),
             (
                 makeFY5253NearestEndMonth(startingMonth=8, weekday=WeekDay.SAT),
-                [datetime(2006, 9, 1)] + date_seq_nem_8_sat,
+                [datetime(2006, 9, 1), *date_seq_nem_8_sat],
             ),
             (
                 makeFY5253NearestEndMonth(n=1, startingMonth=8, weekday=WeekDay.SAT),
-                [datetime(2006, 9, 3)] + date_seq_nem_8_sat[1:],
+                [datetime(2006, 9, 3), *date_seq_nem_8_sat[1:]],
             ),
             (
                 makeFY5253NearestEndMonth(n=-1, startingMonth=8, weekday=WeekDay.SAT),
@@ -295,20 +295,6 @@ class TestFY5253NearestEndMonth:
 
 
 class TestFY5253LastOfMonthQuarter:
-    def test_is_anchored(self):
-        msg = "FY5253Quarter.is_anchored is deprecated "
-
-        with tm.assert_produces_warning(FutureWarning, match=msg):
-            assert makeFY5253LastOfMonthQuarter(
-                startingMonth=1, weekday=WeekDay.SAT, qtr_with_extra_week=4
-            ).is_anchored()
-            assert makeFY5253LastOfMonthQuarter(
-                weekday=WeekDay.SAT, startingMonth=3, qtr_with_extra_week=4
-            ).is_anchored()
-            assert not makeFY5253LastOfMonthQuarter(
-                2, startingMonth=1, weekday=WeekDay.SAT, qtr_with_extra_week=4
-            ).is_anchored()
-
     def test_equality(self):
         assert makeFY5253LastOfMonthQuarter(
             startingMonth=1, weekday=WeekDay.SAT, qtr_with_extra_week=4

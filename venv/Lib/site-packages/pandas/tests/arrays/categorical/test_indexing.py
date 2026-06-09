@@ -51,12 +51,10 @@ class TestCategoricalIndexingWithFactor:
 
         tm.assert_categorical_equal(c, expected)
 
-    @pytest.mark.parametrize(
-        "other",
-        [Categorical(["b", "a"]), Categorical(["b", "a"], categories=["b", "a"])],
-    )
-    def test_setitem_same_but_unordered(self, other):
+    @pytest.mark.parametrize("categories", [None, ["b", "a"]])
+    def test_setitem_same_but_unordered(self, categories):
         # GH-24142
+        other = Categorical(["b", "a"], categories=categories)
         target = Categorical(["a", "b"], categories=["a", "b"])
         mask = np.array([True, False])
         target[mask] = other[mask]
@@ -225,7 +223,7 @@ class TestCategoricalIndexing:
     @pytest.mark.parametrize("dtype", [None, "category", "key"])
     def test_get_indexer_non_unique(self, idx_values, key_values, key_class, dtype):
         # GH 21448
-        key = key_class(key_values, categories=range(1, 5))
+        key = key_class(key_values, categories=range(1, 6))
 
         if dtype == "key":
             dtype = key.dtype
@@ -299,7 +297,7 @@ class TestContains:
         assert 0 not in cat
         assert 1 not in cat
 
-        cat = Categorical(list("aabbca") + [np.nan], categories=list("cab"))
+        cat = Categorical([*list("aabbca"), np.nan], categories=list("cab"))
         assert np.nan in cat
 
     @pytest.mark.parametrize(

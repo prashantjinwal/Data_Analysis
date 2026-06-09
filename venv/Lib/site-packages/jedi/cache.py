@@ -28,7 +28,7 @@ def clear_time_caches(delete_all: bool = False) -> None:
     :param delete_all: Deletes also the cache that is normally not deleted,
         like parser cache, which is important for faster parsing.
     """
-    global _time_caches
+    global _time_caches  # noqa: F824
 
     if delete_all:
         for cache in _time_caches.values():
@@ -93,7 +93,7 @@ def time_cache(seconds):
             cache[key] = time.time(), result
             return result
 
-        wrapper.clear_cache = lambda: cache.clear()
+        wrapper.clear_cache = lambda: cache.clear()  # type: ignore[attr-defined]
         return wrapper
 
     return decorator

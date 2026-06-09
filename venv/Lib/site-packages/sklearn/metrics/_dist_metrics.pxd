@@ -1,6 +1,6 @@
 from libc.math cimport sqrt, exp
 
-from ..utils._typedefs cimport float64_t, float32_t, int32_t, intp_t
+from sklearn.utils._typedefs cimport float64_t, float32_t, int32_t, intp_t
 
 cdef class DistanceMetric:
     pass

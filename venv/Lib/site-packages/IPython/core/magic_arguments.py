@@ -1,4 +1,4 @@
-''' A decorator-based method of constructing IPython magics with `argparse`
+'''A decorator-based method of constructing IPython magics with `argparse`
 option handling.
 
 New magic functions can be defined like so::
@@ -27,12 +27,12 @@ arguments::
 
     In[1]: %cool?
         %cool [-o OPTION] arg
-        
+
         A really cool magic command.
-        
+
         positional arguments:
           arg                   An integer positional argument.
-        
+
         optional arguments:
           -o OPTION, --option OPTION
                                 An optional argument.
@@ -161,10 +161,12 @@ class MagicArgumentParser(argparse.ArgumentParser):
         """
         raise UsageError(message)
 
-    def parse_argstring(self, argstring):
+    def parse_argstring(self, argstring, *, partial=False):
         """ Split a string into an argument list and parse that argument list.
         """
-        argv = arg_split(argstring)
+        argv = arg_split(argstring, strict=not partial)
+        if partial:
+            return self.parse_known_args(argv)
         return self.parse_args(argv)
 
 
@@ -190,10 +192,10 @@ def construct_parser(magic_func):
     return parser
 
 
-def parse_argstring(magic_func, argstring):
+def parse_argstring(magic_func, argstring, *, partial=False):
     """ Parse the string of arguments for the given magic function.
     """
-    return magic_func.parser.parse_argstring(argstring)
+    return magic_func.parser.parse_argstring(argstring, partial=partial)
 
 
 def real_name(magic_func):
@@ -205,7 +207,7 @@ def real_name(magic_func):
     return getattr(magic_func, 'argcmd_name', magic_name)
 
 
-class ArgDecorator(object):
+class ArgDecorator:
     """ Base class for decorators to add ArgumentParser information to a method.
     """
 

@@ -17,8 +17,6 @@ be added to the array-specific tests in `pandas/tests/arrays/`.
 import numpy as np
 import pytest
 
-from pandas.errors import PerformanceWarning
-
 import pandas as pd
 from pandas import SparseDtype
 import pandas._testing as tm
@@ -26,12 +24,12 @@ from pandas.arrays import SparseArray
 from pandas.tests.extension import base
 
 
-def make_data(fill_value):
+def make_data(fill_value, n: int):
     rng = np.random.default_rng(2)
     if np.isnan(fill_value):
-        data = rng.uniform(size=100)
+        data = rng.uniform(size=n)
     else:
-        data = rng.integers(1, 100, size=100, dtype=int)
+        data = rng.integers(1, 100, size=n, dtype=int)
         if data[0] == data[1]:
             data[0] += 1
 
@@ -46,14 +44,14 @@ def dtype():
 
 @pytest.fixture(params=[0, np.nan])
 def data(request):
-    """Length-100 PeriodArray for semantics test."""
-    res = SparseArray(make_data(request.param), fill_value=request.param)
+    """Length-10 SparseArray for semantics test."""
+    res = SparseArray(make_data(request.param, 10), fill_value=request.param)
     return res
 
 
 @pytest.fixture
 def data_for_twos():
-    return SparseArray(np.ones(100) * 2)
+    return SparseArray(np.ones(10) * 2)
 
 
 @pytest.fixture(params=[0, np.nan])
@@ -68,9 +66,9 @@ def data_repeated(request):
 
     def gen(count):
         for _ in range(count):
-            yield SparseArray(make_data(request.param), fill_value=request.param)
+            yield SparseArray(make_data(request.param, 10), fill_value=request.param)
 
-    yield gen
+    return gen
 
 
 @pytest.fixture(params=[0, np.nan])
@@ -219,6 +217,11 @@ class TestSparseArray(base.ExtensionTests):
             assert ser.get(4) == ser.iloc[2]
         assert ser.get(2) == ser.iloc[1]
 
+    def test_array_item_with_index(self, data, request):
+        # TODO https://github.com/pandas-dev/pandas/pull/64183
+        request.node.add_marker(pytest.mark.xfail(reason="SparseArray getitem buggy"))
+        super().test_array_item_with_index(data)
+
     def test_reindex(self, data, na_value):
         self._check_unsupported(data)
         super().test_reindex(data, na_value)
@@ -236,17 +239,23 @@ class TestSparseArray(base.ExtensionTests):
         expected = SparseArray([False, False], fill_value=False, dtype=expected_dtype)
         tm.assert_equal(sarr.isna(), expected)
 
-    def test_fillna_limit_backfill(self, data_missing):
-        warns = (PerformanceWarning, FutureWarning)
-        with tm.assert_produces_warning(warns, check_stacklevel=False):
-            super().test_fillna_limit_backfill(data_missing)
-
     def test_fillna_no_op_returns_copy(self, data, request):
-        if np.isnan(data.fill_value):
-            request.applymarker(
-                pytest.mark.xfail(reason="returns array with different fill value")
-            )
         super().test_fillna_no_op_returns_copy(data)
+
+    def test_fillna_readonly(self, data_missing):
+        # copy keyword is ignored by SparseArray.fillna
+        # -> copy=True vs False doesn't make a difference
+        data = data_missing.copy()
+        data._readonly = True
+
+        result = data.fillna(data_missing[1])
+        assert result[0] == data_missing[1]
+        tm.assert_extension_array_equal(data, data_missing)
+
+        # fillna(copy=False) is ignored -> so same result as above
+        result = data.fillna(data_missing[1], copy=False)
+        assert result[0] == data_missing[1]
+        tm.assert_extension_array_equal(data, data_missing)
 
     @pytest.mark.xfail(reason="Unsupported")
     def test_fillna_series(self, data_missing):
@@ -275,9 +284,19 @@ class TestSparseArray(base.ExtensionTests):
 
         tm.assert_frame_equal(result, expected)
 
+    def test_fillna_limit_frame(self, data_missing):
+        # GH#58001
+        with pytest.raises(ValueError, match="limit must be None"):
+            super().test_fillna_limit_frame(data_missing)
+
+    def test_fillna_limit_series(self, data_missing):
+        # GH#58001
+        with pytest.raises(ValueError, match="limit must be None"):
+            super().test_fillna_limit_frame(data_missing)
+
     _combine_le_expected_dtype = "Sparse[bool]"
 
-    def test_fillna_copy_frame(self, data_missing, using_copy_on_write):
+    def test_fillna_copy_frame(self, data_missing):
         arr = data_missing.take([1, 1])
         df = pd.DataFrame({"A": arr}, copy=False)
 
@@ -285,24 +304,17 @@ class TestSparseArray(base.ExtensionTests):
         result = df.fillna(filled_val)
 
         if hasattr(df._mgr, "blocks"):
-            if using_copy_on_write:
-                assert df.values.base is result.values.base
-            else:
-                assert df.values.base is not result.values.base
+            assert df.values.base is result.values.base
         assert df.A._values.to_dense() is arr.to_dense()
 
-    def test_fillna_copy_series(self, data_missing, using_copy_on_write):
+    def test_fillna_copy_series(self, data_missing):
         arr = data_missing.take([1, 1])
         ser = pd.Series(arr, copy=False)
 
         filled_val = ser[0]
         result = ser.fillna(filled_val)
 
-        if using_copy_on_write:
-            assert ser._values is result._values
-
-        else:
-            assert ser._values is not result._values
+        assert ser._values is result._values
         assert ser._values.to_dense() is arr.to_dense()
 
     @pytest.mark.xfail(reason="Not Applicable")
@@ -331,8 +343,8 @@ class TestSparseArray(base.ExtensionTests):
         expected = pd.Series(cls._from_sequence([a, b, b, b], dtype=data.dtype))
         tm.assert_series_equal(result, expected)
 
-    def test_searchsorted(self, data_for_sorting, as_series):
-        with tm.assert_produces_warning(PerformanceWarning, check_stacklevel=False):
+    def test_searchsorted(self, performance_warning, data_for_sorting, as_series):
+        with tm.assert_produces_warning(performance_warning, check_stacklevel=False):
             super().test_searchsorted(data_for_sorting, as_series)
 
     def test_shift_0_periods(self, data):
@@ -414,6 +426,8 @@ class TestSparseArray(base.ExtensionTests):
             "rmul",
             "floordiv",
             "rfloordiv",
+            "truediv",
+            "rtruediv",
             "pow",
             "mod",
             "rmod",

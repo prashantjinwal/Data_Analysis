@@ -39,7 +39,7 @@ def _is_type(obj):
 
 
 def _shadowed_dict(klass):
-    dict_attr = type.__dict__["__dict__"]
+    dict_attr = type.__dict__["__dict__"]  # type: ignore[index]
     for entry in _static_getmro(klass):
         try:
             class_dict = dict_attr.__get__(entry)["__dict__"]
@@ -54,7 +54,7 @@ def _shadowed_dict(klass):
 
 
 def _static_getmro(klass):
-    mro = type.__dict__['__mro__'].__get__(klass)
+    mro = type.__dict__['__mro__'].__get__(klass)  # type: ignore[index]
     if not isinstance(mro, (tuple, list)):
         # There are unfortunately no tests for this, I was not able to
         # reproduce this in pure Python. However should still solve the issue
@@ -90,7 +90,10 @@ def getattr_static(obj, attr, default=_sentinel):
     if not _is_type(obj):
         klass = type(obj)
         dict_attr = _shadowed_dict(klass)
-        if (dict_attr is _sentinel or type(dict_attr) is types.MemberDescriptorType):
+        # In Python 3.15+, __dict__ is a GetSetDescriptorType instead of being _sentinel
+        if (dict_attr is _sentinel
+                or type(dict_attr) is types.MemberDescriptorType
+                or type(dict_attr) is types.GetSetDescriptorType):
             instance_result = _check_instance(obj, attr)
     else:
         klass = obj

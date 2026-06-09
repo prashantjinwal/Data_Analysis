@@ -157,13 +157,13 @@ def test_rolling_forward_window(
     indexer = FixedForwardWindowIndexer(window_size=3)
 
     match = "Forward-looking windows can't have center=True"
+    rolling = frame_or_series(values).rolling(window=indexer, center=True)
     with pytest.raises(ValueError, match=match):
-        rolling = frame_or_series(values).rolling(window=indexer, center=True)
         getattr(rolling, func)()
 
     match = "Forward-looking windows don't support setting the closed argument"
+    rolling = frame_or_series(values).rolling(window=indexer, closed="right")
     with pytest.raises(ValueError, match=match):
-        rolling = frame_or_series(values).rolling(window=indexer, closed="right")
         getattr(rolling, func)()
 
     rolling = frame_or_series(values).rolling(window=indexer, min_periods=2, step=step)
@@ -327,7 +327,7 @@ def test_indexer_quantile_sum(end_value, values, func, args):
     [
         {"a": [1, 1], "b": [0, 1]},
         {"a": [1, 2], "b": [0, 1]},
-        {"a": [1] * 16, "b": [np.nan, 1, 2, np.nan] + list(range(4, 16))},
+        {"a": [1] * 16, "b": [np.nan, 1, 2, np.nan, *list(range(4, 16))]},
     ],
 )
 def test_indexers_are_reusable_after_groupby_rolling(
@@ -387,7 +387,7 @@ def test_fixed_forward_indexer_bounds(
         (
             DataFrame(
                 {
-                    "b": [np.nan, 1, 2, np.nan] + list(range(4, 18)),
+                    "b": [np.nan, 1, 2, np.nan, *list(range(4, 18))],
                     "a": [1] * 7 + [2] * 11,
                     "c": range(18),
                 }

@@ -61,6 +61,7 @@ class MixedModuleContext(ModuleContext):
         )
 
     def get_filters(self, until_position=None, origin_scope=None):
+
         yield MergedFilter(
             MixedParserTreeFilter(
                 parent_context=self,
@@ -72,3 +73,10 @@ class MixedModuleContext(ModuleContext):
 
         for mixed_object in self.mixed_values:
             yield from mixed_object.get_filters(until_position, origin_scope)
+
+        # Now that we have merged the filter for this mixed context we have to
+        # remove the first entry (which is the module itself), but we want to
+        # add the other filters like the star imports.
+        filters = self._value.get_filters(origin_scope)
+        next(filters, None)
+        yield from filters

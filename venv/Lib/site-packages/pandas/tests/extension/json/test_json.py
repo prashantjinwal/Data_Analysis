@@ -26,8 +26,8 @@ def dtype():
 
 @pytest.fixture
 def data():
-    """Length-100 PeriodArray for semantics test."""
-    data = make_data()
+    """Length-10 JSONArray for semantics test."""
+    data = make_data(10)
 
     # Why the while loop? NumPy is unable to construct an ndarray from
     # equal-length ndarrays. Many of our operations involve coercing the
@@ -36,7 +36,7 @@ def data():
     # the first two elements, so that's what we'll check.
 
     while len(data[0]) == len(data[1]):
-        data = make_data()
+        data = make_data(10)
 
     return JSONArray(data)
 
@@ -127,7 +127,7 @@ class TestJSONArray(base.ExtensionTests):
     @pytest.mark.xfail(reason="Different definitions of NA")
     def test_stack(self):
         """
-        The test does .astype(object).stack(future_stack=True). If we happen to have
+        The test does .astype(object).stack(). If we happen to have
         any missing values in `data`, then we'll end up with different
         rows since we consider `{}` NA, but `.astype(object)` doesn't.
         """
@@ -148,6 +148,23 @@ class TestJSONArray(base.ExtensionTests):
     def test_fillna_frame(self):
         """We treat dictionaries as a mapping in fillna, not a scalar."""
         super().test_fillna_frame()
+
+    def test_fillna_with_none(self, data_missing):
+        # GH#57723
+        # EAs that don't have special logic for None will raise, unlike pandas'
+        # which interpret None as the NA value for the dtype.
+        with pytest.raises(AssertionError):
+            super().test_fillna_with_none(data_missing)
+
+    @pytest.mark.xfail(reason="fill value is a dictionary, takes incorrect code path")
+    def test_fillna_limit_frame(self, data_missing):
+        # GH#58001
+        super().test_fillna_limit_frame(data_missing)
+
+    @pytest.mark.xfail(reason="fill value is a dictionary, takes incorrect code path")
+    def test_fillna_limit_series(self, data_missing):
+        # GH#58001
+        super().test_fillna_limit_frame(data_missing)
 
     @pytest.mark.parametrize(
         "limit_area, input_ilocs, expected_ilocs",
@@ -172,30 +189,15 @@ class TestJSONArray(base.ExtensionTests):
                 data_missing, limit_area, input_ilocs, expected_ilocs
             )
 
-    @unhashable
-    def test_value_counts(self, all_data, dropna):
+    def test_value_counts(self, all_data, dropna, request):
+        if len(all_data) == 10 or dropna:
+            request.applymarker(unhashable)
         super().test_value_counts(all_data, dropna)
-
-    @unhashable
-    def test_value_counts_with_normalize(self, data):
-        super().test_value_counts_with_normalize(data)
 
     @unhashable
     def test_sort_values_frame(self):
         # TODO (EA.factorize): see if _values_for_factorize allows this.
         super().test_sort_values_frame()
-
-    @pytest.mark.parametrize("ascending", [True, False])
-    def test_sort_values(self, data_for_sorting, ascending, sort_by_key):
-        super().test_sort_values(data_for_sorting, ascending, sort_by_key)
-
-    @pytest.mark.parametrize("ascending", [True, False])
-    def test_sort_values_missing(
-        self, data_missing_for_sorting, ascending, sort_by_key
-    ):
-        super().test_sort_values_missing(
-            data_missing_for_sorting, ascending, sort_by_key
-        )
 
     @pytest.mark.xfail(reason="combine for JSONArray not supported")
     def test_combine_le(self, data_repeated):
@@ -229,12 +231,8 @@ class TestJSONArray(base.ExtensionTests):
     def test_fillna_copy_frame(self, data_missing):
         super().test_fillna_copy_frame(data_missing)
 
-    def test_equals_same_data_different_object(
-        self, data, using_copy_on_write, request
-    ):
-        if using_copy_on_write:
-            mark = pytest.mark.xfail(reason="Fails with CoW")
-            request.applymarker(mark)
+    @pytest.mark.xfail(reason="Fails with CoW")
+    def test_equals_same_data_different_object(self, data):
         super().test_equals_same_data_different_object(data)
 
     @pytest.mark.xfail(reason="failing on np.array(self, dtype=str)")
@@ -358,18 +356,25 @@ class TestJSONArray(base.ExtensionTests):
             request.applymarker(mark)
         super().test_setitem_integer_array(data, idx, box_in_series)
 
-    @pytest.mark.xfail(reason="list indices must be integers or slices, not NAType")
     @pytest.mark.parametrize(
-        "idx, box_in_series",
+        "idx",
         [
-            ([0, 1, 2, pd.NA], False),
-            pytest.param(
-                [0, 1, 2, pd.NA], True, marks=pytest.mark.xfail(reason="GH-31948")
-            ),
-            (pd.array([0, 1, 2, pd.NA], dtype="Int64"), False),
-            (pd.array([0, 1, 2, pd.NA], dtype="Int64"), False),
+            [0, 1, 2, pd.NA],
+            pd.array([0, 1, 2, pd.NA], dtype="Int64"),
         ],
-        ids=["list-False", "list-True", "integer-array-False", "integer-array-True"],
+        ids=["list", "integer-array"],
+    )
+    @pytest.mark.parametrize(
+        "box_in_series",
+        [
+            True,
+            pytest.param(
+                False,
+                marks=pytest.mark.xfail(
+                    reason="list indices must be integers or slices, not NAType"
+                ),
+            ),
+        ],
     )
     def test_setitem_integer_with_missing_raises(self, data, idx, box_in_series):
         super().test_setitem_integer_with_missing_raises(data, idx, box_in_series)
@@ -416,6 +421,12 @@ class TestJSONArray(base.ExtensionTests):
     @pytest.mark.xfail(reason="Fail to raise")
     def test_setitem_invalid(self, data, invalid_scalar):
         super().test_setitem_invalid(data, invalid_scalar)
+
+    @pytest.mark.xfail(
+        reason="result readonly flag is incorrect and does not support na_value"
+    )
+    def test_readonly_propagates_to_numpy_array_method(self, data):
+        super().test_readonly_propagates_to_numpy_array_method(data)
 
     @pytest.mark.xfail(reason="only integer scalar arrays can be converted")
     def test_setitem_2d_values(self, data):

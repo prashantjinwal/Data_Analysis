@@ -3,6 +3,8 @@ import re
 import numpy as np
 import pytest
 
+from pandas.compat import WASM
+
 from pandas import (
     Index,
     Interval,
@@ -15,6 +17,9 @@ import pandas._testing as tm
 class TestIntervalIndex:
     @pytest.fixture
     def series_with_interval_index(self):
+        """
+        Fixture providing a Series with an IntervalIndex.
+        """
         return Series(np.arange(5), IntervalIndex.from_breaks(np.arange(6)))
 
     def test_loc_with_interval(self, series_with_interval_index, indexer_sl):
@@ -209,6 +214,7 @@ class TestIntervalIndex:
             obj.loc[[4, 5, 6]]
 
 
+@pytest.mark.xfail(WASM, reason="GH 23440")
 @pytest.mark.parametrize(
     "intervals",
     [

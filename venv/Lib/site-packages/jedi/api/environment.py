@@ -8,7 +8,7 @@ import hashlib
 import filecmp
 from collections import namedtuple
 from shutil import which
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from jedi.cache import memoize_method, time_cache
 from jedi.inference.compiled.subprocess import CompiledSubprocess, \
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 _VersionInfo = namedtuple('VersionInfo', 'major minor micro')  # type: ignore[name-match]
 
-_SUPPORTED_PYTHONS = ['3.13', '3.12', '3.11', '3.10', '3.9', '3.8', '3.7', '3.6']
+_SUPPORTED_PYTHONS = ['3.14', '3.13', '3.12', '3.11', '3.10']
 _SAFE_PATHS = ['/usr/bin', '/usr/local/bin']
 _CONDA_VAR = 'CONDA_PREFIX'
 _CURRENT_VERSION = '%s.%s' % (sys.version_info.major, sys.version_info.minor)
@@ -36,6 +36,9 @@ class InvalidPythonEnvironment(Exception):
 
 
 class _BaseEnvironment:
+    version_info: Any
+    executable: Any
+
     @memoize_method
     def get_grammar(self):
         version_string = '%s.%s' % (self.version_info.major, self.version_info.minor)
@@ -251,7 +254,7 @@ def get_cached_default_environment():
     # /path/to/env so we need to fully resolve the paths in order to
     # compare them.
     if var and os.path.realpath(var) != os.path.realpath(environment.path):
-        _get_cached_default_environment.clear_cache()
+        _get_cached_default_environment.clear_cache()  # type: ignore[attr-defined]
         return _get_cached_default_environment()
     return environment
 
@@ -355,7 +358,7 @@ def get_system_environment(version, *, env_vars=None):
             return SameEnvironment()
         return Environment(exe)
 
-    if os.name == 'nt':
+    if sys.platform == "win32":
         for exe in _get_executables_from_windows_registry(version):
             try:
                 return Environment(exe, env_vars=env_vars)
@@ -383,7 +386,7 @@ def _get_executable_path(path, safe=True):
     Returns None if it's not actually a virtual env.
     """
 
-    if os.name == 'nt':
+    if sys.platform == "win32":
         pythons = [os.path.join(path, 'Scripts', 'python.exe'), os.path.join(path, 'python.exe')]
     else:
         pythons = [os.path.join(path, 'bin', 'python')]
@@ -397,27 +400,28 @@ def _get_executable_path(path, safe=True):
     return python
 
 
-def _get_executables_from_windows_registry(version):
-    import winreg
+if sys.platform == "win32":
+    def _get_executables_from_windows_registry(version):
+        import winreg
 
-    # TODO: support Python Anaconda.
-    sub_keys = [
-        r'SOFTWARE\Python\PythonCore\{version}\InstallPath',
-        r'SOFTWARE\Wow6432Node\Python\PythonCore\{version}\InstallPath',
-        r'SOFTWARE\Python\PythonCore\{version}-32\InstallPath',
-        r'SOFTWARE\Wow6432Node\Python\PythonCore\{version}-32\InstallPath'
-    ]
-    for root_key in [winreg.HKEY_CURRENT_USER, winreg.HKEY_LOCAL_MACHINE]:
-        for sub_key in sub_keys:
-            sub_key = sub_key.format(version=version)
-            try:
-                with winreg.OpenKey(root_key, sub_key) as key:
-                    prefix = winreg.QueryValueEx(key, '')[0]
-                    exe = os.path.join(prefix, 'python.exe')
-                    if os.path.isfile(exe):
-                        yield exe
-            except WindowsError:
-                pass
+        # TODO: support Python Anaconda.
+        sub_keys = [
+            r'SOFTWARE\Python\PythonCore\{version}\InstallPath',
+            r'SOFTWARE\Wow6432Node\Python\PythonCore\{version}\InstallPath',
+            r'SOFTWARE\Python\PythonCore\{version}-32\InstallPath',
+            r'SOFTWARE\Wow6432Node\Python\PythonCore\{version}-32\InstallPath'
+        ]
+        for root_key in [winreg.HKEY_CURRENT_USER, winreg.HKEY_LOCAL_MACHINE]:
+            for sub_key in sub_keys:
+                sub_key = sub_key.format(version=version)
+                try:
+                    with winreg.OpenKey(root_key, sub_key) as key:
+                        prefix = winreg.QueryValueEx(key, '')[0]
+                        exe = os.path.join(prefix, 'python.exe')
+                        if os.path.isfile(exe):
+                            yield exe
+                except WindowsError:
+                    pass
 
 
 def _assert_safe(executable_path, safe):

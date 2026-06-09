@@ -74,7 +74,6 @@ class PushBackIterator:
     def __init__(self, iterator):
         self.pushes = []
         self.iterator = iterator
-        self.current = None
 
     def push_back(self, value):
         self.pushes.append(value)

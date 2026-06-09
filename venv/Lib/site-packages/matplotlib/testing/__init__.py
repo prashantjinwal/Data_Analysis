@@ -164,7 +164,8 @@ def _check_for_pgf(texsystem):
         """, encoding="utf-8")
         try:
             subprocess.check_call(
-                [texsystem, "-halt-on-error", str(tex_path)], cwd=tmpdir,
+                [texsystem, "-halt-on-error", "-no-shell-escape",
+                 str(tex_path)], cwd=tmpdir,
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         except (OSError, subprocess.CalledProcessError):
             return False

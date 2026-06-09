@@ -1,6 +1,6 @@
 """Terminal input and output prompts."""
 
-from pygments.token import Token
+from pygments.token import _TokenType, Token
 import sys
 
 from IPython.core.displayhook import DisplayHook
@@ -8,10 +8,14 @@ from IPython.core.displayhook import DisplayHook
 from prompt_toolkit.formatted_text import fragment_list_width, PygmentsTokens
 from prompt_toolkit.shortcuts import print_formatted_text
 from prompt_toolkit.enums import EditingMode
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
+
+if TYPE_CHECKING:
+    from IPython.terminal.interactiveshell import TerminalInteractiveShell
 
 
-class Prompts(object):
-    def __init__(self, shell):
+class Prompts:
+    def __init__(self, shell: "TerminalInteractiveShell"):
         self.shell = shell
 
     def vi_mode(self):
@@ -32,9 +36,9 @@ class Prompts(object):
 
     def in_prompt_tokens(self):
         return [
-            (Token.Prompt, self.vi_mode()),
+            (Token.Prompt.Mode, self.vi_mode()),
             (
-                Token.Prompt,
+                Token.Prompt.LineNumber,
                 self.shell.prompt_line_number_format.format(
                     line=1, rel_line=-self.current_line()
                 ),
@@ -47,10 +51,24 @@ class Prompts(object):
     def _width(self):
         return fragment_list_width(self.in_prompt_tokens())
 
-    def continuation_prompt_tokens(self, width=None, *, lineno=None):
+    def continuation_prompt_tokens(
+        self,
+        width: int | None = None,
+        *,
+        lineno: int | None = None,
+        wrap_count: int | None = None,
+    ):
         if width is None:
             width = self._width()
         line = lineno + 1 if lineno is not None else 0
+        if wrap_count:
+            return [
+                (
+                    Token.Prompt.Wrap,
+                    # (" " * (width - 2)) + "\N{HORIZONTAL ELLIPSIS} ",
+                    (" " * (width - 2)) + "\N{VERTICAL ELLIPSIS} ",
+                ),
+            ]
         prefix = " " * len(
             self.vi_mode()
         ) + self.shell.prompt_line_number_format.format(
@@ -58,9 +76,10 @@ class Prompts(object):
         )
         return [
             (
-                Token.Prompt,
-                prefix + (" " * (width - len(prefix) - 5)) + "...: ",
+                getattr(Token.Prompt.Continuation, f"L{lineno}"),
+                prefix + (" " * (width - len(prefix) - 5)) + "...:",
             ),
+            (Token.Prompt.Padding, " "),
         ]
 
     def rewrite_prompt_tokens(self):
@@ -69,10 +88,10 @@ class Prompts(object):
             (Token.Prompt, ('-' * (width - 2)) + '> '),
         ]
 
-    def out_prompt_tokens(self):
+    def out_prompt_tokens(self) -> List[Tuple[_TokenType, str]]:
         return [
             (Token.OutPrompt, 'Out['),
-            (Token.OutPromptNum, str(self.shell.execution_count)),
+            (Token.OutPromptNum, str(self.shell.execution_count - 1)),
             (Token.OutPrompt, ']: '),
         ]
 
@@ -83,9 +102,7 @@ class ClassicPrompts(Prompts):
         ]
 
     def continuation_prompt_tokens(self, width=None):
-        return [
-            (Token.Prompt, '... ')
-        ]
+        return [(Token.Prompt.Continuation, "... ")]
 
     def rewrite_prompt_tokens(self):
         return []
@@ -115,7 +132,7 @@ class RichPromptDisplayHook(DisplayHook):
             else:
                 sys.stdout.write(prompt_txt)
 
-    def write_format_data(self, format_dict, md_dict=None) -> None:
+    def write_format_data(self, format_dict: Dict[str, str], md_dict: Optional[Dict[Any, Any]]=None) -> None:
         assert self.shell is not None
         if self.shell.mime_renderers:
 

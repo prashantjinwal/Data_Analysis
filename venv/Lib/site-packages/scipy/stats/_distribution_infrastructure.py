@@ -1,15 +1,17 @@
 import functools
 from abc import ABC, abstractmethod
 from functools import cached_property
+from types import GenericAlias
 import inspect
 import math
 
 import numpy as np
 from numpy import inf
 
-from scipy._lib._array_api import xp_promote
+from scipy._lib._array_api import xp_capabilities, xp_promote
 from scipy._lib._util import _rng_spawn, _RichResult
 from scipy._lib._docscrape import ClassDoc, NumpyDocString
+import scipy._lib.array_api_extra as xpx
 from scipy import special, stats
 from scipy.special._ufuncs import _log1mexp
 from scipy.integrate import tanhsinh as _tanhsinh, nsum
@@ -217,6 +219,9 @@ class _Domain(ABC):
 
     """
     symbols = {np.inf: r"\infty", -np.inf: r"-\infty", np.pi: r"\pi", -np.pi: r"-\pi"}
+
+    # generic type compatibility with scipy-stubs
+    __class_getitem__ = classmethod(GenericAlias)
 
     @abstractmethod
     def contains(self, x):
@@ -590,6 +595,10 @@ class _Parameter(ABC):
         of the parameter.
 
    """
+
+    # generic type compatibility with scipy-stubs
+    __class_getitem__ = classmethod(GenericAlias)
+
     def __init__(self, name, *, domain, symbol=None, typical=None):
         self.name = name
         self.symbol = symbol or name
@@ -2320,9 +2329,9 @@ class UnivariateDistribution(_ProbabilityDistribution):
             logpxf = self._logpxf_dispatch(x, **params)
             temp = np.asarray(pxf)
             i = (pxf != 0)  # 0 * inf -> nan; should be 0
-            temp[i] = pxf[i]*logpxf[i]
+            temp[i] = -pxf[i]*logpxf[i]
             return temp
-        return -self._quadrature(integrand, params=params)
+        return self._quadrature(integrand, params=params)
 
     @_set_invalid_nan_property
     def median(self, *, method=None):
@@ -2340,7 +2349,7 @@ class UnivariateDistribution(_ProbabilityDistribution):
         raise NotImplementedError(self._not_implemented)
 
     def _median_icdf(self, **params):
-        return self._icdf_dispatch(0.5, **params)
+        return self._icdf_dispatch(np.asarray(0.5, dtype=self._dtype), **params)
 
     @_set_invalid_nan_property
     def mode(self, *, method=None):
@@ -3679,41 +3688,92 @@ class DiscreteDistribution(UnivariateDistribution):
             "continuous distributions.")
 
     def _solve_bounded_discrete(self, func, p, params, comp):
-        res = self._solve_bounded(func, p, params=params, xatol=0.9)
-        x = np.asarray(np.floor(res.xr))
+        # We're trying to solve one of these two problems:
+        # a) find the smallest integer x* within the support s.t. F(x*) >= p
+        # b) find the smallest integer x* within the support s.t. G(x*) = 1 - F(x*) <= p
+        # Our approach is to solve a continuous version of the problem that narrows the
+        # solution down to an integer x s.t. either x* = x or x* = x + 1. At the end,
+        # we'll choose between them.
 
-        # if _chandrupatla finds exact inverse, the bracket may not have been reduced
-        # enough for `np.floor(res.x)` to be the appropriate value of `x`.
+        # First, solve func(x) == p where func is a continuous, monotone interpolant
+        # of either the monotone increasing F or monotone decreasing G.
+        res = self._solve_bounded(func, p, params=params, xatol=0.9)
+        # Here, `_solve_bounded` can terminate for one of three reasons:
+        # 1. `func(res.x) == p` (`fatol = 0` is satisfied),
+        # 2. `res.xl` and `res.xr` bracket the root and `|res.xr - res.xl| <= xatol`, or
+        # 3. There is no solution within the support.
+        # There are several possible strategies for using `res.xl`, `res.x`, and/or
+        # `res.xr` to find a solution to the original, discrete problem. Here is ours.
+
+        # Consider case 2a. Because F is an increasing function, we know
+        # that F(xr) >= p (and F(xl) <= p), so F(floor(xr) + 1) >= p.
+        # F(floor(xr)) *may* be >= p, but we can't know until we evaluate it.
+        # F(floor(xr) - 1) < p (strictly) because floor(xr) - 1 < xl and F decreases
+        # monotonically as the argument decreases. So we choose x = floor(xr), and
+        # later we'll choose between x* = x and x* = x + 1.
+        x = np.asarray(np.floor(res.xr))
+        # This is also suitable for case 2b. Because G is a *decreasing* function, we
+        # know that G(xr) <= p (and G(xl) >= p), so G(floor(xr) + 1) <= p.
+        # G(floor(xr)) *may* be <= p, but we can't know until we evaluate it.
+        # G(floor(xr) - 1) > p (strictly) because floor(xr) - 1 < xl and G increases
+        # as the argument decreases. So we would still want to choose x = floor(xr), and
+        # later we'll choose between x* = x and x* = x + 1.
+
+        # Now we consider case 1a/b. In this case, `res.x` solved the equation
+        # *exactly*, so the algorithm may have terminated before the bracket is tight
+        # enough to rely on `res.xr`. If `res.x` happens to be integral, `res.x` is
+        # the solution to the discrete problem, and floor(res.x) == res.x, so
+        # floor(res.x) is the solution to the discrete problem. If not:
+        # a) F(floor(res.x)) < p (strictly) and F(floor(res.x) + 1) > p (strictly). So
+        #    floor(res.x) + 1 is the solution to the discrete problem.
+        # b) G(floor(res.x)) > p (strictly) and G(floor(res.x) + 1) < p (strictly). So
+        #    floor(res.x) + 1 is again the solution to the discrete problem.
+        # Either way, we can choose x = res.x, and at the end we'll choose between
+        # x* = x and x* = x + 1.
         mask = res.fun == 0
         x[mask] = np.floor(res.x[mask])
 
-        xmin, xmax = self._support(**params)
-        p, xmin, xmax = np.broadcast_arrays(p, xmin, xmax)
-        mask = comp(func(xmin, **params), p)
-        x[mask] = xmin[mask]
+        # For case 3, let xmin be the left endpoint of the support, and note that in
+        # general, F(xmin) > 0 and G(xmin) < 1. Therefore it is possible that:
+        # a) F(x) > p for all x in the support (e.g. because p ~ 0)
+        # a) G(x) < p for all x in the support (e.g. because p ~ 1)
+        # In these cases, `_solve_bounded` would fail to find a root of the continuous
+        # equation above, but the solution to the original, discrete problem is the left
+        # endpoint of the support.
+        # This case is handled before we get to this function; otherwise,
+        # `_solve_bounded` may spin its wheels for a long time in vain.
+
+        # Now, we choose between x* = x and x* = x + 1: if func(x) satisfies the
+        # comparison `comp` (>= for cdf, <= for ccdf), the solution is x* = x;
+        # otherwise the solution must be x* = x + 1.
+        f = func(x, **params)
+        x = np.where(comp(f, p), x, x + 1.0)
+        x[np.isnan(f)] = np.nan  # needed? why would func(x) be NaN within support?
 
         return x
 
     def _base_discrete_inversion(self, p, func, comp, /, **params):
-        # For discrete distributions, icdf(p) is defined as the minimum n
-        # such that cdf(n) >= p. iccdf(p) is defined as the minimum n such
-        # that ccdf(n) <= p, or equivalently as iccdf(p) = icdf(1 - p).
+        # For discrete distributions, icdf(p) is defined as the minimum integer x*
+        # within the support such that F(x*) >= p; iccdf(p) is the minimum integer x*
+        # within the support such that G(x*) <= p.
 
-        # First try to find where cdf(x) == p for the continuous extension of the
-        # cdf. res.xl and res.xr will be a bracket for this root. The parameter
-        # xatol in solve_bounded controls the bracket width. We thus know that
-        # know cdf(res.xr) >= p, cdf(res.xl) <= p, and |res.xr - res.xl| <= 0.9.
-        # This means the minimum integer n such that cdf(n) >= p is either floor(x)
-        # or floor(x) + 1.
-        x = self._solve_bounded_discrete(func, p, params=params, comp=comp)
-        # comp should be <= for ccdf, >= for cdf.
-        f = func(x, **params)
-        res = np.where(comp(f, p), x, x + 1.0)
-        # xr is a bracket endpoint, and will usually be a finite value even when
-        # the computed result should be nan. We need to explicitly handle this
-        # case.
-        res[np.isnan(f) | np.isnan(p)] = np.nan
-        return res[()]
+        # Identify where the solution is xmin.
+        # (See rationale in `_solve_bounded_discrete`.)
+        xmin, xmax = self._support(**params)
+        p, xmin, _ = np.broadcast_arrays(p, xmin, xmax)
+        mask = comp(func(xmin, **params), p)
+
+        # Use `apply_where` to perform the inversion only when necessary.
+        def f1(p, *args):
+            return self._solve_bounded_discrete(
+                func, p, params=dict(zip(params.keys(), args)), comp=comp)
+
+        x = xpx.apply_where(~mask, (p, *params.values()), f1, fill_value=xmin)
+
+        # x above may be a finite value even when p is NaN, so the returned value
+        # should be NaN. We need to handle this as a special case.
+        x[np.isnan(p)] = np.nan
+        return x[()]
 
     def _icdf_inversion(self, x, **params):
         return self._base_discrete_inversion(x, self._cdf_dispatch,
@@ -3857,6 +3917,7 @@ _distribution_names = {
 
 
 # beta, genextreme, gengamma, t, tukeylambda need work for 1D arrays
+@xp_capabilities(np_only=True)
 def make_distribution(dist):
     """Generate a `UnivariateDistribution` class from a compatible object
 
@@ -4105,7 +4166,7 @@ def _make_distribution_rv_generic(dist):
     support = getattr(dist, '_support', (dist.a, dist.b))
     for shape_info in dist._shape_info():
         domain = _RealInterval(endpoints=shape_info.endpoints,
-                             inclusive=shape_info.inclusive)
+                               inclusive=shape_info.inclusive)
         param = _RealParameter(shape_info.name, domain=domain)
         parameters.append(param)
         names.append(shape_info.name)
@@ -4140,6 +4201,8 @@ def _make_distribution_rv_generic(dist):
         _parameterizations = ([_Parameterization(*parameters)] if parameters
                               else [])
         _variable = _x_param
+
+        __class_getitem__ = None
 
         def __repr__(self):
             s = super().__repr__()
@@ -4523,6 +4586,7 @@ class TruncatedDistribution(TransformedDistribution):
                     f"lb={str(self.lb)}, ub={str(self.ub)})")
 
 
+@xp_capabilities(np_only=True)
 def truncate(X, lb=-np.inf, ub=np.inf):
     """Truncate the support of a random variable.
 
@@ -4948,6 +5012,7 @@ class OrderStatisticDistribution(TransformedDistribution):
                     f"n={str(self.n)})")
 
 
+@xp_capabilities(np_only=True)
 def order_statistic(X, /, *, r, n):
     r"""Probability distribution of an order statistic
 
@@ -5611,6 +5676,7 @@ class FoldedDistribution(TransformedDistribution):
             return f"abs({str(self._dist)})"
 
 
+@xp_capabilities(np_only=True)
 def abs(X, /):
     r"""Absolute value of a random variable
 
@@ -5653,6 +5719,7 @@ def abs(X, /):
     return FoldedDistribution(X)
 
 
+@xp_capabilities(np_only=True)
 def exp(X, /):
     r"""Natural exponential of a random variable
 
@@ -5699,6 +5766,7 @@ def exp(X, /):
                                             logdh=lambda u: -np.log(u))
 
 
+@xp_capabilities(np_only=True)
 def log(X, /):
     r"""Natural logarithm of a non-negative random variable
 
@@ -5710,7 +5778,7 @@ def log(X, /):
     Returns
     -------
     Y : `ContinuousDistribution`
-        A random variable :math:`Y = \exp(X)`.
+        A random variable :math:`Y = \log(X)`.
 
     Examples
     --------
@@ -5721,7 +5789,7 @@ def log(X, /):
     >>> Gamma = stats.make_distribution(stats.gamma)
     >>> X = Gamma(a=1.0)
 
-    We wish to have a exp-gamma distributed random variable :math:`Y`,
+    We wish to have an exp-gamma distributed random variable :math:`Y`,
     a random variable whose natural exponential is :math:`X`.
     If :math:`X` is to be the natural exponential of :math:`Y`, then we
     must take :math:`Y` to be the natural logarithm of :math:`X`.

@@ -5,7 +5,7 @@ from libc.math cimport NAN
 
 include "_ufuncs_extra_code_common.pxi"
 include "_ufuncs_extra_code.pxi"
-__all__ = ['agm', 'bdtr', 'bdtrc', 'bdtri', 'bdtrik', 'bdtrin', 'betainc', 'betaincc', 'betainccinv', 'betaincinv', 'boxcox', 'boxcox1p', 'btdtria', 'btdtrib', 'chdtr', 'chdtrc', 'chdtri', 'chdtriv', 'chndtr', 'chndtridf', 'chndtrinc', 'chndtrix', 'elliprc', 'elliprd', 'elliprf', 'elliprg', 'elliprj', 'entr', 'erfcinv', 'erfinv', 'eval_chebyc', 'eval_chebys', 'eval_chebyt', 'eval_chebyu', 'eval_gegenbauer', 'eval_genlaguerre', 'eval_hermite', 'eval_hermitenorm', 'eval_jacobi', 'eval_laguerre', 'eval_legendre', 'eval_sh_chebyt', 'eval_sh_chebyu', 'eval_sh_jacobi', 'eval_sh_legendre', 'expn', 'fdtr', 'fdtrc', 'fdtri', 'fdtridfd', 'gdtr', 'gdtrc', 'gdtria', 'gdtrib', 'gdtrix', 'huber', 'hyp0f1', 'hyp1f1', 'hyperu', 'inv_boxcox', 'inv_boxcox1p', 'kl_div', 'kn', 'kolmogi', 'kolmogorov', 'lpmv', 'nbdtr', 'nbdtrc', 'nbdtri', 'nbdtrik', 'nbdtrin', 'ncfdtr', 'ncfdtri', 'ncfdtridfd', 'ncfdtridfn', 'ncfdtrinc', 'nctdtr', 'nctdtridf', 'nctdtrinc', 'nctdtrit', 'ndtri', 'ndtri_exp', 'nrdtrimn', 'nrdtrisd', 'owens_t', 'pdtr', 'pdtrc', 'pdtri', 'pdtrik', 'poch', 'powm1', 'pseudo_huber', 'rel_entr', 'round', 'shichi', 'sici', 'smirnov', 'smirnovi', 'spence', 'stdtr', 'stdtridf', 'stdtrit', 'tklmbda', 'wrightomega', 'yn', 'geterr', 'seterr', 'errstate', 'jn', 'airy', 'airye', 'bei', 'beip', 'ber', 'berp', 'binom', 'exp1', 'expi', 'expit', 'exprel', 'gamma', 'gammaln', 'hankel1', 'hankel1e', 'hankel2', 'hankel2e', 'hyp2f1', 'it2i0k0', 'it2j0y0', 'it2struve0', 'itairy', 'iti0k0', 'itj0y0', 'itmodstruve0', 'itstruve0', 'iv', 'ive', 'jv', 'jve', 'kei', 'keip', 'kelvin', 'ker', 'kerp', 'kv', 'kve', 'log_expit', 'log_wright_bessel', 'loggamma', 'logit', 'mathieu_a', 'mathieu_b', 'mathieu_cem', 'mathieu_modcem1', 'mathieu_modcem2', 'mathieu_modsem1', 'mathieu_modsem2', 'mathieu_sem', 'modfresnelm', 'modfresnelp', 'obl_ang1', 'obl_ang1_cv', 'obl_cv', 'obl_rad1', 'obl_rad1_cv', 'obl_rad2', 'obl_rad2_cv', 'pbdv', 'pbvv', 'pbwa', 'pro_ang1', 'pro_ang1_cv', 'pro_cv', 'pro_rad1', 'pro_rad1_cv', 'pro_rad2', 'pro_rad2_cv', 'psi', 'rgamma', 'sph_harm', 'wright_bessel', 'yv', 'yve', 'zetac', 'sindg', 'cosdg', 'tandg', 'cotdg', 'i0', 'i0e', 'i1', 'i1e', 'k0', 'k0e', 'k1', 'k1e', 'y0', 'y1', 'j0', 'j1', 'struve', 'modstruve', 'beta', 'betaln', 'besselpoly', 'gammaln', 'gammasgn', 'cbrt', 'radian', 'cosm1', 'gammainc', 'gammaincinv', 'gammaincc', 'gammainccinv', 'fresnel', 'ellipe', 'ellipeinc', 'ellipk', 'ellipkinc', 'ellipkm1', 'ellipj', 'erf', 'erfc', 'erfcx', 'erfi', 'voigt_profile', 'wofz', 'dawsn', 'ndtr', 'log_ndtr', 'exp2', 'exp10', 'expm1', 'log1p', 'xlogy', 'xlog1py']
+__all__ = ['agm', 'bdtr', 'bdtrc', 'bdtri', 'bdtrik', 'bdtrin', 'betainc', 'betaincc', 'betainccinv', 'betaincinv', 'boxcox', 'boxcox1p', 'btdtria', 'btdtrib', 'chdtr', 'chdtrc', 'chdtri', 'chdtriv', 'chndtr', 'chndtridf', 'chndtrinc', 'chndtrix', 'elliprc', 'elliprd', 'elliprf', 'elliprg', 'elliprj', 'entr', 'erfcinv', 'erfinv', 'eval_chebyc', 'eval_chebys', 'eval_chebyt', 'eval_chebyu', 'eval_gegenbauer', 'eval_genlaguerre', 'eval_hermite', 'eval_hermitenorm', 'eval_jacobi', 'eval_laguerre', 'eval_legendre', 'eval_sh_chebyt', 'eval_sh_chebyu', 'eval_sh_jacobi', 'eval_sh_legendre', 'expn', 'fdtr', 'fdtrc', 'fdtri', 'fdtridfd', 'gdtr', 'gdtrc', 'gdtria', 'gdtrib', 'gdtrix', 'huber', 'hyp0f1', 'hyp1f1', 'hyperu', 'inv_boxcox', 'inv_boxcox1p', 'kl_div', 'kn', 'kolmogi', 'kolmogorov', 'lpmv', 'nbdtr', 'nbdtrc', 'nbdtri', 'nbdtrik', 'nbdtrin', 'ncfdtr', 'ncfdtri', 'ncfdtridfd', 'ncfdtridfn', 'ncfdtrinc', 'nctdtr', 'nctdtridf', 'nctdtrinc', 'nctdtrit', 'ndtri', 'ndtri_exp', 'nrdtrimn', 'nrdtrisd', 'owens_t', 'pdtr', 'pdtrc', 'pdtri', 'pdtrik', 'poch', 'powm1', 'pseudo_huber', 'rel_entr', 'round', 'shichi', 'sici', 'smirnov', 'smirnovi', 'spence', 'stdtr', 'stdtridf', 'stdtrit', 'tklmbda', 'wrightomega', 'yn', 'geterr', 'seterr', 'errstate', 'jn', 'airy', 'airye', 'bei', 'beip', 'ber', 'berp', 'binom', 'exp1', 'expi', 'expit', 'exprel', 'gamma', 'gammaln', 'hankel1', 'hankel1e', 'hankel2', 'hankel2e', 'hyp2f1', 'it2i0k0', 'it2j0y0', 'it2struve0', 'itairy', 'iti0k0', 'itj0y0', 'itmodstruve0', 'itstruve0', 'iv', 'ive', 'jv', 'jve', 'kei', 'keip', 'kelvin', 'ker', 'kerp', 'kv', 'kve', 'log_expit', 'log_wright_bessel', 'loggamma', 'logit', 'mathieu_a', 'mathieu_b', 'mathieu_cem', 'mathieu_modcem1', 'mathieu_modcem2', 'mathieu_modsem1', 'mathieu_modsem2', 'mathieu_sem', 'modfresnelm', 'modfresnelp', 'obl_ang1', 'obl_ang1_cv', 'obl_cv', 'obl_rad1', 'obl_rad1_cv', 'obl_rad2', 'obl_rad2_cv', 'pbdv', 'pbvv', 'pbwa', 'pro_ang1', 'pro_ang1_cv', 'pro_cv', 'pro_rad1', 'pro_rad1_cv', 'pro_rad2', 'pro_rad2_cv', 'psi', 'rgamma', 'wright_bessel', 'yv', 'yve', 'zetac', 'sindg', 'cosdg', 'tandg', 'cotdg', 'i0', 'i0e', 'i1', 'i1e', 'k0', 'k0e', 'k1', 'k1e', 'y0', 'y1', 'j0', 'j1', 'struve', 'modstruve', 'beta', 'betaln', 'besselpoly', 'gammaln', 'gammasgn', 'cbrt', 'radian', 'cosm1', 'gammainc', 'gammaincinv', 'gammaincc', 'gammainccinv', 'fresnel', 'ellipe', 'ellipeinc', 'ellipk', 'ellipkinc', 'ellipkm1', 'ellipj', 'erf', 'erfc', 'erfcx', 'erfi', 'voigt_profile', 'wofz', 'dawsn', 'ndtr', 'log_ndtr', 'exp2', 'exp10', 'expm1', 'log1p', 'xlogy', 'xlog1py']
 cdef void loop_D_DDDD__As_DDDD_D(char **args, np.npy_intp *dims, np.npy_intp *steps, void *data) noexcept nogil:
     cdef np.npy_intp i, n = dims[0]
     cdef void *func = (<void**>data)[0]
@@ -817,33 +817,12 @@ cdef _proto_boxcox_t *_proto_boxcox_t_var = &_func_boxcox
 from ._boxcox cimport boxcox1p as _func_boxcox1p
 ctypedef double _proto_boxcox1p_t(double, double) noexcept nogil
 cdef _proto_boxcox1p_t *_proto_boxcox1p_t_var = &_func_boxcox1p
-from ._cdflib_wrappers cimport btdtria as _func_btdtria
-ctypedef double _proto_btdtria_t(double, double, double) noexcept nogil
-cdef _proto_btdtria_t *_proto_btdtria_t_var = &_func_btdtria
-from ._cdflib_wrappers cimport btdtrib as _func_btdtrib
-ctypedef double _proto_btdtrib_t(double, double, double) noexcept nogil
-cdef _proto_btdtrib_t *_proto_btdtrib_t_var = &_func_btdtrib
 cdef extern from r"_ufuncs_defs.h":
     cdef double _func_xsf_chdtr "xsf_chdtr"(double, double) noexcept nogil
 cdef extern from r"_ufuncs_defs.h":
     cdef double _func_xsf_chdtrc "xsf_chdtrc"(double, double) noexcept nogil
 cdef extern from r"_ufuncs_defs.h":
     cdef double _func_xsf_chdtri "xsf_chdtri"(double, double) noexcept nogil
-from ._cdflib_wrappers cimport chdtriv as _func_chdtriv
-ctypedef double _proto_chdtriv_t(double, double) noexcept nogil
-cdef _proto_chdtriv_t *_proto_chdtriv_t_var = &_func_chdtriv
-from ._cdflib_wrappers cimport chndtr as _func_chndtr
-ctypedef double _proto_chndtr_t(double, double, double) noexcept nogil
-cdef _proto_chndtr_t *_proto_chndtr_t_var = &_func_chndtr
-from ._cdflib_wrappers cimport chndtridf as _func_chndtridf
-ctypedef double _proto_chndtridf_t(double, double, double) noexcept nogil
-cdef _proto_chndtridf_t *_proto_chndtridf_t_var = &_func_chndtridf
-from ._cdflib_wrappers cimport chndtrinc as _func_chndtrinc
-ctypedef double _proto_chndtrinc_t(double, double, double) noexcept nogil
-cdef _proto_chndtrinc_t *_proto_chndtrinc_t_var = &_func_chndtrinc
-from ._cdflib_wrappers cimport chndtrix as _func_chndtrix
-ctypedef double _proto_chndtrix_t(double, double, double) noexcept nogil
-cdef _proto_chndtrix_t *_proto_chndtrix_t_var = &_func_chndtrix
 from ._convex_analysis cimport entr as _func_entr
 ctypedef double _proto_entr_t(double) noexcept nogil
 cdef _proto_entr_t *_proto_entr_t_var = &_func_entr
@@ -977,12 +956,6 @@ ctypedef double _proto_expn_unsafe_t(double, double) noexcept nogil
 cdef _proto_expn_unsafe_t *_proto_expn_unsafe_t_var = &_func_expn_unsafe
 cdef extern from r"_ufuncs_defs.h":
     cdef double _func_cephes_expn_wrap "cephes_expn_wrap"(Py_ssize_t, double) noexcept nogil
-cdef extern from r"_ufuncs_defs.h":
-    cdef double _func_xsf_fdtr "xsf_fdtr"(double, double, double) noexcept nogil
-cdef extern from r"_ufuncs_defs.h":
-    cdef double _func_xsf_fdtrc "xsf_fdtrc"(double, double, double) noexcept nogil
-cdef extern from r"_ufuncs_defs.h":
-    cdef double _func_xsf_fdtri "xsf_fdtri"(double, double, double) noexcept nogil
 from ._cdflib_wrappers cimport fdtridfd as _func_fdtridfd
 ctypedef double _proto_fdtridfd_t(double, double, double) noexcept nogil
 cdef _proto_fdtridfd_t *_proto_fdtridfd_t_var = &_func_fdtridfd
@@ -990,14 +963,12 @@ cdef extern from r"_ufuncs_defs.h":
     cdef double _func_xsf_gdtr "xsf_gdtr"(double, double, double) noexcept nogil
 cdef extern from r"_ufuncs_defs.h":
     cdef double _func_xsf_gdtrc "xsf_gdtrc"(double, double, double) noexcept nogil
-from ._cdflib_wrappers cimport gdtria as _func_gdtria
-ctypedef double _proto_gdtria_t(double, double, double) noexcept nogil
-cdef _proto_gdtria_t *_proto_gdtria_t_var = &_func_gdtria
+cdef extern from r"_ufuncs_defs.h":
+    cdef double _func_special_gdtria "special_gdtria"(double, double, double) noexcept nogil
 cdef extern from r"_ufuncs_defs.h":
     cdef double _func_xsf_gdtrib "xsf_gdtrib"(double, double, double) noexcept nogil
-from ._cdflib_wrappers cimport gdtrix as _func_gdtrix
-ctypedef double _proto_gdtrix_t(double, double, double) noexcept nogil
-cdef _proto_gdtrix_t *_proto_gdtrix_t_var = &_func_gdtrix
+cdef extern from r"_ufuncs_defs.h":
+    cdef double _func_special_gdtrix "special_gdtrix"(double, double, double) noexcept nogil
 from ._convex_analysis cimport huber as _func_huber
 ctypedef double _proto_huber_t(double, double) noexcept nogil
 cdef _proto_huber_t *_proto_huber_t_var = &_func_huber
@@ -1090,9 +1061,6 @@ ctypedef double _proto_pdtri_unsafe_t(double, double) noexcept nogil
 cdef _proto_pdtri_unsafe_t *_proto_pdtri_unsafe_t_var = &_func_pdtri_unsafe
 cdef extern from r"_ufuncs_defs.h":
     cdef double _func_cephes_pdtri_wrap "cephes_pdtri_wrap"(Py_ssize_t, double) noexcept nogil
-from ._cdflib_wrappers cimport pdtrik as _func_pdtrik
-ctypedef double _proto_pdtrik_t(double, double) noexcept nogil
-cdef _proto_pdtrik_t *_proto_pdtrik_t_var = &_func_pdtrik
 cdef extern from r"_ufuncs_defs.h":
     cdef double _func_cephes_poch "cephes_poch"(double, double) noexcept nogil
 from ._convex_analysis cimport pseudo_huber as _func_pseudo_huber
@@ -1126,15 +1094,9 @@ ctypedef double complex _proto_cspence_t(double complex) noexcept nogil
 cdef _proto_cspence_t *_proto_cspence_t_var = &_func_cspence
 cdef extern from r"_ufuncs_defs.h":
     cdef double _func_cephes_spence "cephes_spence"(double) noexcept nogil
-from ._cdflib_wrappers cimport stdtr as _func_stdtr
-ctypedef double _proto_stdtr_t(double, double) noexcept nogil
-cdef _proto_stdtr_t *_proto_stdtr_t_var = &_func_stdtr
 from ._cdflib_wrappers cimport stdtridf as _func_stdtridf
 ctypedef double _proto_stdtridf_t(double, double) noexcept nogil
 cdef _proto_stdtridf_t *_proto_stdtridf_t_var = &_func_stdtridf
-from ._cdflib_wrappers cimport stdtrit as _func_stdtrit
-ctypedef double _proto_stdtrit_t(double, double) noexcept nogil
-cdef _proto_stdtrit_t *_proto_stdtrit_t_var = &_func_stdtrit
 cdef extern from r"_ufuncs_defs.h":
     cdef double _func_xsf_tukeylambdacdf "xsf_tukeylambdacdf"(double, double) noexcept nogil
 from ._legacy cimport yn_unsafe as _func_yn_unsafe
@@ -3095,43 +3057,6 @@ ufunc__nct_variance_data[0] = &ufunc__nct_variance_ptr[2*0]
 ufunc__nct_variance_data[1] = &ufunc__nct_variance_ptr[2*1]
 _nct_variance = np.PyUFunc_FromFuncAndData(ufunc__nct_variance_loops, ufunc__nct_variance_data, ufunc__nct_variance_types, 2, 2, 1, 0, '_nct_variance', ufunc__nct_variance_doc, 0)
 
-cdef np.PyUFuncGenericFunction ufunc__ncx2_cdf_loops[2]
-cdef void *ufunc__ncx2_cdf_ptr[4]
-cdef void *ufunc__ncx2_cdf_data[2]
-cdef char ufunc__ncx2_cdf_types[8]
-cdef char *ufunc__ncx2_cdf_doc = (
-    "_ncx2_cdf(x, k, l)\n"
-    "\n"
-    "Cumulative density function of Non-central chi-squared distribution.\n"
-    "\n"
-    "Parameters\n"
-    "----------\n"
-    "x : array_like\n"
-    "    Positive real-valued\n"
-    "k, l : array_like\n"
-    "    Positive, real-valued parameters\n"
-    "\n"
-    "Returns\n"
-    "-------\n"
-    "scalar or ndarray")
-ufunc__ncx2_cdf_loops[0] = <np.PyUFuncGenericFunction>loop_f_fff__As_fff_f
-ufunc__ncx2_cdf_loops[1] = <np.PyUFuncGenericFunction>loop_d_ddd__As_ddd_d
-ufunc__ncx2_cdf_types[0] = <char>NPY_FLOAT
-ufunc__ncx2_cdf_types[1] = <char>NPY_FLOAT
-ufunc__ncx2_cdf_types[2] = <char>NPY_FLOAT
-ufunc__ncx2_cdf_types[3] = <char>NPY_FLOAT
-ufunc__ncx2_cdf_types[4] = <char>NPY_DOUBLE
-ufunc__ncx2_cdf_types[5] = <char>NPY_DOUBLE
-ufunc__ncx2_cdf_types[6] = <char>NPY_DOUBLE
-ufunc__ncx2_cdf_types[7] = <char>NPY_DOUBLE
-ufunc__ncx2_cdf_ptr[2*0] = <void*>scipy.special._ufuncs_cxx._export_ncx2_cdf_float
-ufunc__ncx2_cdf_ptr[2*0+1] = <void*>(<char*>"_ncx2_cdf")
-ufunc__ncx2_cdf_ptr[2*1] = <void*>scipy.special._ufuncs_cxx._export_ncx2_cdf_double
-ufunc__ncx2_cdf_ptr[2*1+1] = <void*>(<char*>"_ncx2_cdf")
-ufunc__ncx2_cdf_data[0] = &ufunc__ncx2_cdf_ptr[2*0]
-ufunc__ncx2_cdf_data[1] = &ufunc__ncx2_cdf_ptr[2*1]
-_ncx2_cdf = np.PyUFunc_FromFuncAndData(ufunc__ncx2_cdf_loops, ufunc__ncx2_cdf_data, ufunc__ncx2_cdf_types, 2, 3, 1, 0, '_ncx2_cdf', ufunc__ncx2_cdf_doc, 0)
-
 cdef np.PyUFuncGenericFunction ufunc__ncx2_isf_loops[2]
 cdef void *ufunc__ncx2_isf_ptr[4]
 cdef void *ufunc__ncx2_isf_data[2]
@@ -3205,43 +3130,6 @@ ufunc__ncx2_pdf_ptr[2*1+1] = <void*>(<char*>"_ncx2_pdf")
 ufunc__ncx2_pdf_data[0] = &ufunc__ncx2_pdf_ptr[2*0]
 ufunc__ncx2_pdf_data[1] = &ufunc__ncx2_pdf_ptr[2*1]
 _ncx2_pdf = np.PyUFunc_FromFuncAndData(ufunc__ncx2_pdf_loops, ufunc__ncx2_pdf_data, ufunc__ncx2_pdf_types, 2, 3, 1, 0, '_ncx2_pdf', ufunc__ncx2_pdf_doc, 0)
-
-cdef np.PyUFuncGenericFunction ufunc__ncx2_ppf_loops[2]
-cdef void *ufunc__ncx2_ppf_ptr[4]
-cdef void *ufunc__ncx2_ppf_data[2]
-cdef char ufunc__ncx2_ppf_types[8]
-cdef char *ufunc__ncx2_ppf_doc = (
-    "_ncx2_ppf(x, k, l)\n"
-    "\n"
-    "Percent point function of Non-central chi-squared distribution.\n"
-    "\n"
-    "Parameters\n"
-    "----------\n"
-    "x : array_like\n"
-    "    Positive real-valued\n"
-    "k, l : array_like\n"
-    "    Positive, real-valued parameters\n"
-    "\n"
-    "Returns\n"
-    "-------\n"
-    "scalar or ndarray")
-ufunc__ncx2_ppf_loops[0] = <np.PyUFuncGenericFunction>loop_f_fff__As_fff_f
-ufunc__ncx2_ppf_loops[1] = <np.PyUFuncGenericFunction>loop_d_ddd__As_ddd_d
-ufunc__ncx2_ppf_types[0] = <char>NPY_FLOAT
-ufunc__ncx2_ppf_types[1] = <char>NPY_FLOAT
-ufunc__ncx2_ppf_types[2] = <char>NPY_FLOAT
-ufunc__ncx2_ppf_types[3] = <char>NPY_FLOAT
-ufunc__ncx2_ppf_types[4] = <char>NPY_DOUBLE
-ufunc__ncx2_ppf_types[5] = <char>NPY_DOUBLE
-ufunc__ncx2_ppf_types[6] = <char>NPY_DOUBLE
-ufunc__ncx2_ppf_types[7] = <char>NPY_DOUBLE
-ufunc__ncx2_ppf_ptr[2*0] = <void*>scipy.special._ufuncs_cxx._export_ncx2_ppf_float
-ufunc__ncx2_ppf_ptr[2*0+1] = <void*>(<char*>"_ncx2_ppf")
-ufunc__ncx2_ppf_ptr[2*1] = <void*>scipy.special._ufuncs_cxx._export_ncx2_ppf_double
-ufunc__ncx2_ppf_ptr[2*1+1] = <void*>(<char*>"_ncx2_ppf")
-ufunc__ncx2_ppf_data[0] = &ufunc__ncx2_ppf_ptr[2*0]
-ufunc__ncx2_ppf_data[1] = &ufunc__ncx2_ppf_ptr[2*1]
-_ncx2_ppf = np.PyUFunc_FromFuncAndData(ufunc__ncx2_ppf_loops, ufunc__ncx2_ppf_data, ufunc__ncx2_ppf_types, 2, 3, 1, 0, '_ncx2_ppf', ufunc__ncx2_ppf_doc, 0)
 
 cdef np.PyUFuncGenericFunction ufunc__ncx2_sf_loops[2]
 cdef void *ufunc__ncx2_sf_ptr[4]
@@ -3945,20 +3833,22 @@ cdef char *ufunc_bdtrik_doc = (
     "\n"
     "Notes\n"
     "-----\n"
-    "Formula 26.5.24 of [1]_ is used to reduce the binomial distribution to the\n"
-    "cumulative incomplete beta distribution.\n"
+    "Formula 26.5.24 of [1]_ (or equivalently [2]_) is used to reduce the binomial\n"
+    "distribution to the cumulative incomplete beta distribution.\n"
     "\n"
     "Computation of `k` involves a search for a value that produces the desired\n"
     "value of `y`. The search relies on the monotonicity of `y` with `k`.\n"
     "\n"
-    "Wrapper for the CDFLIB [2]_ Fortran routine `cdfbin`.\n"
+    "Wrapper for the CDFLIB [3]_ Fortran routine `cdfbin`.\n"
     "\n"
     "References\n"
     "----------\n"
     ".. [1] Milton Abramowitz and Irene A. Stegun, eds.\n"
     "       Handbook of Mathematical Functions with Formulas,\n"
     "       Graphs, and Mathematical Tables. New York: Dover, 1972.\n"
-    ".. [2] Barry Brown, James Lovato, and Kathy Russell,\n"
+    ".. [2] NIST Digital Library of Mathematical Functions\n"
+    "       https://dlmf.nist.gov/8.17.5#E5\n"
+    ".. [3] Barry Brown, James Lovato, and Kathy Russell,\n"
     "       CDFLIB: Library of Fortran Routines for Cumulative Distribution\n"
     "       Functions, Inverses, and Other Parameters.")
 ufunc_bdtrik_loops[0] = <np.PyUFuncGenericFunction>loop_d_ddd__As_fff_f
@@ -4015,20 +3905,22 @@ cdef char *ufunc_bdtrin_doc = (
     "\n"
     "Notes\n"
     "-----\n"
-    "Formula 26.5.24 of [1]_ is used to reduce the binomial distribution to the\n"
-    "cumulative incomplete beta distribution.\n"
+    "Formula 26.5.24 of [1]_ (or equivalently [2]_) is used to reduce the binomial\n"
+    "distribution to the cumulative incomplete beta distribution.\n"
     "\n"
     "Computation of `n` involves a search for a value that produces the desired\n"
     "value of `y`. The search relies on the monotonicity of `y` with `n`.\n"
     "\n"
-    "Wrapper for the CDFLIB [2]_ Fortran routine `cdfbin`.\n"
+    "Wrapper for the CDFLIB [3]_ Fortran routine `cdfbin`.\n"
     "\n"
     "References\n"
     "----------\n"
     ".. [1] Milton Abramowitz and Irene A. Stegun, eds.\n"
     "       Handbook of Mathematical Functions with Formulas,\n"
     "       Graphs, and Mathematical Tables. New York: Dover, 1972.\n"
-    ".. [2] Barry Brown, James Lovato, and Kathy Russell,\n"
+    ".. [2] NIST Digital Library of Mathematical Functions\n"
+    "       https://dlmf.nist.gov/8.17.5#E5\n"
+    ".. [3] Barry Brown, James Lovato, and Kathy Russell,\n"
     "       CDFLIB: Library of Fortran Routines for Cumulative Distribution\n"
     "       Functions, Inverses, and Other Parameters.")
 ufunc_bdtrin_loops[0] = <np.PyUFuncGenericFunction>loop_d_ddd__As_fff_f
@@ -4591,26 +4483,31 @@ cdef char *ufunc_btdtria_doc = (
     "\n"
     "See Also\n"
     "--------\n"
+    "betainc : Regularized incomplete beta function\n"
+    "betaincinv : Inverse of the regularized incomplete beta function\n"
     "btdtrib : Inverse of the beta cumulative distribution function, with respect to `b`.\n"
     "\n"
     "Notes\n"
     "-----\n"
-    "Wrapper for the CDFLIB [1]_ Fortran routine `cdfbet`.\n"
-    "\n"
-    "The cumulative distribution function `p` is computed using a routine by\n"
-    "DiDinato and Morris [2]_. Computation of `a` involves a search for a value\n"
-    "that produces the desired value of `p`. The search relies on the\n"
-    "monotonicity of `p` with `a`.\n"
+    "This function wraps the ``ibeta_inva`` routine from the\n"
+    "Boost Math C++ library [1]_.\n"
     "\n"
     "References\n"
     "----------\n"
-    ".. [1] Barry Brown, James Lovato, and Kathy Russell,\n"
-    "       CDFLIB: Library of Fortran Routines for Cumulative Distribution\n"
-    "       Functions, Inverses, and Other Parameters.\n"
-    ".. [2] DiDinato, A. R. and Morris, A. H.,\n"
-    "       Algorithm 708: Significant Digit Computation of the Incomplete Beta\n"
-    "       Function Ratios. ACM Trans. Math. Softw. 18 (1993), 360-373.")
-ufunc_btdtria_loops[0] = <np.PyUFuncGenericFunction>loop_d_ddd__As_fff_f
+    ".. [1] The Boost Developers. \"Boost C++ Libraries\". https://www.boost.org/.\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    ">>> import scipy.special as sc\n"
+    "\n"
+    "This function is the inverse of `betainc` for fixed\n"
+    "values of :math:`b` and :math:`x`.\n"
+    "\n"
+    ">>> a, b, x = 1.2, 3.1, 0.2\n"
+    ">>> y = sc.betainc(a, b, x)\n"
+    ">>> sc.btdtria(y, b, x)\n"
+    "1.2")
+ufunc_btdtria_loops[0] = <np.PyUFuncGenericFunction>loop_f_fff__As_fff_f
 ufunc_btdtria_loops[1] = <np.PyUFuncGenericFunction>loop_d_ddd__As_ddd_d
 ufunc_btdtria_types[0] = <char>NPY_FLOAT
 ufunc_btdtria_types[1] = <char>NPY_FLOAT
@@ -4620,9 +4517,9 @@ ufunc_btdtria_types[4] = <char>NPY_DOUBLE
 ufunc_btdtria_types[5] = <char>NPY_DOUBLE
 ufunc_btdtria_types[6] = <char>NPY_DOUBLE
 ufunc_btdtria_types[7] = <char>NPY_DOUBLE
-ufunc_btdtria_ptr[2*0] = <void*>_func_btdtria
+ufunc_btdtria_ptr[2*0] = <void*>scipy.special._ufuncs_cxx._export_ibeta_inva_float
 ufunc_btdtria_ptr[2*0+1] = <void*>(<char*>"btdtria")
-ufunc_btdtria_ptr[2*1] = <void*>_func_btdtria
+ufunc_btdtria_ptr[2*1] = <void*>scipy.special._ufuncs_cxx._export_ibeta_inva_double
 ufunc_btdtria_ptr[2*1+1] = <void*>(<char*>"btdtria")
 ufunc_btdtria_data[0] = &ufunc_btdtria_ptr[2*0]
 ufunc_btdtria_data[1] = &ufunc_btdtria_ptr[2*1]
@@ -4662,26 +4559,31 @@ cdef char *ufunc_btdtrib_doc = (
     "\n"
     "See Also\n"
     "--------\n"
+    "betainc : Regularized incomplete beta function\n"
+    "betaincinv : Inverse of the regularized incomplete beta function with\n"
+    "             respect to `x`.\n"
     "btdtria : Inverse of the beta cumulative distribution function, with respect to `a`.\n"
     "\n"
     "Notes\n"
     "-----\n"
-    "Wrapper for the CDFLIB [1]_ Fortran routine `cdfbet`.\n"
-    "\n"
-    "The cumulative distribution function `p` is computed using a routine by\n"
-    "DiDinato and Morris [2]_. Computation of `b` involves a search for a value\n"
-    "that produces the desired value of `p`. The search relies on the\n"
-    "monotonicity of `p` with `b`.\n"
+    "Wrapper for the `ibeta_invb` routine from the Boost Math C++ library [1]_.\n"
     "\n"
     "References\n"
     "----------\n"
-    ".. [1] Barry Brown, James Lovato, and Kathy Russell,\n"
-    "       CDFLIB: Library of Fortran Routines for Cumulative Distribution\n"
-    "       Functions, Inverses, and Other Parameters.\n"
-    ".. [2] DiDinato, A. R. and Morris, A. H.,\n"
-    "       Algorithm 708: Significant Digit Computation of the Incomplete Beta\n"
-    "       Function Ratios. ACM Trans. Math. Softw. 18 (1993), 360-373.")
-ufunc_btdtrib_loops[0] = <np.PyUFuncGenericFunction>loop_d_ddd__As_fff_f
+    ".. [1] The Boost Developers. \"Boost C++ Libraries\". https://www.boost.org/.\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    ">>> import scipy.special as sc\n"
+    ">>> a, b, x = 1.2, 3.1, 0.2\n"
+    ">>> y = sc.betainc(a, b, x)\n"
+    "\n"
+    "`btdtrib` is the inverse of `betainc` for fixed values of :math:`a` and\n"
+    ":math:`x`:\n"
+    "\n"
+    ">>> sc.btdtrib(a, y, x)\n"
+    "3.1")
+ufunc_btdtrib_loops[0] = <np.PyUFuncGenericFunction>loop_f_fff__As_fff_f
 ufunc_btdtrib_loops[1] = <np.PyUFuncGenericFunction>loop_d_ddd__As_ddd_d
 ufunc_btdtrib_types[0] = <char>NPY_FLOAT
 ufunc_btdtrib_types[1] = <char>NPY_FLOAT
@@ -4691,9 +4593,9 @@ ufunc_btdtrib_types[4] = <char>NPY_DOUBLE
 ufunc_btdtrib_types[5] = <char>NPY_DOUBLE
 ufunc_btdtrib_types[6] = <char>NPY_DOUBLE
 ufunc_btdtrib_types[7] = <char>NPY_DOUBLE
-ufunc_btdtrib_ptr[2*0] = <void*>_func_btdtrib
+ufunc_btdtrib_ptr[2*0] = <void*>scipy.special._ufuncs_cxx._export_ibeta_invb_float
 ufunc_btdtrib_ptr[2*0+1] = <void*>(<char*>"btdtrib")
-ufunc_btdtrib_ptr[2*1] = <void*>_func_btdtrib
+ufunc_btdtrib_ptr[2*1] = <void*>scipy.special._ufuncs_cxx._export_ibeta_invb_double
 ufunc_btdtrib_ptr[2*1+1] = <void*>(<char*>"btdtrib")
 ufunc_btdtrib_data[0] = &ufunc_btdtrib_ptr[2*0]
 ufunc_btdtrib_data[1] = &ufunc_btdtrib_ptr[2*1]
@@ -4941,9 +4843,14 @@ cdef char *ufunc_chdtriv_doc = (
     "--------\n"
     "chdtr, chdtrc, chdtri\n"
     "\n"
+    "Notes\n"
+    "-----\n"
+    "This function wraps routines from the Boost Math C++ library [1]_.\n"
+    "\n"
     "References\n"
     "----------\n"
-    ".. [1] Chi-Square distribution,\n"
+    ".. [1] The Boost Developers. \"Boost C++ Libraries\". https://www.boost.org/.\n"
+    ".. [2] Chi-Square distribution,\n"
     "    https://www.itl.nist.gov/div898/handbook/eda/section3/eda3666.htm\n"
     "\n"
     "Examples\n"
@@ -4954,11 +4861,11 @@ cdef char *ufunc_chdtriv_doc = (
     "\n"
     ">>> p, x = 0.5, 1\n"
     ">>> sc.chdtr(sc.chdtriv(p, x), x)\n"
-    "0.5000000000202172\n"
+    "0.5000000000000003\n"
     ">>> v = 1\n"
     ">>> sc.chdtriv(sc.chdtr(v, x), v)\n"
-    "1.0000000000000013")
-ufunc_chdtriv_loops[0] = <np.PyUFuncGenericFunction>loop_d_dd__As_ff_f
+    "1.0")
+ufunc_chdtriv_loops[0] = <np.PyUFuncGenericFunction>loop_f_ff__As_ff_f
 ufunc_chdtriv_loops[1] = <np.PyUFuncGenericFunction>loop_d_dd__As_dd_d
 ufunc_chdtriv_types[0] = <char>NPY_FLOAT
 ufunc_chdtriv_types[1] = <char>NPY_FLOAT
@@ -4966,9 +4873,9 @@ ufunc_chdtriv_types[2] = <char>NPY_FLOAT
 ufunc_chdtriv_types[3] = <char>NPY_DOUBLE
 ufunc_chdtriv_types[4] = <char>NPY_DOUBLE
 ufunc_chdtriv_types[5] = <char>NPY_DOUBLE
-ufunc_chdtriv_ptr[2*0] = <void*>_func_chdtriv
+ufunc_chdtriv_ptr[2*0] = <void*>scipy.special._ufuncs_cxx._export_chdtriv_float
 ufunc_chdtriv_ptr[2*0+1] = <void*>(<char*>"chdtriv")
-ufunc_chdtriv_ptr[2*1] = <void*>_func_chdtriv
+ufunc_chdtriv_ptr[2*1] = <void*>scipy.special._ufuncs_cxx._export_chdtriv_double
 ufunc_chdtriv_ptr[2*1+1] = <void*>(<char*>"chdtriv")
 ufunc_chdtriv_data[0] = &ufunc_chdtriv_ptr[2*0]
 ufunc_chdtriv_data[1] = &ufunc_chdtriv_ptr[2*1]
@@ -5012,8 +4919,44 @@ cdef char *ufunc_chndtr_doc = (
     "\n"
     "See Also\n"
     "--------\n"
-    "chndtrix, chndtridf, chndtrinc")
-ufunc_chndtr_loops[0] = <np.PyUFuncGenericFunction>loop_d_ddd__As_fff_f
+    "chndtrix: Noncentral Chi Squared distribution quantile\n"
+    "chndtridf: Inverse of `chndtr` with respect to `df`\n"
+    "chndtrinc: Inverse of `chndtr` with respect to `nc`\n"
+    "scipy.stats.ncx2: Non-central chi-squared distribution\n"
+    "\n"
+    "Notes\n"
+    "-----\n"
+    "The noncentral chi squared distribution is also available in\n"
+    "`scipy.stats.ncx2`. ``scipy.stats.ncx2.cdf`` is equivalent to `chndtr`.\n"
+    "\n"
+    "This function wraps routines from the Boost Math C++ library [1]_.\n"
+    "\n"
+    "References\n"
+    "----------\n"
+    ".. [1] The Boost Developers. \"Boost C++ Libraries\". https://www.boost.org/.\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    ">>> import numpy as np\n"
+    ">>> import scipy.special as sc\n"
+    "\n"
+    "Compute the noncentral chi squared distribution CDF at one point.\n"
+    "\n"
+    ">>> x = 4.0\n"
+    ">>> df = 1.0\n"
+    ">>> nc = 5.0\n"
+    ">>> sc.chndtr(x, df, nc)\n"
+    "0.40667858759710945\n"
+    "\n"
+    "Plot the noncentral chi squared distribution CDF for different parameters.\n"
+    "\n"
+    ">>> import matplotlib.pyplot as plt\n"
+    ">>> x = np.linspace(0, 40, 1000)\n"
+    ">>> plt.plot(x, sc.chndtr(x, 1, 5), label=r\"$df=1,\\ nc=5$\")\n"
+    ">>> plt.plot(x, sc.chndtr(x, 5, 10), label=r\"$df=5,\\ nc=10$\")\n"
+    ">>> plt.legend()\n"
+    ">>> plt.show()")
+ufunc_chndtr_loops[0] = <np.PyUFuncGenericFunction>loop_f_fff__As_fff_f
 ufunc_chndtr_loops[1] = <np.PyUFuncGenericFunction>loop_d_ddd__As_ddd_d
 ufunc_chndtr_types[0] = <char>NPY_FLOAT
 ufunc_chndtr_types[1] = <char>NPY_FLOAT
@@ -5023,9 +4966,9 @@ ufunc_chndtr_types[4] = <char>NPY_DOUBLE
 ufunc_chndtr_types[5] = <char>NPY_DOUBLE
 ufunc_chndtr_types[6] = <char>NPY_DOUBLE
 ufunc_chndtr_types[7] = <char>NPY_DOUBLE
-ufunc_chndtr_ptr[2*0] = <void*>_func_chndtr
+ufunc_chndtr_ptr[2*0] = <void*>scipy.special._ufuncs_cxx._export_ncx2_cdf_float
 ufunc_chndtr_ptr[2*0+1] = <void*>(<char*>"chndtr")
-ufunc_chndtr_ptr[2*1] = <void*>_func_chndtr
+ufunc_chndtr_ptr[2*1] = <void*>scipy.special._ufuncs_cxx._export_ncx2_cdf_double
 ufunc_chndtr_ptr[2*1+1] = <void*>(<char*>"chndtr")
 ufunc_chndtr_data[0] = &ufunc_chndtr_ptr[2*0]
 ufunc_chndtr_data[1] = &ufunc_chndtr_ptr[2*1]
@@ -5061,8 +5004,36 @@ cdef char *ufunc_chndtridf_doc = (
     "\n"
     "See Also\n"
     "--------\n"
-    "chndtr, chndtrix, chndtrinc")
-ufunc_chndtridf_loops[0] = <np.PyUFuncGenericFunction>loop_d_ddd__As_fff_f
+    "chndtr : Noncentral chi-squared distribution CDF\n"
+    "chndtrix : inverse of `chndtr` with respect to `x`\n"
+    "chndtrinc : inverse of `chndtr` with respect to `nc`\n"
+    "scipy.stats.ncx2 : Non-central chi-squared distribution\n"
+    "\n"
+    "Notes\n"
+    "-----\n"
+    "The noncentral chi squared distribution is also available in\n"
+    "`scipy.stats.ncx2`.\n"
+    "\n"
+    "This function wraps routines from the Boost Math C++ library [1]_.\n"
+    "\n"
+    "References\n"
+    "----------\n"
+    ".. [1] The Boost Developers. \"Boost C++ Libraries\". https://www.boost.org/.\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    ">>> from scipy.special import chndtridf, chndtr\n"
+    "\n"
+    "Compute the noncentral chi squared distribution CDF at one point.\n"
+    "\n"
+    ">>> x, df, nc = 3, 5, 10\n"
+    ">>> p = chndtr(x, df, nc)\n"
+    "\n"
+    "`chndtridf` is the inverse of `chndtr` with respect to `df`:\n"
+    "\n"
+    ">>> chndtridf(x, p, nc)\n"
+    "5.0")
+ufunc_chndtridf_loops[0] = <np.PyUFuncGenericFunction>loop_f_fff__As_fff_f
 ufunc_chndtridf_loops[1] = <np.PyUFuncGenericFunction>loop_d_ddd__As_ddd_d
 ufunc_chndtridf_types[0] = <char>NPY_FLOAT
 ufunc_chndtridf_types[1] = <char>NPY_FLOAT
@@ -5072,9 +5043,9 @@ ufunc_chndtridf_types[4] = <char>NPY_DOUBLE
 ufunc_chndtridf_types[5] = <char>NPY_DOUBLE
 ufunc_chndtridf_types[6] = <char>NPY_DOUBLE
 ufunc_chndtridf_types[7] = <char>NPY_DOUBLE
-ufunc_chndtridf_ptr[2*0] = <void*>_func_chndtridf
+ufunc_chndtridf_ptr[2*0] = <void*>scipy.special._ufuncs_cxx._export_ncx2_find_degrees_of_freedom_float
 ufunc_chndtridf_ptr[2*0+1] = <void*>(<char*>"chndtridf")
-ufunc_chndtridf_ptr[2*1] = <void*>_func_chndtridf
+ufunc_chndtridf_ptr[2*1] = <void*>scipy.special._ufuncs_cxx._export_ncx2_find_degrees_of_freedom_double
 ufunc_chndtridf_ptr[2*1+1] = <void*>(<char*>"chndtridf")
 ufunc_chndtridf_data[0] = &ufunc_chndtridf_ptr[2*0]
 ufunc_chndtridf_data[1] = &ufunc_chndtridf_ptr[2*1]
@@ -5110,8 +5081,36 @@ cdef char *ufunc_chndtrinc_doc = (
     "\n"
     "See Also\n"
     "--------\n"
-    "chndtr, chndtrix, chndtrinc")
-ufunc_chndtrinc_loops[0] = <np.PyUFuncGenericFunction>loop_d_ddd__As_fff_f
+    "chndtr : Noncentral chi-squared distribution CDF\n"
+    "chndtridf : inverse of `chndtr` with respect to `df`\n"
+    "chndtrinc : inverse of `chndtr` with respect to `nc`\n"
+    "scipy.stats.ncx2 : Non-central chi-squared distribution\n"
+    "\n"
+    "Notes\n"
+    "-----\n"
+    "The noncentral chi squared distribution is also available in\n"
+    "`scipy.stats.ncx2`.\n"
+    "\n"
+    "This function wraps routines from the Boost Math C++ library [1]_.\n"
+    "\n"
+    "References\n"
+    "----------\n"
+    ".. [1] The Boost Developers. \"Boost C++ Libraries\". https://www.boost.org/.\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    ">>> from scipy.special import chndtrinc, chndtr\n"
+    "\n"
+    "Compute the noncentral chi squared distribution CDF at one point.\n"
+    "\n"
+    ">>> x, df, nc = 3, 5, 10\n"
+    ">>> p = chndtr(x, df, nc)\n"
+    "\n"
+    "`chndtrinc` is the inverse of `chndtr` with respect to `nc`:\n"
+    "\n"
+    ">>> chndtrinc(x, df, p)\n"
+    "10.0")
+ufunc_chndtrinc_loops[0] = <np.PyUFuncGenericFunction>loop_f_fff__As_fff_f
 ufunc_chndtrinc_loops[1] = <np.PyUFuncGenericFunction>loop_d_ddd__As_ddd_d
 ufunc_chndtrinc_types[0] = <char>NPY_FLOAT
 ufunc_chndtrinc_types[1] = <char>NPY_FLOAT
@@ -5121,9 +5120,9 @@ ufunc_chndtrinc_types[4] = <char>NPY_DOUBLE
 ufunc_chndtrinc_types[5] = <char>NPY_DOUBLE
 ufunc_chndtrinc_types[6] = <char>NPY_DOUBLE
 ufunc_chndtrinc_types[7] = <char>NPY_DOUBLE
-ufunc_chndtrinc_ptr[2*0] = <void*>_func_chndtrinc
+ufunc_chndtrinc_ptr[2*0] = <void*>scipy.special._ufuncs_cxx._export_ncx2_find_noncentrality_float
 ufunc_chndtrinc_ptr[2*0+1] = <void*>(<char*>"chndtrinc")
-ufunc_chndtrinc_ptr[2*1] = <void*>_func_chndtrinc
+ufunc_chndtrinc_ptr[2*1] = <void*>scipy.special._ufuncs_cxx._export_ncx2_find_noncentrality_double
 ufunc_chndtrinc_ptr[2*1+1] = <void*>(<char*>"chndtrinc")
 ufunc_chndtrinc_data[0] = &ufunc_chndtrinc_ptr[2*0]
 ufunc_chndtrinc_data[1] = &ufunc_chndtrinc_ptr[2*1]
@@ -5161,8 +5160,35 @@ cdef char *ufunc_chndtrix_doc = (
     "\n"
     "See Also\n"
     "--------\n"
-    "chndtr, chndtridf, chndtrinc")
-ufunc_chndtrix_loops[0] = <np.PyUFuncGenericFunction>loop_d_ddd__As_fff_f
+    "chndtr : Noncentral chi-squared distribution CDF\n"
+    "chndtridf : inverse of `chndtr` with respect to `cdf`\n"
+    "chndtrinc : inverse of `chndtr` with respect to `nc`\n"
+    "scipy.stats.ncx2 : Non-central chi-squared distribution\n"
+    "\n"
+    "Notes\n"
+    "-----\n"
+    "The noncentral chi squared distribution is also available in\n"
+    "`scipy.stats.ncx2`. ``scipy.stats.ncx2.ppf`` is equivalent to `chndtrix`.\n"
+    "\n"
+    "This function wraps routines from the Boost Math C++ library [1]_.\n"
+    "\n"
+    "References\n"
+    "----------\n"
+    ".. [1] The Boost Developers. \"Boost C++ Libraries\". https://www.boost.org/.\n"
+    "\n"
+    "Examples\n"
+    "--------\n"
+    ">>> from scipy.special import chndtrix, chndtr\n"
+    "\n"
+    "Compute the noncentral chi squared distribution CDF at one point.\n"
+    ">>> x, df, nc = 3, 5, 10\n"
+    ">>> p = chndtr(x, df, nc)\n"
+    "\n"
+    "`chndtrix` is the inverse of `chndtr` with respect to `x`:\n"
+    "\n"
+    ">>> chndtrix(p, df, nc)\n"
+    "3.0")
+ufunc_chndtrix_loops[0] = <np.PyUFuncGenericFunction>loop_f_fff__As_fff_f
 ufunc_chndtrix_loops[1] = <np.PyUFuncGenericFunction>loop_d_ddd__As_ddd_d
 ufunc_chndtrix_types[0] = <char>NPY_FLOAT
 ufunc_chndtrix_types[1] = <char>NPY_FLOAT
@@ -5172,9 +5198,9 @@ ufunc_chndtrix_types[4] = <char>NPY_DOUBLE
 ufunc_chndtrix_types[5] = <char>NPY_DOUBLE
 ufunc_chndtrix_types[6] = <char>NPY_DOUBLE
 ufunc_chndtrix_types[7] = <char>NPY_DOUBLE
-ufunc_chndtrix_ptr[2*0] = <void*>_func_chndtrix
+ufunc_chndtrix_ptr[2*0] = <void*>scipy.special._ufuncs_cxx._export_ncx2_ppf_float
 ufunc_chndtrix_ptr[2*0+1] = <void*>(<char*>"chndtrix")
-ufunc_chndtrix_ptr[2*1] = <void*>_func_chndtrix
+ufunc_chndtrix_ptr[2*1] = <void*>scipy.special._ufuncs_cxx._export_ncx2_ppf_double
 ufunc_chndtrix_ptr[2*1+1] = <void*>(<char*>"chndtrix")
 ufunc_chndtrix_data[0] = &ufunc_chndtrix_ptr[2*0]
 ufunc_chndtrix_data[1] = &ufunc_chndtrix_ptr[2*1]
@@ -6132,7 +6158,7 @@ cdef char *ufunc_eval_chebyc_doc = (
     "    C_n(x) = 2 T_n(x/2)\n"
     "\n"
     "where :math:`T_n` is a Chebyshev polynomial of the first kind. See\n"
-    "22.5.11 in [AS]_ for details.\n"
+    "22.5.11 in [AS]_ (or equivalently [DLMF]_) for details.\n"
     "\n"
     "Parameters\n"
     "----------\n"
@@ -6162,6 +6188,8 @@ cdef char *ufunc_eval_chebyc_doc = (
     ".. [AS] Milton Abramowitz and Irene A. Stegun, eds.\n"
     "    Handbook of Mathematical Functions with Formulas,\n"
     "    Graphs, and Mathematical Tables. New York: Dover, 1972.\n"
+    ".. [DLMF] NIST Digital Library of Mathematical Functions,\n"
+    "    https://dlmf.nist.gov/18.1.E3\n"
     "\n"
     "Examples\n"
     "--------\n"
@@ -6229,8 +6257,8 @@ cdef char *ufunc_eval_chebys_doc = (
     "\n"
     "    S_n(x) = U_n(x/2)\n"
     "\n"
-    "where :math:`U_n` is a Chebyshev polynomial of the second\n"
-    "kind. See 22.5.13 in [AS]_ for details.\n"
+    "where :math:`U_n` is a Chebyshev polynomial of the second kind.\n"
+    "See 22.5.13 in [AS]_ (or equivalently [DLMF]_) for details.\n"
     "\n"
     "Parameters\n"
     "----------\n"
@@ -6259,6 +6287,8 @@ cdef char *ufunc_eval_chebys_doc = (
     ".. [AS] Milton Abramowitz and Irene A. Stegun, eds.\n"
     "    Handbook of Mathematical Functions with Formulas,\n"
     "    Graphs, and Mathematical Tables. New York: Dover, 1972.\n"
+    ".. [DLMF] NIST Digital Library of Mathematical Functions,\n"
+    "    https://dlmf.nist.gov/18.1.E3\n"
     "\n"
     "Examples\n"
     "--------\n"
@@ -6327,7 +6357,7 @@ cdef char *ufunc_eval_chebyt_doc = (
     "    T_n(x) = {}_2F_1(n, -n; 1/2; (1 - x)/2).\n"
     "\n"
     "When :math:`n` is an integer the result is a polynomial of degree\n"
-    ":math:`n`. See 22.5.47 in [AS]_ for details.\n"
+    ":math:`n`. See 22.5.47 in [AS]_ (or equivalently [DLMF]_) for details.\n"
     "\n"
     "Parameters\n"
     "----------\n"
@@ -6363,7 +6393,9 @@ cdef char *ufunc_eval_chebyt_doc = (
     "----------\n"
     ".. [AS] Milton Abramowitz and Irene A. Stegun, eds.\n"
     "    Handbook of Mathematical Functions with Formulas,\n"
-    "    Graphs, and Mathematical Tables. New York: Dover, 1972.")
+    "    Graphs, and Mathematical Tables. New York: Dover, 1972.\n"
+    ".. [DLMF] NIST Digital Library of Mathematical Functions,\n"
+    "    https://dlmf.nist.gov/18.5.E11_2")
 ufunc_eval_chebyt_loops[0] = <np.PyUFuncGenericFunction>loop_d_pd__As_pd_d
 ufunc_eval_chebyt_loops[1] = <np.PyUFuncGenericFunction>loop_d_dd__As_ff_f
 ufunc_eval_chebyt_loops[2] = <np.PyUFuncGenericFunction>loop_D_dD__As_fF_F
@@ -6418,7 +6450,7 @@ cdef char *ufunc_eval_chebyu_doc = (
     "    U_n(x) = (n + 1) {}_2F_1(-n, n + 2; 3/2; (1 - x)/2).\n"
     "\n"
     "When :math:`n` is an integer the result is a polynomial of degree\n"
-    ":math:`n`. See 22.5.48 in [AS]_ for details.\n"
+    ":math:`n`. See 22.5.48 in [AS]_ (or equivalently [DLMF]_) for details.\n"
     "\n"
     "Parameters\n"
     "----------\n"
@@ -6448,7 +6480,9 @@ cdef char *ufunc_eval_chebyu_doc = (
     "----------\n"
     ".. [AS] Milton Abramowitz and Irene A. Stegun, eds.\n"
     "    Handbook of Mathematical Functions with Formulas,\n"
-    "    Graphs, and Mathematical Tables. New York: Dover, 1972.")
+    "    Graphs, and Mathematical Tables. New York: Dover, 1972.\n"
+    ".. [DLMF] NIST Digital Library of Mathematical Functions,\n"
+    "    https://dlmf.nist.gov/18.5.E11_4")
 ufunc_eval_chebyu_loops[0] = <np.PyUFuncGenericFunction>loop_d_pd__As_pd_d
 ufunc_eval_chebyu_loops[1] = <np.PyUFuncGenericFunction>loop_d_dd__As_ff_f
 ufunc_eval_chebyu_loops[2] = <np.PyUFuncGenericFunction>loop_D_dD__As_fF_F
@@ -6504,7 +6538,7 @@ cdef char *ufunc_eval_gegenbauer_doc = (
     "      {}_2F_1(-n, 2\\alpha + n; \\alpha + 1/2; (1 - z)/2).\n"
     "\n"
     "When :math:`n` is an integer the result is a polynomial of degree\n"
-    ":math:`n`. See 22.5.46 in [AS]_ for details.\n"
+    ":math:`n`. See 22.5.46 in [AS]_ (or equivalently [DLMF]_) for details.\n"
     "\n"
     "Parameters\n"
     "----------\n"
@@ -6535,7 +6569,9 @@ cdef char *ufunc_eval_gegenbauer_doc = (
     "----------\n"
     ".. [AS] Milton Abramowitz and Irene A. Stegun, eds.\n"
     "    Handbook of Mathematical Functions with Formulas,\n"
-    "    Graphs, and Mathematical Tables. New York: Dover, 1972.")
+    "    Graphs, and Mathematical Tables. New York: Dover, 1972.\n"
+    ".. [DLMF] NIST Digital Library of Mathematical Functions,\n"
+    "    https://dlmf.nist.gov/18.5.E9")
 ufunc_eval_gegenbauer_loops[0] = <np.PyUFuncGenericFunction>loop_d_pdd__As_pdd_d
 ufunc_eval_gegenbauer_loops[1] = <np.PyUFuncGenericFunction>loop_d_ddd__As_fff_f
 ufunc_eval_gegenbauer_loops[2] = <np.PyUFuncGenericFunction>loop_D_ddD__As_ffF_F
@@ -6596,7 +6632,7 @@ cdef char *ufunc_eval_genlaguerre_doc = (
     "      {}_1F_1(-n, \\alpha + 1, x).\n"
     "\n"
     "When :math:`n` is an integer the result is a polynomial of degree\n"
-    ":math:`n`. See 22.5.54 in [AS]_ for details. The Laguerre\n"
+    ":math:`n`. See 22.5.54 in [AS]_ or [DLMF]_ for details. The Laguerre\n"
     "polynomials are the special case where :math:`\\alpha = 0`.\n"
     "\n"
     "Parameters\n"
@@ -6630,7 +6666,9 @@ cdef char *ufunc_eval_genlaguerre_doc = (
     "----------\n"
     ".. [AS] Milton Abramowitz and Irene A. Stegun, eds.\n"
     "    Handbook of Mathematical Functions with Formulas,\n"
-    "    Graphs, and Mathematical Tables. New York: Dover, 1972.")
+    "    Graphs, and Mathematical Tables. New York: Dover, 1972.\n"
+    ".. [DLMF] NIST Digital Library of Mathematical Functions,\n"
+    "    https://dlmf.nist.gov/18.5.E12")
 ufunc_eval_genlaguerre_loops[0] = <np.PyUFuncGenericFunction>loop_d_pdd__As_pdd_d
 ufunc_eval_genlaguerre_loops[1] = <np.PyUFuncGenericFunction>loop_d_ddd__As_fff_f
 ufunc_eval_genlaguerre_loops[2] = <np.PyUFuncGenericFunction>loop_D_ddD__As_ffF_F
@@ -6689,7 +6727,7 @@ cdef char *ufunc_eval_hermite_doc = (
     "    H_n(x) = (-1)^n e^{x^2} \\frac{d^n}{dx^n} e^{-x^2};\n"
     "\n"
     ":math:`H_n` is a polynomial of degree :math:`n`. See 22.11.7 in\n"
-    "[AS]_ for details.\n"
+    "[AS]_ or [DLMF]_ for details.\n"
     "\n"
     "Parameters\n"
     "----------\n"
@@ -6717,7 +6755,9 @@ cdef char *ufunc_eval_hermite_doc = (
     "----------\n"
     ".. [AS] Milton Abramowitz and Irene A. Stegun, eds.\n"
     "    Handbook of Mathematical Functions with Formulas,\n"
-    "    Graphs, and Mathematical Tables. New York: Dover, 1972.")
+    "    Graphs, and Mathematical Tables. New York: Dover, 1972.\n"
+    ".. [DLMF] NIST Digital Library of Mathematical Functions,\n"
+    "    https://dlmf.nist.gov/18.5.T1")
 ufunc_eval_hermite_loops[0] = <np.PyUFuncGenericFunction>loop_d_pd__As_pd_d
 ufunc_eval_hermite_types[0] = <char>NPY_INTP
 ufunc_eval_hermite_types[1] = <char>NPY_DOUBLE
@@ -6744,7 +6784,7 @@ cdef char *ufunc_eval_hermitenorm_doc = (
     "    He_n(x) = (-1)^n e^{x^2/2} \\frac{d^n}{dx^n} e^{-x^2/2};\n"
     "\n"
     ":math:`He_n` is a polynomial of degree :math:`n`. See 22.11.8 in\n"
-    "[AS]_ for details.\n"
+    "[AS]_ or [DLMF]_ for details.\n"
     "\n"
     "Parameters\n"
     "----------\n"
@@ -6772,7 +6812,9 @@ cdef char *ufunc_eval_hermitenorm_doc = (
     "----------\n"
     ".. [AS] Milton Abramowitz and Irene A. Stegun, eds.\n"
     "    Handbook of Mathematical Functions with Formulas,\n"
-    "    Graphs, and Mathematical Tables. New York: Dover, 1972.")
+    "    Graphs, and Mathematical Tables. New York: Dover, 1972.\n"
+    ".. [DLMF] NIST Digital Library of Mathematical Functions,\n"
+    "    https://dlmf.nist.gov/18.5.T1")
 ufunc_eval_hermitenorm_loops[0] = <np.PyUFuncGenericFunction>loop_d_pd__As_pd_d
 ufunc_eval_hermitenorm_types[0] = <char>NPY_INTP
 ufunc_eval_hermitenorm_types[1] = <char>NPY_DOUBLE
@@ -6801,7 +6843,7 @@ cdef char *ufunc_eval_jacobi_doc = (
     "\n"
     "where :math:`(\\cdot)_n` is the Pochhammer symbol; see `poch`. When\n"
     ":math:`n` is an integer the result is a polynomial of degree\n"
-    ":math:`n`. See 22.5.42 in [AS]_ for details.\n"
+    ":math:`n`. See 22.5.42 in [AS]_ or [DLMF]_ for details.\n"
     "\n"
     "Parameters\n"
     "----------\n"
@@ -6833,7 +6875,9 @@ cdef char *ufunc_eval_jacobi_doc = (
     "----------\n"
     ".. [AS] Milton Abramowitz and Irene A. Stegun, eds.\n"
     "    Handbook of Mathematical Functions with Formulas,\n"
-    "    Graphs, and Mathematical Tables. New York: Dover, 1972.")
+    "    Graphs, and Mathematical Tables. New York: Dover, 1972.\n"
+    ".. [DLMF] NIST Digital Library of Mathematical Functions,\n"
+    "    https://dlmf.nist.gov/18.5.E7")
 ufunc_eval_jacobi_loops[0] = <np.PyUFuncGenericFunction>loop_d_pddd__As_pddd_d
 ufunc_eval_jacobi_loops[1] = <np.PyUFuncGenericFunction>loop_d_dddd__As_ffff_f
 ufunc_eval_jacobi_loops[2] = <np.PyUFuncGenericFunction>loop_D_dddD__As_fffF_F
@@ -6897,8 +6941,9 @@ cdef char *ufunc_eval_laguerre_doc = (
     "\n"
     "    L_n(x) = {}_1F_1(-n, 1, x).\n"
     "\n"
-    "See 22.5.16 and 22.5.54 in [AS]_ for details. When :math:`n` is an\n"
-    "integer the result is a polynomial of degree :math:`n`.\n"
+    "See 22.5.16 and 22.5.54 in [AS]_ (or equivalently [DLMF1]_ and [DLMF2]_)\n"
+    "for details. When :math:`n` is an integer the result is a polynomial\n"
+    "of degree :math:`n`.\n"
     "\n"
     "Parameters\n"
     "----------\n"
@@ -6928,7 +6973,11 @@ cdef char *ufunc_eval_laguerre_doc = (
     "----------\n"
     ".. [AS] Milton Abramowitz and Irene A. Stegun, eds.\n"
     "    Handbook of Mathematical Functions with Formulas,\n"
-    "    Graphs, and Mathematical Tables. New York: Dover, 1972.")
+    "    Graphs, and Mathematical Tables. New York: Dover, 1972.\n"
+    ".. [DLMF1] NIST Digital Library of Mathematical Functions,\n"
+    "    https://dlmf.nist.gov/18.1#I1.ix7.p1\n"
+    ".. [DLMF2] NIST Digital Library of Mathematical Functions,\n"
+    "    https://dlmf.nist.gov/18.5.E12")
 ufunc_eval_laguerre_loops[0] = <np.PyUFuncGenericFunction>loop_d_pd__As_pd_d
 ufunc_eval_laguerre_loops[1] = <np.PyUFuncGenericFunction>loop_d_dd__As_ff_f
 ufunc_eval_laguerre_loops[2] = <np.PyUFuncGenericFunction>loop_D_dD__As_fF_F
@@ -6983,7 +7032,7 @@ cdef char *ufunc_eval_legendre_doc = (
     "    P_n(x) = {}_2F_1(-n, n + 1; 1; (1 - x)/2).\n"
     "\n"
     "When :math:`n` is an integer the result is a polynomial of degree\n"
-    ":math:`n`. See 22.5.49 in [AS]_ for details.\n"
+    ":math:`n`. See 22.5.49 in [AS]_ (or equivalently [DLMF]_) for details.\n"
     "\n"
     "Parameters\n"
     "----------\n"
@@ -7014,6 +7063,8 @@ cdef char *ufunc_eval_legendre_doc = (
     ".. [AS] Milton Abramowitz and Irene A. Stegun, eds.\n"
     "    Handbook of Mathematical Functions with Formulas,\n"
     "    Graphs, and Mathematical Tables. New York: Dover, 1972.\n"
+    ".. [DLMF] NIST Digital Library of Mathematical Functions,\n"
+    "    https://dlmf.nist.gov/15.9.E7\n"
     "\n"
     "Examples\n"
     "--------\n"
@@ -7105,7 +7156,7 @@ cdef char *ufunc_eval_sh_chebyt_doc = (
     "    T_n^*(x) = T_n(2x - 1)\n"
     "\n"
     "where :math:`T_n` is a Chebyshev polynomial of the first kind. See\n"
-    "22.5.14 in [AS]_ for details.\n"
+    "22.5.14 in [AS]_ (or equivalently [DLMF]_) for details.\n"
     "\n"
     "Parameters\n"
     "----------\n"
@@ -7134,7 +7185,9 @@ cdef char *ufunc_eval_sh_chebyt_doc = (
     "----------\n"
     ".. [AS] Milton Abramowitz and Irene A. Stegun, eds.\n"
     "    Handbook of Mathematical Functions with Formulas,\n"
-    "    Graphs, and Mathematical Tables. New York: Dover, 1972.")
+    "    Graphs, and Mathematical Tables. New York: Dover, 1972.\n"
+    ".. [DLMF] NIST Digital Library of Mathematical Functions,\n"
+    "    https://dlmf.nist.gov/18.7.E7")
 ufunc_eval_sh_chebyt_loops[0] = <np.PyUFuncGenericFunction>loop_d_pd__As_pd_d
 ufunc_eval_sh_chebyt_loops[1] = <np.PyUFuncGenericFunction>loop_d_dd__As_ff_f
 ufunc_eval_sh_chebyt_loops[2] = <np.PyUFuncGenericFunction>loop_D_dD__As_fF_F
@@ -7189,7 +7242,7 @@ cdef char *ufunc_eval_sh_chebyu_doc = (
     "    U_n^*(x) = U_n(2x - 1)\n"
     "\n"
     "where :math:`U_n` is a Chebyshev polynomial of the first kind. See\n"
-    "22.5.15 in [AS]_ for details.\n"
+    "22.5.15 in [AS]_ (or equivalently [DLMF]_) for details.\n"
     "\n"
     "Parameters\n"
     "----------\n"
@@ -7217,7 +7270,9 @@ cdef char *ufunc_eval_sh_chebyu_doc = (
     "----------\n"
     ".. [AS] Milton Abramowitz and Irene A. Stegun, eds.\n"
     "    Handbook of Mathematical Functions with Formulas,\n"
-    "    Graphs, and Mathematical Tables. New York: Dover, 1972.")
+    "    Graphs, and Mathematical Tables. New York: Dover, 1972.\n"
+    ".. [DLMF] NIST Digital Library of Mathematical Functions,\n"
+    "    https://dlmf.nist.gov/18.7.E8")
 ufunc_eval_sh_chebyu_loops[0] = <np.PyUFuncGenericFunction>loop_d_pd__As_pd_d
 ufunc_eval_sh_chebyu_loops[1] = <np.PyUFuncGenericFunction>loop_d_dd__As_ff_f
 ufunc_eval_sh_chebyu_loops[2] = <np.PyUFuncGenericFunction>loop_D_dD__As_fF_F
@@ -7271,8 +7326,8 @@ cdef char *ufunc_eval_sh_jacobi_doc = (
     "    G_n^{(p, q)}(x)\n"
     "      = \\binom{2n + p - 1}{n}^{-1} P_n^{(p - q, q - 1)}(2x - 1),\n"
     "\n"
-    "where :math:`P_n^{(\\cdot, \\cdot)}` is the n-th Jacobi\n"
-    "polynomial. See 22.5.2 in [AS]_ for details.\n"
+    "where :math:`P_n^{(\\cdot, \\cdot)}` is the n-th Jacobi polynomial.\n"
+    "See 22.5.2 in [AS]_ (or equivalently [DLMF]_)  for details.\n"
     "\n"
     "Parameters\n"
     "----------\n"
@@ -7302,7 +7357,9 @@ cdef char *ufunc_eval_sh_jacobi_doc = (
     "----------\n"
     ".. [AS] Milton Abramowitz and Irene A. Stegun, eds.\n"
     "    Handbook of Mathematical Functions with Formulas,\n"
-    "    Graphs, and Mathematical Tables. New York: Dover, 1972.")
+    "    Graphs, and Mathematical Tables. New York: Dover, 1972.\n"
+    ".. [DLMF] NIST Digital Library of Mathematical Functions,\n"
+    "    https://dlmf.nist.gov/18.1.E2")
 ufunc_eval_sh_jacobi_loops[0] = <np.PyUFuncGenericFunction>loop_d_pddd__As_pddd_d
 ufunc_eval_sh_jacobi_loops[1] = <np.PyUFuncGenericFunction>loop_d_dddd__As_ffff_f
 ufunc_eval_sh_jacobi_loops[2] = <np.PyUFuncGenericFunction>loop_D_dddD__As_fffF_F
@@ -7366,7 +7423,7 @@ cdef char *ufunc_eval_sh_legendre_doc = (
     "    P_n^*(x) = P_n(2x - 1)\n"
     "\n"
     "where :math:`P_n` is a Legendre polynomial. See 2.2.11 in [AS]_\n"
-    "for details.\n"
+    "or [DLMF]_ for details.\n"
     "\n"
     "Parameters\n"
     "----------\n"
@@ -7395,7 +7452,9 @@ cdef char *ufunc_eval_sh_legendre_doc = (
     "----------\n"
     ".. [AS] Milton Abramowitz and Irene A. Stegun, eds.\n"
     "    Handbook of Mathematical Functions with Formulas,\n"
-    "    Graphs, and Mathematical Tables. New York: Dover, 1972.")
+    "    Graphs, and Mathematical Tables. New York: Dover, 1972.\n"
+    ".. [DLMF] NIST Digital Library of Mathematical Functions,\n"
+    "    https://dlmf.nist.gov/18.7.E10")
 ufunc_eval_sh_legendre_loops[0] = <np.PyUFuncGenericFunction>loop_d_pd__As_pd_d
 ufunc_eval_sh_legendre_loops[1] = <np.PyUFuncGenericFunction>loop_d_dd__As_ff_f
 ufunc_eval_sh_legendre_loops[2] = <np.PyUFuncGenericFunction>loop_D_dD__As_fF_F
@@ -7443,7 +7502,7 @@ cdef char *ufunc_expn_doc = (
     "Generalized exponential integral En.\n"
     "\n"
     "For integer :math:`n \\geq 0` and real :math:`x \\geq 0` the\n"
-    "generalized exponential integral is defined as [dlmf]_\n"
+    "generalized exponential integral is defined as [DLMF]_\n"
     "\n"
     ".. math::\n"
     "\n"
@@ -7470,7 +7529,7 @@ cdef char *ufunc_expn_doc = (
     "\n"
     "References\n"
     "----------\n"
-    ".. [dlmf] Digital Library of Mathematical Functions, 8.19.2\n"
+    ".. [DLMF] Digital Library of Mathematical Functions, 8.19.2\n"
     "          https://dlmf.nist.gov/8.19#E2\n"
     "\n"
     "Examples\n"
@@ -7579,15 +7638,15 @@ cdef char *ufunc_fdtr_doc = (
     ".. math::\n"
     "    F(d_n, d_d; x) = I_{xd_n/(d_d + xd_n)}(d_n/2, d_d/2).\n"
     "\n"
-    "Wrapper for the Cephes [1]_ routine `fdtr`. The F distribution is also\n"
-    "available as `scipy.stats.f`. Calling `fdtr` directly can improve\n"
-    "performance compared to the ``cdf`` method of `scipy.stats.f` (see last\n"
-    "example below).\n"
+    "Wrapper for a routine from the Boost Math C++ library [1]_. The\n"
+    "F distribution is also available as `scipy.stats.f`. Calling\n"
+    "`fdtr` directly can improve performance compared to the ``cdf``\n"
+    "method of `scipy.stats.f` (see last example below).\n"
     "\n"
     "References\n"
     "----------\n"
-    ".. [1] Cephes Mathematical Functions Library,\n"
-    "       http://www.netlib.org/cephes/\n"
+    ".. [1] The Boost Developers. \"Boost C++ Libraries\". https://www.boost.org/.\n"
+    "\n"
     "\n"
     "Examples\n"
     "--------\n"
@@ -7638,7 +7697,7 @@ cdef char *ufunc_fdtr_doc = (
     ">>> f_dist_res = f(dfn, dfd).cdf(x)\n"
     ">>> fdtr_res == f_dist_res  # test that results are equal\n"
     "True")
-ufunc_fdtr_loops[0] = <np.PyUFuncGenericFunction>loop_d_ddd__As_fff_f
+ufunc_fdtr_loops[0] = <np.PyUFuncGenericFunction>loop_f_fff__As_fff_f
 ufunc_fdtr_loops[1] = <np.PyUFuncGenericFunction>loop_d_ddd__As_ddd_d
 ufunc_fdtr_types[0] = <char>NPY_FLOAT
 ufunc_fdtr_types[1] = <char>NPY_FLOAT
@@ -7648,9 +7707,9 @@ ufunc_fdtr_types[4] = <char>NPY_DOUBLE
 ufunc_fdtr_types[5] = <char>NPY_DOUBLE
 ufunc_fdtr_types[6] = <char>NPY_DOUBLE
 ufunc_fdtr_types[7] = <char>NPY_DOUBLE
-ufunc_fdtr_ptr[2*0] = <void*>_func_xsf_fdtr
+ufunc_fdtr_ptr[2*0] = <void*>scipy.special._ufuncs_cxx._export_f_cdf_float
 ufunc_fdtr_ptr[2*0+1] = <void*>(<char*>"fdtr")
-ufunc_fdtr_ptr[2*1] = <void*>_func_xsf_fdtr
+ufunc_fdtr_ptr[2*1] = <void*>scipy.special._ufuncs_cxx._export_f_cdf_double
 ufunc_fdtr_ptr[2*1+1] = <void*>(<char*>"fdtr")
 ufunc_fdtr_data[0] = &ufunc_fdtr_ptr[2*0]
 ufunc_fdtr_data[1] = &ufunc_fdtr_ptr[2*1]
@@ -7699,15 +7758,14 @@ cdef char *ufunc_fdtrc_doc = (
     ".. math::\n"
     "    F(d_n, d_d; x) = I_{d_d/(d_d + xd_n)}(d_d/2, d_n/2).\n"
     "\n"
-    "Wrapper for the Cephes [1]_ routine `fdtrc`. The F distribution is also\n"
-    "available as `scipy.stats.f`. Calling `fdtrc` directly can improve\n"
-    "performance compared to the ``sf`` method of `scipy.stats.f` (see last\n"
-    "example below).\n"
+    "Wrapper for a routine from the Boost Math C++ library [1]_. The\n"
+    "F distribution is also available as `scipy.stats.f`. Calling\n"
+    "`fdtrc` directly can improve performance compared to the ``sf``\n"
+    "method of `scipy.stats.f` (see last example below).\n"
     "\n"
     "References\n"
     "----------\n"
-    ".. [1] Cephes Mathematical Functions Library,\n"
-    "       http://www.netlib.org/cephes/\n"
+    ".. [1] The Boost Developers. \"Boost C++ Libraries\". https://www.boost.org/.\n"
     "\n"
     "Examples\n"
     "--------\n"
@@ -7758,7 +7816,7 @@ cdef char *ufunc_fdtrc_doc = (
     ">>> f_dist_res = f(dfn, dfd).sf(x)\n"
     ">>> f_dist_res == fdtrc_res  # test that results are equal\n"
     "True")
-ufunc_fdtrc_loops[0] = <np.PyUFuncGenericFunction>loop_d_ddd__As_fff_f
+ufunc_fdtrc_loops[0] = <np.PyUFuncGenericFunction>loop_f_fff__As_fff_f
 ufunc_fdtrc_loops[1] = <np.PyUFuncGenericFunction>loop_d_ddd__As_ddd_d
 ufunc_fdtrc_types[0] = <char>NPY_FLOAT
 ufunc_fdtrc_types[1] = <char>NPY_FLOAT
@@ -7768,9 +7826,9 @@ ufunc_fdtrc_types[4] = <char>NPY_DOUBLE
 ufunc_fdtrc_types[5] = <char>NPY_DOUBLE
 ufunc_fdtrc_types[6] = <char>NPY_DOUBLE
 ufunc_fdtrc_types[7] = <char>NPY_DOUBLE
-ufunc_fdtrc_ptr[2*0] = <void*>_func_xsf_fdtrc
+ufunc_fdtrc_ptr[2*0] = <void*>scipy.special._ufuncs_cxx._export_f_sf_float
 ufunc_fdtrc_ptr[2*0+1] = <void*>(<char*>"fdtrc")
-ufunc_fdtrc_ptr[2*1] = <void*>_func_xsf_fdtrc
+ufunc_fdtrc_ptr[2*1] = <void*>scipy.special._ufuncs_cxx._export_f_sf_double
 ufunc_fdtrc_ptr[2*1+1] = <void*>(<char*>"fdtrc")
 ufunc_fdtrc_data[0] = &ufunc_fdtrc_ptr[2*0]
 ufunc_fdtrc_data[1] = &ufunc_fdtrc_ptr[2*1]
@@ -7812,30 +7870,14 @@ cdef char *ufunc_fdtri_doc = (
     "\n"
     "Notes\n"
     "-----\n"
-    "The computation is carried out using the relation to the inverse\n"
-    "regularized beta function, :math:`I^{-1}_x(a, b)`.  Let\n"
-    ":math:`z = I^{-1}_p(d_d/2, d_n/2).`  Then,\n"
-    "\n"
-    ".. math::\n"
-    "    x = \\frac{d_d (1 - z)}{d_n z}.\n"
-    "\n"
-    "If `p` is such that :math:`x < 0.5`, the following relation is used\n"
-    "instead for improved stability: let\n"
-    ":math:`z' = I^{-1}_{1 - p}(d_n/2, d_d/2).` Then,\n"
-    "\n"
-    ".. math::\n"
-    "    x = \\frac{d_d z'}{d_n (1 - z')}.\n"
-    "\n"
-    "Wrapper for the Cephes [1]_ routine `fdtri`.\n"
-    "\n"
-    "The F distribution is also available as `scipy.stats.f`. Calling\n"
+    "Wrapper for a routine from the Boost Math C++ library [1]_. The\n"
+    "F distribution is also available as `scipy.stats.f`. Calling\n"
     "`fdtri` directly can improve performance compared to the ``ppf``\n"
     "method of `scipy.stats.f` (see last example below).\n"
     "\n"
     "References\n"
     "----------\n"
-    ".. [1] Cephes Mathematical Functions Library,\n"
-    "       http://www.netlib.org/cephes/\n"
+    ".. [1] The Boost Developers. \"Boost C++ Libraries\". https://www.boost.org/.\n"
     "\n"
     "Examples\n"
     "--------\n"
@@ -7894,7 +7936,7 @@ cdef char *ufunc_fdtri_doc = (
     ">>> f_dist_res = f(dfn, dfd).ppf(x)\n"
     ">>> f_dist_res == fdtri_res  # test that results are equal\n"
     "True")
-ufunc_fdtri_loops[0] = <np.PyUFuncGenericFunction>loop_d_ddd__As_fff_f
+ufunc_fdtri_loops[0] = <np.PyUFuncGenericFunction>loop_f_fff__As_fff_f
 ufunc_fdtri_loops[1] = <np.PyUFuncGenericFunction>loop_d_ddd__As_ddd_d
 ufunc_fdtri_types[0] = <char>NPY_FLOAT
 ufunc_fdtri_types[1] = <char>NPY_FLOAT
@@ -7904,9 +7946,9 @@ ufunc_fdtri_types[4] = <char>NPY_DOUBLE
 ufunc_fdtri_types[5] = <char>NPY_DOUBLE
 ufunc_fdtri_types[6] = <char>NPY_DOUBLE
 ufunc_fdtri_types[7] = <char>NPY_DOUBLE
-ufunc_fdtri_ptr[2*0] = <void*>_func_xsf_fdtri
+ufunc_fdtri_ptr[2*0] = <void*>scipy.special._ufuncs_cxx._export_f_ppf_float
 ufunc_fdtri_ptr[2*0+1] = <void*>(<char*>"fdtri")
-ufunc_fdtri_ptr[2*1] = <void*>_func_xsf_fdtri
+ufunc_fdtri_ptr[2*1] = <void*>scipy.special._ufuncs_cxx._export_f_ppf_double
 ufunc_fdtri_ptr[2*1+1] = <void*>(<char*>"fdtri")
 ufunc_fdtri_data[0] = &ufunc_fdtri_ptr[2*0]
 ufunc_fdtri_data[1] = &ufunc_fdtri_ptr[2*1]
@@ -8335,9 +8377,9 @@ ufunc_gdtria_types[4] = <char>NPY_DOUBLE
 ufunc_gdtria_types[5] = <char>NPY_DOUBLE
 ufunc_gdtria_types[6] = <char>NPY_DOUBLE
 ufunc_gdtria_types[7] = <char>NPY_DOUBLE
-ufunc_gdtria_ptr[2*0] = <void*>_func_gdtria
+ufunc_gdtria_ptr[2*0] = <void*>_func_special_gdtria
 ufunc_gdtria_ptr[2*0+1] = <void*>(<char*>"gdtria")
-ufunc_gdtria_ptr[2*1] = <void*>_func_gdtria
+ufunc_gdtria_ptr[2*1] = <void*>_func_special_gdtria
 ufunc_gdtria_ptr[2*1+1] = <void*>(<char*>"gdtria")
 ufunc_gdtria_data[0] = &ufunc_gdtria_ptr[2*0]
 ufunc_gdtria_data[1] = &ufunc_gdtria_ptr[2*1]
@@ -8519,9 +8561,9 @@ ufunc_gdtrix_types[4] = <char>NPY_DOUBLE
 ufunc_gdtrix_types[5] = <char>NPY_DOUBLE
 ufunc_gdtrix_types[6] = <char>NPY_DOUBLE
 ufunc_gdtrix_types[7] = <char>NPY_DOUBLE
-ufunc_gdtrix_ptr[2*0] = <void*>_func_gdtrix
+ufunc_gdtrix_ptr[2*0] = <void*>_func_special_gdtrix
 ufunc_gdtrix_ptr[2*0+1] = <void*>(<char*>"gdtrix")
-ufunc_gdtrix_ptr[2*1] = <void*>_func_gdtrix
+ufunc_gdtrix_ptr[2*1] = <void*>_func_special_gdtrix
 ufunc_gdtrix_ptr[2*1+1] = <void*>(<char*>"gdtrix")
 ufunc_gdtrix_data[0] = &ufunc_gdtrix_ptr[2*0]
 ufunc_gdtrix_data[1] = &ufunc_gdtrix_ptr[2*1]
@@ -8764,7 +8806,7 @@ cdef char *ufunc_hyp1f1_doc = (
     "\n"
     "   {}_1F_1(a; b; x) = \\sum_{k = 0}^\\infty \\frac{(a)_k}{(b)_k k!} x^k.\n"
     "\n"
-    "See [dlmf]_ for more details. Here :math:`(\\cdot)_k` is the\n"
+    "See [DLMF]_ for more details. Here :math:`(\\cdot)_k` is the\n"
     "Pochhammer symbol; see `poch`.\n"
     "\n"
     "Parameters\n"
@@ -8795,7 +8837,7 @@ cdef char *ufunc_hyp1f1_doc = (
     "\n"
     "References\n"
     "----------\n"
-    ".. [dlmf] NIST Digital Library of Mathematical Functions\n"
+    ".. [DLMF] NIST Digital Library of Mathematical Functions\n"
     "          https://dlmf.nist.gov/13.2#E2\n"
     ".. [2] The Boost Developers. \"Boost C++ Libraries\". https://www.boost.org/.\n"
     ".. [3] Zhang, Jin, \"Computation of Special Functions\", John Wiley\n"
@@ -8885,7 +8927,7 @@ cdef char *ufunc_hyperu_doc = (
     "\n"
     "   U(a, b, x) \\sim x^{-a}\n"
     "\n"
-    "as :math:`x \\to \\infty`. See [dlmf]_ for more details.\n"
+    "as :math:`x \\to \\infty`. See [DLMF]_ for more details.\n"
     "\n"
     "Parameters\n"
     "----------\n"
@@ -8903,7 +8945,7 @@ cdef char *ufunc_hyperu_doc = (
     "\n"
     "References\n"
     "----------\n"
-    ".. [dlmf] NIST Digital Library of Mathematics Functions\n"
+    ".. [DLMF] NIST Digital Library of Mathematics Functions\n"
     "          https://dlmf.nist.gov/13.2#E6\n"
     "\n"
     "Examples\n"
@@ -9427,13 +9469,6 @@ cdef char *ufunc_lpmv_doc = (
     "pmv : scalar or ndarray\n"
     "    Value of the associated Legendre function.\n"
     "\n"
-    "See Also\n"
-    "--------\n"
-    "lpmn : Compute the associated Legendre function for all orders\n"
-    "       ``0, ..., m`` and degrees ``0, ..., n``.\n"
-    "clpmn : Compute the associated Legendre function at complex\n"
-    "        arguments.\n"
-    "\n"
     "Notes\n"
     "-----\n"
     "Note that this implementation includes the Condon-Shortley phase.\n"
@@ -9938,7 +9973,7 @@ cdef char *ufunc_nbdtrik_doc = (
     "-----\n"
     "Wrapper for the CDFLIB [1]_ Fortran routine `cdfnbn`.\n"
     "\n"
-    "Formula 26.5.26 of [2]_,\n"
+    "Formula 26.5.26 of [2]_ or [3]_,\n"
     "\n"
     ".. math::\n"
     "    \\sum_{j=k + 1}^\\infty {{n + j - 1}\n"
@@ -9958,6 +9993,8 @@ cdef char *ufunc_nbdtrik_doc = (
     ".. [2] Milton Abramowitz and Irene A. Stegun, eds.\n"
     "       Handbook of Mathematical Functions with Formulas,\n"
     "       Graphs, and Mathematical Tables. New York: Dover, 1972.\n"
+    ".. [3] NIST Digital Library of Mathematical Functions\n"
+    "       https://dlmf.nist.gov/8.17.E24\n"
     "\n"
     "Examples\n"
     "--------\n"
@@ -10061,7 +10098,7 @@ cdef char *ufunc_nbdtrin_doc = (
     "-----\n"
     "Wrapper for the CDFLIB [1]_ Fortran routine `cdfnbn`.\n"
     "\n"
-    "Formula 26.5.26 of [2]_,\n"
+    "Formula 26.5.26 of [2]_ or [3]_,\n"
     "\n"
     ".. math::\n"
     "    \\sum_{j=k + 1}^\\infty {{n + j - 1}\n"
@@ -10081,6 +10118,8 @@ cdef char *ufunc_nbdtrin_doc = (
     ".. [2] Milton Abramowitz and Irene A. Stegun, eds.\n"
     "       Handbook of Mathematical Functions with Formulas,\n"
     "       Graphs, and Mathematical Tables. New York: Dover, 1972.\n"
+    ".. [3] NIST Digital Library of Mathematical Functions\n"
+    "       https://dlmf.nist.gov/8.17.E24\n"
     "\n"
     "Examples\n"
     "--------\n"
@@ -11415,6 +11454,15 @@ cdef char *ufunc_pdtrik_doc = (
     "scalar or ndarray\n"
     "    The number of occurrences `k` such that ``pdtr(k, m) = p``\n"
     "\n"
+    "Notes\n"
+    "-----\n"
+    "This function relies on the ``gamma_q_inva`` function from the Boost\n"
+    "Math C++ library [1]_.\n"
+    "\n"
+    "References\n"
+    "----------\n"
+    ".. [1] The Boost Developers. \"Boost C++ Libraries\". https://www.boost.org/.\n"
+    "\n"
     "See Also\n"
     "--------\n"
     "pdtr : Poisson cumulative distribution function\n"
@@ -11436,7 +11484,7 @@ cdef char *ufunc_pdtrik_doc = (
     "\n"
     ">>> sc.pdtrik(p, 2)\n"
     "array([1., 2., 3.])")
-ufunc_pdtrik_loops[0] = <np.PyUFuncGenericFunction>loop_d_dd__As_ff_f
+ufunc_pdtrik_loops[0] = <np.PyUFuncGenericFunction>loop_f_ff__As_ff_f
 ufunc_pdtrik_loops[1] = <np.PyUFuncGenericFunction>loop_d_dd__As_dd_d
 ufunc_pdtrik_types[0] = <char>NPY_FLOAT
 ufunc_pdtrik_types[1] = <char>NPY_FLOAT
@@ -11444,9 +11492,9 @@ ufunc_pdtrik_types[2] = <char>NPY_FLOAT
 ufunc_pdtrik_types[3] = <char>NPY_DOUBLE
 ufunc_pdtrik_types[4] = <char>NPY_DOUBLE
 ufunc_pdtrik_types[5] = <char>NPY_DOUBLE
-ufunc_pdtrik_ptr[2*0] = <void*>_func_pdtrik
+ufunc_pdtrik_ptr[2*0] = <void*>scipy.special._ufuncs_cxx._export_pdtrik_float
 ufunc_pdtrik_ptr[2*0+1] = <void*>(<char*>"pdtrik")
-ufunc_pdtrik_ptr[2*1] = <void*>_func_pdtrik
+ufunc_pdtrik_ptr[2*1] = <void*>scipy.special._ufuncs_cxx._export_pdtrik_double
 ufunc_pdtrik_ptr[2*1+1] = <void*>(<char*>"pdtrik")
 ufunc_pdtrik_data[0] = &ufunc_pdtrik_ptr[2*0]
 ufunc_pdtrik_data[1] = &ufunc_pdtrik_ptr[2*1]
@@ -11473,7 +11521,7 @@ cdef char *ufunc_poch_doc = (
     "\n"
     "    (z)_m = z (z + 1) ... (z + m - 1)\n"
     "\n"
-    "See [dlmf]_ for more details.\n"
+    "See [DLMF]_ for more details.\n"
     "\n"
     "Parameters\n"
     "----------\n"
@@ -11489,7 +11537,7 @@ cdef char *ufunc_poch_doc = (
     "\n"
     "References\n"
     "----------\n"
-    ".. [dlmf] Nist, Digital Library of Mathematical Functions\n"
+    ".. [DLMF] Nist, Digital Library of Mathematical Functions\n"
     "    https://dlmf.nist.gov/5.2#iii\n"
     "\n"
     "Examples\n"
@@ -11909,7 +11957,7 @@ cdef char *ufunc_shichi_doc = (
     "  \\gamma + \\log(x) + \\int_0^x \\frac{\\cosh{t} - 1}{t} dt\n"
     "\n"
     "where :math:`\\gamma` is Euler's constant and :math:`\\log` is the\n"
-    "principal branch of the logarithm [1]_.\n"
+    "principal branch of the logarithm [1]_ (see also [2]_).\n"
     "\n"
     "Parameters\n"
     "----------\n"
@@ -11939,8 +11987,8 @@ cdef char *ufunc_shichi_doc = (
     "+ 0j)`` differ by a factor of ``1j*pi``.\n"
     "\n"
     "For real arguments the function is computed by calling Cephes'\n"
-    "[2]_ *shichi* routine. For complex arguments the algorithm is based\n"
-    "on Mpmath's [3]_ *shi* and *chi* routines.\n"
+    "[3]_ *shichi* routine. For complex arguments the algorithm is based\n"
+    "on Mpmath's [4]_ *shi* and *chi* routines.\n"
     "\n"
     "References\n"
     "----------\n"
@@ -11948,9 +11996,11 @@ cdef char *ufunc_shichi_doc = (
     "       Handbook of Mathematical Functions with Formulas,\n"
     "       Graphs, and Mathematical Tables. New York: Dover, 1972.\n"
     "       (See Section 5.2.)\n"
-    ".. [2] Cephes Mathematical Functions Library,\n"
+    ".. [2] NIST Digital Library of Mathematical Functions\n"
+    "       https://dlmf.nist.gov/6.2.E15 and https://dlmf.nist.gov/6.2.E16\n"
+    ".. [3] Cephes Mathematical Functions Library,\n"
     "       http://www.netlib.org/cephes/\n"
-    ".. [3] Fredrik Johansson and others.\n"
+    ".. [4] Fredrik Johansson and others.\n"
     "       \"mpmath: a Python library for arbitrary-precision floating-point\n"
     "       arithmetic\" (Version 0.19) http://mpmath.org/\n"
     "\n"
@@ -12049,7 +12099,7 @@ cdef char *ufunc_sici_doc = (
     "  \\gamma + \\log(x) + \\int_0^x \\frac{\\cos{t} - 1}{t}dt\n"
     "\n"
     "where :math:`\\gamma` is Euler's constant and :math:`\\log` is the\n"
-    "principal branch of the logarithm [1]_.\n"
+    "principal branch of the logarithm [1]_ (see also [2]_).\n"
     "\n"
     "Parameters\n"
     "----------\n"
@@ -12079,8 +12129,8 @@ cdef char *ufunc_sici_doc = (
     "differ by a factor of ``1j*pi``.\n"
     "\n"
     "For real arguments the function is computed by calling Cephes'\n"
-    "[2]_ *sici* routine. For complex arguments the algorithm is based\n"
-    "on Mpmath's [3]_ *si* and *ci* routines.\n"
+    "[3]_ *sici* routine. For complex arguments the algorithm is based\n"
+    "on Mpmath's [4]_ *si* and *ci* routines.\n"
     "\n"
     "References\n"
     "----------\n"
@@ -12088,9 +12138,12 @@ cdef char *ufunc_sici_doc = (
     "       Handbook of Mathematical Functions with Formulas,\n"
     "       Graphs, and Mathematical Tables. New York: Dover, 1972.\n"
     "       (See Section 5.2.)\n"
-    ".. [2] Cephes Mathematical Functions Library,\n"
+    ".. [2] NIST Digital Library of Mathematical Functions\n"
+    "       https://dlmf.nist.gov/6.2.E9, https://dlmf.nist.gov/6.2.E12,\n"
+    "       and https://dlmf.nist.gov/6.2.E13\n"
+    ".. [3] Cephes Mathematical Functions Library,\n"
     "       http://www.netlib.org/cephes/\n"
-    ".. [3] Fredrik Johansson and others.\n"
+    ".. [4] Fredrik Johansson and others.\n"
     "       \"mpmath: a Python library for arbitrary-precision floating-point\n"
     "       arithmetic\" (Version 0.19) http://mpmath.org/\n"
     "\n"
@@ -12556,6 +12609,13 @@ cdef char *ufunc_stdtr_doc = (
     "Calling `stdtr` directly can improve performance compared to the\n"
     "``cdf`` method of `scipy.stats.t` (see last example below).\n"
     "\n"
+    "The function is computed using the Boost Math library [1]_, which\n"
+    "relies on the incomplete beta function.\n"
+    "\n"
+    "References\n"
+    "----------\n"
+    ".. [1] Boost C++ Libraries, http://www.boost.org/\n"
+    "\n"
     "Examples\n"
     "--------\n"
     "Calculate the function for ``df=3`` at ``t=1``.\n"
@@ -12609,7 +12669,7 @@ cdef char *ufunc_stdtr_doc = (
     ">>> stats_result = t(df).cdf(x)\n"
     ">>> stats_result == stdtr_result  # test that results are equal\n"
     "True")
-ufunc_stdtr_loops[0] = <np.PyUFuncGenericFunction>loop_d_dd__As_ff_f
+ufunc_stdtr_loops[0] = <np.PyUFuncGenericFunction>loop_f_ff__As_ff_f
 ufunc_stdtr_loops[1] = <np.PyUFuncGenericFunction>loop_d_dd__As_dd_d
 ufunc_stdtr_types[0] = <char>NPY_FLOAT
 ufunc_stdtr_types[1] = <char>NPY_FLOAT
@@ -12617,9 +12677,9 @@ ufunc_stdtr_types[2] = <char>NPY_FLOAT
 ufunc_stdtr_types[3] = <char>NPY_DOUBLE
 ufunc_stdtr_types[4] = <char>NPY_DOUBLE
 ufunc_stdtr_types[5] = <char>NPY_DOUBLE
-ufunc_stdtr_ptr[2*0] = <void*>_func_stdtr
+ufunc_stdtr_ptr[2*0] = <void*>scipy.special._ufuncs_cxx._export_t_cdf_float
 ufunc_stdtr_ptr[2*0+1] = <void*>(<char*>"stdtr")
-ufunc_stdtr_ptr[2*1] = <void*>_func_stdtr
+ufunc_stdtr_ptr[2*1] = <void*>scipy.special._ufuncs_cxx._export_t_cdf_double
 ufunc_stdtr_ptr[2*1+1] = <void*>(<char*>"stdtr")
 ufunc_stdtr_data[0] = &ufunc_stdtr_ptr[2*0]
 ufunc_stdtr_data[1] = &ufunc_stdtr_ptr[2*1]
@@ -12728,6 +12788,13 @@ cdef char *ufunc_stdtrit_doc = (
     "`stdtrit` directly can improve performance compared to the ``ppf``\n"
     "method of `scipy.stats.t` (see last example below).\n"
     "\n"
+    "The function is computed using the Boost Math library [1]_, which\n"
+    "relies on the incomplete beta function.\n"
+    "\n"
+    "References\n"
+    "----------\n"
+    ".. [1] Boost C++ Libraries, http://www.boost.org/\n"
+    "\n"
     "Examples\n"
     "--------\n"
     "`stdtrit` represents the inverse of the student t distribution CDF which\n"
@@ -12788,7 +12855,7 @@ cdef char *ufunc_stdtrit_doc = (
     ">>> stats_result = t(df).ppf(x)\n"
     ">>> stats_result == stdtrit_result  # test that results are equal\n"
     "True")
-ufunc_stdtrit_loops[0] = <np.PyUFuncGenericFunction>loop_d_dd__As_ff_f
+ufunc_stdtrit_loops[0] = <np.PyUFuncGenericFunction>loop_f_ff__As_ff_f
 ufunc_stdtrit_loops[1] = <np.PyUFuncGenericFunction>loop_d_dd__As_dd_d
 ufunc_stdtrit_types[0] = <char>NPY_FLOAT
 ufunc_stdtrit_types[1] = <char>NPY_FLOAT
@@ -12796,9 +12863,9 @@ ufunc_stdtrit_types[2] = <char>NPY_FLOAT
 ufunc_stdtrit_types[3] = <char>NPY_DOUBLE
 ufunc_stdtrit_types[4] = <char>NPY_DOUBLE
 ufunc_stdtrit_types[5] = <char>NPY_DOUBLE
-ufunc_stdtrit_ptr[2*0] = <void*>_func_stdtrit
+ufunc_stdtrit_ptr[2*0] = <void*>scipy.special._ufuncs_cxx._export_t_ppf_float
 ufunc_stdtrit_ptr[2*0+1] = <void*>(<char*>"stdtrit")
-ufunc_stdtrit_ptr[2*1] = <void*>_func_stdtrit
+ufunc_stdtrit_ptr[2*1] = <void*>scipy.special._ufuncs_cxx._export_t_ppf_double
 ufunc_stdtrit_ptr[2*1+1] = <void*>(<char*>"stdtrit")
 ufunc_stdtrit_data[0] = &ufunc_stdtrit_ptr[2*0]
 ufunc_stdtrit_data[1] = &ufunc_stdtrit_ptr[2*1]
@@ -13122,7 +13189,7 @@ cdef char *ufunc_yn_doc = (
     "\n"
     "If `z` is an array, the order parameter `v` must be broadcastable to\n"
     "the correct shape if different orders shall be computed in one call.\n"
-    "To calculate the orders 0 and 1 for an 1D array:\n"
+    "To calculate the orders 0 and 1 for a 1D array:\n"
     "\n"
     ">>> orders = np.array([[0], [1]])\n"
     ">>> orders.shape\n"
@@ -13165,7 +13232,7 @@ ufunc_yn_data[1] = &ufunc_yn_ptr[2*1]
 ufunc_yn_data[2] = &ufunc_yn_ptr[2*2]
 yn = np.PyUFunc_FromFuncAndData(ufunc_yn_loops, ufunc_yn_data, ufunc_yn_types, 3, 2, 1, 0, 'yn', ufunc_yn_doc, 0)
 
-from ._special_ufuncs import (_cospi, _lambertw, _scaled_exp1, _sinpi, _spherical_jn, _spherical_jn_d, _spherical_yn, _spherical_yn_d, _spherical_in, _spherical_in_d, _spherical_kn, _spherical_kn_d, airy, airye, bei, beip, ber, berp, binom, exp1, expi, expit, exprel, gamma, gammaln, hankel1, hankel1e, hankel2, hankel2e, hyp2f1, it2i0k0, it2j0y0, it2struve0, itairy, iti0k0, itj0y0, itmodstruve0, itstruve0, iv, _iv_ratio, _iv_ratio_c, ive, jv, jve, kei, keip, kelvin, ker, kerp, kv, kve, log_expit, log_wright_bessel, loggamma, logit, mathieu_a, mathieu_b, mathieu_cem, mathieu_modcem1, mathieu_modcem2, mathieu_modsem1, mathieu_modsem2, mathieu_sem, modfresnelm, modfresnelp, obl_ang1, obl_ang1_cv, obl_cv, obl_rad1, obl_rad1_cv, obl_rad2, obl_rad2_cv, pbdv, pbvv, pbwa, pro_ang1, pro_ang1_cv, pro_cv, pro_rad1, pro_rad1_cv, pro_rad2, pro_rad2_cv, psi, rgamma, sph_harm, wright_bessel, yv, yve, zetac, _zeta, sindg, cosdg, tandg, cotdg, i0, i0e, i1, i1e, k0, k0e, k1, k1e, y0, y1, j0, j1, struve, modstruve, beta, betaln, besselpoly, gammaln, gammasgn, cbrt, radian, cosm1, gammainc, gammaincinv, gammaincc, gammainccinv, fresnel, ellipe, ellipeinc, ellipk, ellipkinc, ellipkm1, ellipj, _riemann_zeta, erf, erfc, erfcx, erfi, voigt_profile, wofz, dawsn, ndtr, log_ndtr, exp2, exp10, expm1, log1p, xlogy, xlog1py, _log1pmx, _log1mexp)
+from ._special_ufuncs import (_cospi, _gen_harmonic, _lambertw, _normalized_gen_harmonic, _scaled_exp1, _sinpi, _spherical_jn, _spherical_jn_d, _spherical_yn, _spherical_yn_d, _spherical_in, _spherical_in_d, _spherical_kn, _spherical_kn_d, airy, airye, bei, beip, ber, berp, binom, exp1, expi, expit, exprel, gamma, gammaln, hankel1, hankel1e, hankel2, hankel2e, hyp2f1, it2i0k0, it2j0y0, it2struve0, itairy, iti0k0, itj0y0, itmodstruve0, itstruve0, iv, _iv_ratio, _iv_ratio_c, ive, jv, jve, kei, keip, kelvin, ker, kerp, kv, kve, log_expit, log_wright_bessel, loggamma, logit, mathieu_a, mathieu_b, mathieu_cem, mathieu_modcem1, mathieu_modcem2, mathieu_modsem1, mathieu_modsem2, mathieu_sem, modfresnelm, modfresnelp, obl_ang1, obl_ang1_cv, obl_cv, obl_rad1, obl_rad1_cv, obl_rad2, obl_rad2_cv, pbdv, pbvv, pbwa, pro_ang1, pro_ang1_cv, pro_cv, pro_rad1, pro_rad1_cv, pro_rad2, pro_rad2_cv, psi, rgamma, wright_bessel, yv, yve, zetac, _zeta, sindg, cosdg, tandg, cotdg, i0, i0e, i1, i1e, k0, k0e, k1, k1e, y0, y1, j0, j1, struve, modstruve, beta, betaln, besselpoly, gammaln, gammasgn, cbrt, radian, cosm1, gammainc, gammaincinv, gammaincc, gammainccinv, fresnel, ellipe, ellipeinc, ellipk, ellipkinc, ellipkm1, ellipj, _riemann_zeta, erf, erfc, erfcx, erfi, voigt_profile, wofz, dawsn, ndtr, log_ndtr, exp2, exp10, expm1, log1p, xlogy, xlog1py, _log1pmx, _log1mexp)
 
 #
 # Aliases

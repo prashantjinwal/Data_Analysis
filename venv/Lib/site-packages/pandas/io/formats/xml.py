@@ -1,6 +1,7 @@
 """
 :mod:`pandas.io.formats.xml` is a module for formatting data in XML.
 """
+
 from __future__ import annotations
 
 import codecs
@@ -10,24 +11,15 @@ from typing import (
     Any,
     final,
 )
-import warnings
 
 from pandas.errors import AbstractMethodError
-from pandas.util._decorators import (
-    cache_readonly,
-    doc,
-)
+from pandas.util._decorators import cache_readonly
 
 from pandas.core.dtypes.common import is_list_like
 from pandas.core.dtypes.missing import isna
 
-from pandas.core.shared_docs import _shared_docs
-
 from pandas.io.common import get_handle
-from pandas.io.xml import (
-    get_data_from_filepath,
-    preprocess_data,
-)
+from pandas.io.xml import get_data_from_filepath
 
 if TYPE_CHECKING:
     from pandas._typing import (
@@ -41,10 +33,6 @@ if TYPE_CHECKING:
     from pandas import DataFrame
 
 
-@doc(
-    storage_options=_shared_docs["storage_options"],
-    compression_options=_shared_docs["compression_options"] % "path_or_buffer",
-)
 class _BaseXMLFormatter:
     """
     Subclass for formatting data in XML.
@@ -92,11 +80,31 @@ class _BaseXMLFormatter:
     stylesheet : str or file-like
         A URL, file, file-like object, or a raw string containing XSLT.
 
-    {compression_options}
+    compression : str or dict, default 'infer'
+        For on-the-fly compression of the output data. If 'infer' and 'path_or_buffer'
+        is path-like, then detect compression from the following extensions: '.gz',
+        '.bz2', '.zip', '.xz', '.zst', '.tar', '.tar.gz', '.tar.xz' or '.tar.bz2'
+        (otherwise no compression).
+        Set to ``None`` for no compression.
+        Can also be a dict with key ``'method'`` set
+        to one of {``'zip'``, ``'gzip'``, ``'bz2'``, ``'zstd'``, ``'xz'``, ``'tar'``}
+        and other key-value pairs are forwarded to
+        ``zipfile.ZipFile``, ``gzip.GzipFile``,
+        ``bz2.BZ2File``, ``zstandard.ZstdCompressor``, ``lzma.LZMAFile`` or
+        ``tarfile.TarFile``, respectively.
+        As an example, the following could be passed for faster compression and to
+        create a reproducible gzip archive:
+        ``compression={'method': 'gzip', 'compresslevel': 1, 'mtime': 1}``.
 
-        .. versionchanged:: 1.4.0 Zstandard support.
-
-    {storage_options}
+    storage_options : dict, optional
+        Extra options that make sense for a particular storage connection, e.g.
+        host, port, username, password, etc. For HTTP(S) URLs the key-value pairs
+        are forwarded to ``urllib.request.Request`` as header options. For other
+        URLs (e.g. starting with "s3://", and "gcs://") the key-value pairs are
+        forwarded to ``fsspec.open``. Please see ``fsspec`` and ``urllib`` for more
+        details, and for more examples on storage options refer `here
+        <https://pandas.pydata.org/docs/user_guide/io.html?
+        highlight=storage_options#reading-writing-remote-files>`_.
 
     See also
     --------
@@ -210,13 +218,7 @@ class _BaseXMLFormatter:
             df = df.reset_index()
 
         if self.na_rep is not None:
-            with warnings.catch_warnings():
-                warnings.filterwarnings(
-                    "ignore",
-                    "Downcasting object dtype arrays",
-                    category=FutureWarning,
-                )
-                df = df.fillna(self.na_rep)
+            df = df.fillna(self.na_rep)
 
         return df.to_dict(orient="index")
 
@@ -269,7 +271,7 @@ class _BaseXMLFormatter:
         nmsp_dict: dict[str, str] = {}
         if self.namespaces:
             nmsp_dict = {
-                f"xmlns{p if p=='' else f':{p}'}": n
+                f"xmlns{p if p == '' else f':{p}'}": n
                 for p, n in self.namespaces.items()
                 if n != self.prefix_uri[1:-1]
             }
@@ -293,8 +295,8 @@ class _BaseXMLFormatter:
             try:
                 if not isna(d[col]):
                     elem_row.attrib[attr_name] = str(d[col])
-            except KeyError:
-                raise KeyError(f"no valid column, {col}")
+            except KeyError as err:
+                raise KeyError(f"no valid column, {col}") from err
         return elem_row
 
     @final
@@ -330,8 +332,8 @@ class _BaseXMLFormatter:
             try:
                 val = None if isna(d[col]) or d[col] == "" else str(d[col])
                 sub_element_cls(elem_row, elem_name).text = val
-            except KeyError:
-                raise KeyError(f"no valid column, {col}")
+            except KeyError as err:
+                raise KeyError(f"no valid column, {col}") from err
 
     @final
     def write_output(self) -> str | None:
@@ -408,10 +410,12 @@ class EtreeXMLFormatter(_BaseXMLFormatter):
             if self.prefix:
                 try:
                     uri = f"{{{self.namespaces[self.prefix]}}}"
-                except KeyError:
-                    raise KeyError(f"{self.prefix} is not included in namespaces")
+                except KeyError as err:
+                    raise KeyError(
+                        f"{self.prefix} is not included in namespaces"
+                    ) from err
             elif "" in self.namespaces:
-                uri = f'{{{self.namespaces[""]}}}'
+                uri = f"{{{self.namespaces['']}}}"
             else:
                 uri = ""
 
@@ -504,10 +508,12 @@ class LxmlXMLFormatter(_BaseXMLFormatter):
             if self.prefix:
                 try:
                     uri = f"{{{self.namespaces[self.prefix]}}}"
-                except KeyError:
-                    raise KeyError(f"{self.prefix} is not included in namespaces")
+                except KeyError as err:
+                    raise KeyError(
+                        f"{self.prefix} is not included in namespaces"
+                    ) from err
             elif "" in self.namespaces:
-                uri = f'{{{self.namespaces[""]}}}'
+                uri = f"{{{self.namespaces['']}}}"
             else:
                 uri = ""
 
@@ -544,7 +550,7 @@ class LxmlXMLFormatter(_BaseXMLFormatter):
             storage_options=self.storage_options,
         )
 
-        with preprocess_data(handle_data) as xml_data:
+        with handle_data as xml_data:
             curr_parser = XMLParser(encoding=self.encoding)
 
             if isinstance(xml_data, io.StringIO):

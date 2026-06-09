@@ -3,15 +3,10 @@ import functools
 import numpy as np
 import pytest
 
-from pandas.compat import is_platform_windows
-
 import pandas as pd
 import pandas._testing as tm
 
 pytest.importorskip("odf")
-
-if is_platform_windows():
-    pytestmark = pytest.mark.single_cpu
 
 
 @pytest.fixture(autouse=True)
@@ -29,7 +24,7 @@ def test_read_invalid_types_raises():
 
 
 def test_read_writer_table():
-    # Also test reading tables from an text OpenDocument file
+    # Also test reading tables from a text OpenDocument file
     # (.odt)
     index = pd.Index(["Row 1", "Row 2", "Row 3"], name="Header")
     expected = pd.DataFrame(

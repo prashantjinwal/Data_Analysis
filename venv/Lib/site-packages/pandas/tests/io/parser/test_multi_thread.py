@@ -2,6 +2,7 @@
 Tests multithreading behaviour for reading and
 parsing files for each parser defined in parsers.py
 """
+
 from contextlib import ExitStack
 from io import BytesIO
 from multiprocessing.pool import ThreadPool
@@ -126,7 +127,7 @@ def _generate_multi_thread_dataframe(parser, path, num_rows, num_tasks):
 
 
 @xfail_pyarrow  # ValueError: The 'nrows' option is not supported
-def test_multi_thread_path_multipart_read_csv(all_parsers):
+def test_multi_thread_path_multipart_read_csv(tmp_path, all_parsers):
     # see gh-11786
     num_tasks = 4
     num_rows = 48
@@ -148,10 +149,11 @@ def test_multi_thread_path_multipart_read_csv(all_parsers):
         }
     )
 
-    with tm.ensure_clean(file_name) as path:
-        df.to_csv(path)
+    path = tmp_path / file_name
+    df.to_csv(path)
 
-        final_dataframe = _generate_multi_thread_dataframe(
-            parser, path, num_rows, num_tasks
-        )
-        tm.assert_frame_equal(df, final_dataframe)
+    result = _generate_multi_thread_dataframe(parser, path, num_rows, num_tasks)
+
+    expected = df[:]
+    expected["date"] = expected["date"].astype("M8[us]")
+    tm.assert_frame_equal(result, expected)

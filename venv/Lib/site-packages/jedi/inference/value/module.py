@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Optional, TYPE_CHECKING, Any
 
 from jedi.inference.cache import inference_state_method_cache
 from jedi.inference.names import AbstractNameDefinition, ModuleName
@@ -12,6 +12,9 @@ from jedi.inference.helpers import values_from_qualified_names
 from jedi.inference.compiled import create_simple_object
 from jedi.inference.base_value import ValueSet
 from jedi.inference.context import ModuleContext
+
+if TYPE_CHECKING:
+    from jedi.inference import InferenceState
 
 
 class _ModuleAttributeName(AbstractNameDefinition):
@@ -35,6 +38,11 @@ class _ModuleAttributeName(AbstractNameDefinition):
 
 
 class SubModuleDictMixin:
+    inference_state: "InferenceState"
+    is_package: Any
+    py__path__: Any
+    as_context: Any
+
     @inference_state_method_cache()
     def sub_modules_dict(self):
         """
@@ -57,6 +65,10 @@ class SubModuleDictMixin:
 
 class ModuleMixin(SubModuleDictMixin):
     _module_name_class = ModuleName
+    tree_node: Any
+    string_names: Any
+    sub_modules_dict: Any
+    py__file__: Any
 
     def get_filters(self, origin_scope=None):
         yield MergedFilter(
@@ -80,7 +92,7 @@ class ModuleMixin(SubModuleDictMixin):
     def is_stub(self):
         return False
 
-    @property  # type: ignore[misc]
+    @property
     @inference_state_method_cache()
     def name(self):
         return self._module_name_class(self, self.string_names[-1])
@@ -138,7 +150,7 @@ class ModuleValue(ModuleMixin, TreeValue):
     api_type = 'module'
 
     def __init__(self, inference_state, module_node, code_lines, file_io=None,
-                 string_names=None, is_package=False):
+                 string_names=None, is_package=False) -> None:
         super().__init__(
             inference_state,
             parent_context=None,
@@ -149,7 +161,7 @@ class ModuleValue(ModuleMixin, TreeValue):
             self._path: Optional[Path] = None
         else:
             self._path = file_io.path
-        self.string_names = string_names  # Optional[Tuple[str, ...]]
+        self.string_names: Optional[tuple[str, ...]] = string_names
         self.code_lines = code_lines
         self._is_package = is_package
 

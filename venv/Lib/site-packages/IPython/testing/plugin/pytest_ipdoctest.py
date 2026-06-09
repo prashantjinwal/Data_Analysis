@@ -4,6 +4,7 @@
 #
 # Copyright (c) 2004-2021 Holger Krekel and others
 """Discover and run ipdoctests in modules and test files."""
+
 import bdb
 import builtins
 import inspect
@@ -18,18 +19,15 @@ from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Dict,
-    Generator,
-    Iterable,
     List,
     Optional,
-    Pattern,
-    Sequence,
     Tuple,
     Type,
     Union,
 )
+from re import Pattern
+from collections.abc import Callable, Generator, Iterable, Sequence
 
 import pytest
 from _pytest import outcomes
@@ -302,7 +300,7 @@ class IPDoctestItem(pytest.Item):
         name: str,
         runner: "IPDocTestRunner",
         dtest: "doctest.DocTest",
-    ):
+    ) -> "IPDoctestItem":
         # incompatible signature due to imposed limits on subclass
         """The public named constructor."""
         return super().from_parent(name=name, parent=parent, runner=runner, dtest=dtest)
@@ -349,7 +347,7 @@ class IPDoctestItem(pytest.Item):
         assert self.runner is not None
         _check_all_skipped(self.dtest)
         self._disable_output_capturing_for_darwin()
-        failures: List["doctest.DocTestFailure"] = []
+        failures: List[doctest.DocTestFailure] = []
 
         # exec(compile(..., "single", ...), ...) puts result in builtins._
         had_underscore_value = hasattr(builtins, "_")
@@ -477,7 +475,7 @@ def _get_flag_lookup() -> Dict[str, int]:
     )
 
 
-def get_optionflags(parent):
+def get_optionflags(parent: "IPDoctestModule") -> int:
     optionflags_str = parent.config.getini("ipdoctest_optionflags")
     flag_lookup_table = _get_flag_lookup()
     flag_acc = 0
@@ -486,7 +484,7 @@ def get_optionflags(parent):
     return flag_acc
 
 
-def _get_continue_on_failure(config):
+def _get_continue_on_failure(config: Config) -> bool:
     continue_on_failure = config.getvalue("ipdoctest_continue_on_failure")
     if continue_on_failure:
         # We need to turn off this if we use pdb since we should stop at
