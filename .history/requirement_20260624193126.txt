@@ -6,4 +6,3 @@ matplotlib
 seaborn
 scikit-learn
 autoviz
-nltk
